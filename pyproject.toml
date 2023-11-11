@@ -1,0 +1,60 @@
+[tool.poetry]
+name = "bib-dedupe"
+version = "0.1.0"
+description = "Identify and merge duplicates in bibliographic records"
+authors = ["Gerit Wagner <gerit.wagner@uni-bamberg.de>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "bib_dedupe"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pylint = {version = "3.0.1", optional = true }
+pytest = {version = "^7.2.1", optional = true }
+coverage = {extras = ["toml"], version = "^7.3.2", optional = true }
+colrev = { git = "https://github.com/CoLRev-Environment/colrev.git", branch = "dedupe" }
+
+[tool.poetry.extras]
+dev = ["pylint", "pytest", "coverage", "pytest-skip-slow"]
+
+[tool.mypy]
+python_version = 3.8
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "requests.*",
+    "yaml.*",
+    "pkg_resources.*",
+]
+ignore_missing_imports = true
+
+[tool.pylint.'MESSAGES CONTROL']
+disable = ["R0801"]
+
+[tool.coverage.report]
+omit = [
+    "/usr/*", # omit everything in /usr
+    "/tmp/*",
+    "tests/*",
+]
+
+[tool.coverage.run]
+omit = [
+    "/usr/*", # omit everything in /usr
+    "*crossrefapi/crossref/*",
+    "/tmp/*",
+    "tests/*",
+]
+
+[tool.ruff]
+line-length = 160
+
+[tool.ruff.per-file-ignores]
+"**/{tests,docs}/*" = ["E501"]
+
+[build-system]
+# requires = ["poetry>=1.2.0b1"]
+requires = ["poetry-core>=1.0.0", "cython<3.0"]
+build-backend = "poetry.core.masonry.api"
