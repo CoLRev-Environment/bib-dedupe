@@ -12,7 +12,7 @@ python = "^3.8"
 pylint = {version = "3.0.1", optional = true }
 pytest = {version = "^7.2.1", optional = true }
 coverage = {extras = ["toml"], version = "^7.3.2", optional = true }
-colrev = { git = "https://github.com/CoLRev-Environment/colrev.git", branch = "dedupe" }
+colrev = "^0.10.4"
 
 [tool.poetry.extras]
 dev = ["pylint", "pytest", "coverage", "pytest-skip-slow"]
