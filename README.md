@@ -37,11 +37,11 @@ records_df = pd.read_csv("records.csv")
 deduper = bib_dedupe.BibDeduper()
 
 # Block records
-blocked_df = dedupe_instance.block_pairs_for_deduplication(
+blocked_df = deduper.block_pairs_for_deduplication(
     records_df=records_df
 )
 # Identify matches
-matches = dedupe_instance.identify_true_matches(blocked_df)
+matches = deduper.identify_true_matches(blocked_df)
 
 # Review and handle identified duplicates as needed
 ```
