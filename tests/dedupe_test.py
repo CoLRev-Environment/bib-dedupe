@@ -19,7 +19,7 @@ def dedupe_dataset(dir: Path) -> None:
 
     # Blocking
     actual_blocked_df = dedupe_instance.block_pairs_for_deduplication(
-        records_df=dedupe_benchmark.get_records_for_dedupe(dir)
+        records_df=dedupe_benchmark.get_records_for_dedupe()
     )
     matches = dedupe_instance.identify_true_matches(actual_blocked_df)
 
