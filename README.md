@@ -48,19 +48,27 @@ matches = deduper.identify_true_matches(blocked_df)
 
 For more detailed usage instructions and customization options, refer to the documentation.
 
+## Continuous evaluation
+
+Bib-dedupe is continuously evaluated against libraries for duplicate removal in bibliographic datasets.
+The notebooks are available for
+
+- [bib-dedupe](notebooks/bib-dedupe.ipynb)
+- [asreview](notebooks/asreview.ipynb)
+
+Detailed results are exported to a [csv file](output/evaluation.csv) and plotted based on this [notebook](notebooks/comparison.ipynb):
+
+![Evaluation](output/evaluation.png)
+
 ## Documentation
 
 Explore the official documentation for comprehensive information on installation, usage, and customization of Bib-Dedupe.
 
-## Continuous Benchmarking
-
-Bib-Dedupe ensures reliable performance through continuous benchmarking. View the latest benchmark results in the GitHub Actions tab.
-
 ## Citation
 
-If you use Bib-Dedupe in your research, please cite it using the following DOI:
+If you use Bib-Dedupe in your research, please cite it as follows:
 
-DOI
+TODO
 
 ## Contribution Guidelines
 
