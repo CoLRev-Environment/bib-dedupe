@@ -1,0 +1,5 @@
+pandas
+colrev @ git+https://github.com/CoLRev-Environment/colrev@c5b137a42e3eda90779625a0eb114a291289724e
+asreview
+jupyter
+matplotlib

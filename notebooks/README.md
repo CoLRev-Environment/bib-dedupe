@@ -1,5 +1,24 @@
 # Evaluation
 
+## Duplicate definition
+
+Rathbone et al. (2015): "A duplicate record was defined as being the same bibliographic record (irrespective of how the citation details were reported, e.g. variations in page numbers, author details, accents used or abridged titles). Where further reports from a single study were published, these were not classed as duplicates as they are multiple reports which can appear across or within journals. Similarly, where the same study was reported in both journal and conference proceedings, these were treated as separate bibliographic records."
+
+Borissov et al. (2022): "Following a standardized definition [6, 7, 9], we defined one or more duplicates as an existing unique record having the same title, authors, journal, DOI, year, issue, volume, and page number range metadata."
+
+Note: The datasets may have applied a different understanding of duplicates.
+
+## Evaluation datasets
+
+| Dataset                  | Status                |
+| -------------------------| --------------------- |
+| Wagner et al. 2021       | Included              |
+| Kwon et al. 2015         | Requested: 2023-11-14 |
+| Rathbone et al. 2015     | Requested: 2023-11-14 |
+| Borissov et al. 2022     | Requested: 2023-11-14 |
+
+The [SYNERGY](https://github.com/asreview/synergy-dataset) datasets are not useful to evaluate duplicate identification algorithms because they only contain IDs, and the associated metadata would have no variance.
+
 ## Dataset model and confusion matrix
 
 Record list before de-duplication
@@ -21,7 +40,6 @@ Duplicate matrix:
 | 3   |     |  X  |  -  |  -  |  -  |
 | 4   |     |  X  |  X  |  -  |  -  |
 | 5   |     |     |     |     |  -  |
-
 
 Components:
 
@@ -59,27 +77,18 @@ Given the set of duplicate IDs `did = [Ang2011, Ang2011a, Ang2012, AngHu2011]` a
 - If none of the duplicate IDs is retained, there is one false positive (FP), i.e., a record that was erroneously removed as a duplicate. The remaining (`len(did)-1`) records are counted as true positives (TP).
 - The first duplicate ID that is retained is counted as the true negative (TN), i.e., the record correctly marked as a non-duplicate. Additional records in `ml` are marked as false negatives (FN) because they should have been removed. Remaining records from `did` that are not in `ml` are marked as true positives (TP) because they were correctly removed from `ml`.
 
+<!-- 
 Rathbone et al. (2015): "The **accuracy of the results were coded against the benchmark** according to whether it was a true positive (true duplicate, i.e. correctly identified duplicate), false positive (false duplicate, i.e. incorrectly identified as duplicate), true negative (unique record) or false negative (true duplicate, i.e. incorrectly identified as unique record).
 
 Kwon et al. (2015): "All sets of results from the de-duplication strategies outlined above were compared against the gold standard sets to identify false negatives (duplicate citations that should have been deleted but were not) and false positives (duplicate citations that were deleted but should not have been). We also recorded the time it took to de-duplicate results in each option (Table 1, online only)"
-
-## Duplicate definition
-
-Rathbone et al. (2015): "A duplicate record was defined as being the same bibliographic record (irrespective of how the citation details were reported, e.g. variations in page numbers, author details, accents used or abridged titles). Where further reports from a single study were published, these were not classed as duplicates as they are multiple reports which can appear across or within journals. Similarly, where the same study was reported in both journal and conference proceedings, these were treated as separate bibliographic records."
-
-Borissov et al. (2022): "Following a standardized definition [6, 7, 9], we defined one or more duplicates as an existing unique record having the same title, authors, journal, DOI, year, issue, volume, and page number range metadata."
-
-## Evaluation datasets
-
-| Dataset                  | Status                |
-| -------------------------| --------------------- |
-| Kwon et al. 2015         | Requested: 2023-11-14 |
-| Rathbone et al. 2015     | Requested: 2023-11-14 |
-| Borissov et al. 2022     | Requested: 2023-11-14 |
-
+-->
 
 ## References
 
 Borissov, N., Haas, Q., Minder, B., Kopp-Heim, D., von Gernler, M., Janka, H., ... & Amini, P. (2022). Reducing systematic review burden using Deduklick: a novel, automated, reliable, and explainable deduplication algorithm to foster medical research. Systematic Reviews, 11(1), 172. doi:10.1186/s13643-022-02045-9
+
 Kwon, Y., Lemieux, M., McTavish, J., & Wathen, N. (2015). Identifying and removing duplicate records from systematic review searches. Journal of the Medical Library Association, 103(4), 184. doi:10.3163/1536-5050.103.4.004
+
 Rathbone, J., Carter, M., Hoffmann, T., & Glasziou, P. (2015). Better duplicate detection for systematic reviewers: evaluation of Systematic Review Assistant-Deduplication Module. Systematic Reviews, 4, 1-6. doi:10.1186/2046-4053-4-6
+
+Wagner, G., Prester, J., & Paré, G. (2021). Exploring the boundaries and processes of digital platforms for knowledge work: A review of information systems research. The Journal of Strategic Information Systems, 30(4), 101694.

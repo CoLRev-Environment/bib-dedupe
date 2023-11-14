@@ -56,7 +56,7 @@ The notebooks are available for
 - [bib-dedupe](notebooks/bib-dedupe.ipynb)
 - [asreview](notebooks/asreview.ipynb)
 
-Detailed results are exported to a [csv file](output/evaluation.csv) and plotted based on this [notebook](notebooks/comparison.ipynb):
+A summary of the evaluation is available in the [README.md](notebooks/README.md), detailed results are exported to a [csv file](output/evaluation.csv) and plotted based on this [notebook](notebooks/comparison.ipynb):
 
 ![Evaluation](output/evaluation.png)
 
