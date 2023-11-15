@@ -34,4 +34,3 @@ jobs:
           git add output/*
           git commit -m "Update evaluation ($(date +'%Y-%m-%d-%H-%M'))"
           git push origin main
-

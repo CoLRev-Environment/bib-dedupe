@@ -31,8 +31,11 @@ def create_pairs_for_block_fields(
     Returns:
     pd.DataFrame: The dataframe containing the blocked pairs.
     """
+    # Pre-select rows where the block_fields columns are not ""
+    non_empty_rows = records_df[block_fields].apply(lambda x: x != "").all(axis=1)
     grouped = (
-        records_df.groupby(list(block_fields), group_keys=True)["ID"]
+        records_df[non_empty_rows]
+        .groupby(list(block_fields), group_keys=True)["ID"]
         .apply(lambda x: pd.DataFrame(list(combinations(x, 2)), columns=["ID1", "ID2"]))
         .reset_index(drop=True)
     )
@@ -123,9 +126,9 @@ class BibDeduper:
             [Fields.DOI],
             [Fields.URL],
             [Fields.ISBN],
-            [Fields.AUTHOR, Fields.YEAR],
+            ["first_author", Fields.YEAR],
             [Fields.TITLE, Fields.PAGES],
-            [Fields.TITLE, Fields.AUTHOR],
+            [Fields.TITLE, "first_author"],
             [Fields.TITLE, Fields.ABSTRACT],
             [Fields.TITLE, Fields.VOLUME],
             [Fields.TITLE, Fields.CONTAINER_TITLE],
@@ -194,8 +197,7 @@ class BibDeduper:
                     str(row[f"{sim_field}_1"]), str(row[f"{sim_field}_2"])
                 )
                 / 100
-                if row[f"{sim_field}_1"] is not None
-                and row[f"{sim_field}_2"] is not None
+                if row[f"{sim_field}_1"] != "" and row[f"{sim_field}_2"] != ""
                 else 0,
                 axis=1,
             )
