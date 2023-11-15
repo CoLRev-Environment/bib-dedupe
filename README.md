@@ -58,7 +58,15 @@ The notebooks are available for
 
 A summary of the evaluation is available in the [README.md](notebooks/README.md), detailed results are exported to a [csv file](output/evaluation.csv) and plotted based on this [notebook](notebooks/comparison.ipynb):
 
-![Evaluation](output/evaluation.png)
+![Evaluation](output/evaluation_wagner2021.png)
+
+![Evaluation](output/evaluation_haematology.png)
+
+![Evaluation](output/evaluation_respiratory.png)
+
+![Evaluation](output/evaluation_stroke.png)
+
+![Evaluation](output/evaluation_cytology_screening.png)
 
 ## Documentation
 

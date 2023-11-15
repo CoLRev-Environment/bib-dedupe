@@ -10,12 +10,12 @@ Note: The datasets may have applied a different understanding of duplicates.
 
 ## Evaluation datasets
 
-| Dataset                  | Status                |
-| -------------------------| --------------------- |
-| Wagner et al. 2021       | Included              |
-| Kwon et al. 2015         | Requested: 2023-11-14 |
-| Rathbone et al. 2015     | Requested: 2023-11-14 |
-| Borissov et al. 2022     | Requested: 2023-11-14 |
+| Dataset                  | Status                                           |
+| -------------------------| ------------------------------------------------ |
+| Wagner et al. 2021       | Included                                         |
+| Rathbone et al. 2015     | Included (based on [OSF](https://osf.io/dyvnj/)) |
+| Kwon et al. 2015         | Requested: 2023-11-14                            |
+| Borissov et al. 2022     | Requested: 2023-11-14                            |
 
 The [SYNERGY](https://github.com/asreview/synergy-dataset) datasets are not useful to evaluate duplicate identification algorithms because they only contain IDs, and the associated metadata would have no variance.
 
