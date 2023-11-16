@@ -132,10 +132,21 @@ class BibDeduper:
             [Fields.TITLE, Fields.ABSTRACT],
             [Fields.TITLE, Fields.VOLUME],
             [Fields.TITLE, Fields.CONTAINER_TITLE],
+            ["first_author", Fields.CONTAINER_TITLE],
             [Fields.TITLE, Fields.YEAR],
             [Fields.YEAR, Fields.VOLUME, Fields.NUMBER],
             [Fields.YEAR, Fields.VOLUME, Fields.PAGES],
             [Fields.YEAR, Fields.NUMBER, Fields.PAGES],
+            [
+                Fields.CONTAINER_TITLE,
+                Fields.VOLUME,
+                Fields.NUMBER,
+            ],
+            [
+                Fields.CONTAINER_TITLE,
+                Fields.VOLUME,
+                Fields.YEAR,
+            ],
             [
                 Fields.CONTAINER_TITLE,
                 Fields.VOLUME,
@@ -283,6 +294,31 @@ class BibDeduper:
         if self.debug:
             if pairs.shape[0] != 0:
                 self.p_printer.pprint(pairs.iloc[0].to_dict())
+                for item in [
+                    Fields.AUTHOR,
+                    Fields.TITLE,
+                    Fields.CONTAINER_TITLE,
+                    Fields.VOLUME,
+                    Fields.NUMBER,
+                    Fields.PAGES,
+                    Fields.ABSTRACT,
+                    Fields.YEAR,
+                    Fields.DOI,
+                ]:
+                    similarity = pairs.loc[0, item]
+                    if similarity > 0.9:
+                        print(
+                            f"{Colors.GREEN}Similarity {item:<20}: {similarity:.2f}{Colors.END}"
+                        )
+                    elif similarity > 0.6:
+                        print(
+                            f"{Colors.ORANGE}Similarity {item:<20}: {similarity:.2f}{Colors.END}"
+                        )
+                    else:
+                        print(
+                            f"{Colors.RED}Similarity {item:<20}: {similarity:.2f}{Colors.END}"
+                        )
+
                 print("True merge conditions:")
                 for query in queries:
                     if pairs.query(query).shape[0] > 0:
@@ -372,3 +408,44 @@ class BibDeduper:
             "true_pairs": true_pairs,
             "maybe_pairs": maybe_pairs,
         }
+
+
+def debug() -> None:
+    df_blocks = pd.read_csv("blocks_FN_list.csv")
+    df_matches = pd.read_csv("matches_FN_list.csv")
+    df_matches_fp = pd.read_csv("matches_FP_list.csv")
+
+    from colrev.ops.dedupe_benchmark import DedupeBenchmarker
+    from bib_dedupe.bib_dedupe import BibDeduper
+    from pathlib import Path
+
+    dedupe_benchmark = DedupeBenchmarker(
+        benchmark_path=Path.cwd(),
+    )
+    records_df = dedupe_benchmark.get_records_for_dedupe()
+
+    while True:
+        origin_pair = input("origin_pair:")
+
+        if "case" in df_blocks.columns and origin_pair in df_blocks["case"].values:
+            print(f"Origin pair {origin_pair} found in blocks_FN_list.csv")
+        if "case" in df_matches.columns and origin_pair in df_matches["case"].values:
+            print(f"Origin pair {origin_pair} found in matches_FN_list.csv")
+        if (
+            "case" in df_matches_fp.columns
+            and origin_pair in df_matches_fp["case"].values
+        ):
+            print(f"Origin pair {origin_pair} found in matches_FP_list.csv")
+
+        origin1, origin2 = origin_pair.split(";")
+        selected_prepared_records_df = records_df[
+            records_df["colrev_origin"].apply(lambda x: origin1 in x or origin2 in x)
+        ]
+
+        dedupe_instance = BibDeduper()
+        dedupe_instance.debug = True  # to print details
+        actual_blocked_df = dedupe_instance.block_pairs_for_deduplication(
+            records_df=selected_prepared_records_df
+        )
+        matches = dedupe_instance.identify_true_matches(actual_blocked_df)
+        print(matches)

@@ -51,14 +51,11 @@ For more detailed usage instructions and customization options, refer to the doc
 ## Continuous evaluation
 
 Bib-dedupe is continuously evaluated against libraries for duplicate removal in bibliographic datasets.
-The notebooks are available for
+The notebooks are available for the [evaluation](notebooks/evaluation.ipynb).
+The datasets are available in the [tests/data](tests/data) section.
+A summary of the evaluation is available in the [README.md](notebooks/README.md), detailed results are exported to a [csv file](output/evaluation.csv) and plotted based on this [notebook](notebooks/evaluation.ipynb):
 
-- [bib-dedupe](notebooks/bib-dedupe.ipynb)
-- [asreview](notebooks/asreview.ipynb)
-
-A summary of the evaluation is available in the [README.md](notebooks/README.md), detailed results are exported to a [csv file](output/evaluation.csv) and plotted based on this [notebook](notebooks/comparison.ipynb):
-
-![Evaluation](output/evaluation_wagner2021.png)
+![Evaluation](output/evaluation_digital_work.png)
 
 ![Evaluation](output/evaluation_haematology.png)
 
