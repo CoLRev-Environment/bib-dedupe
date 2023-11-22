@@ -1,20 +1,18 @@
 import click
 
-import bib_dedupe.bib_dedupe
+import bib_dedupe.debug
 
 
 @click.group()
-def main():
+def main() -> None:
     """A simple CLI for bib_dedupe."""
     pass
 
 
 @main.command()
 @click.pass_context
-def debug(
-    ctx,
-) -> None:
-    bib_dedupe.bib_dedupe.debug()
+def debug(ctx: click.Context) -> None:
+    bib_dedupe.debug.debug()
 
 
 if __name__ == "__main__":

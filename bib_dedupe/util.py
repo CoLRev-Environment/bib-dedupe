@@ -4,8 +4,11 @@ from __future__ import annotations
 
 import datetime
 import pprint
+from collections import defaultdict
+from itertools import combinations
 from pathlib import Path
 from typing import Dict
+from typing import List
 
 import pandas as pd
 from colrev.constants import Fields
@@ -20,6 +23,13 @@ class BibDedupeUtil:
     def __init__(self, *, debug: bool = False):
         self.debug = debug
         self.p_printer = pprint.PrettyPrinter(indent=4, width=140, compact=False)
+
+    def get_dataset_labels(self) -> list:
+        """
+        Get the directory names in data
+        """
+        data_path = Path(__file__).parent.parent / "data"
+        return [dir.name for dir in data_path.iterdir() if dir.is_dir()]
 
     def export_for_pytest(
         self,
@@ -107,6 +117,7 @@ class BibDedupeUtil:
                 columns=[
                     "package",
                     "time",
+                    "runtime",  # Add runtime to the DataFrame columns
                     "dataset",
                     "TP",
                     "FP",
@@ -137,7 +148,89 @@ class BibDedupeUtil:
                 "sensitivity",
                 "precision",
                 "f1",
+                "runtime",
             ]
         ]
         results_df = pd.concat([results_df, result_item_df])
         results_df.to_csv(output_path, index=False)
+
+        output_md_path = Path("../output/current_results.md")
+        if not output_md_path.is_file():
+            output_md_path.touch()
+        with open(output_md_path, "w") as f:
+            f.write("# Current statistics\n\n")
+            for dataset in results_df["dataset"].unique():
+                if dataset == "problem_cases":
+                    continue
+                dataset_df = results_df[results_df["dataset"] == dataset]
+                n_total = (
+                    dataset_df.iloc[0]["FP"]
+                    + dataset_df.iloc[0]["TP"]
+                    + dataset_df.iloc[0]["FN"]
+                    + dataset_df.iloc[0]["TN"]
+                )
+                f.write(f"## {dataset} (n={n_total})\n\n")
+                dataset_df = dataset_df.sort_values(by="time", ascending=False)
+                dataset_df = dataset_df.drop_duplicates(subset="package", keep="first")
+                dataset_df = dataset_df.drop(columns=["dataset"])
+                dataset_df = dataset_df[
+                    [
+                        "package",
+                        "FP",
+                        "TP",
+                        "FN",
+                        "TN",
+                        "false_positive_rate",
+                        "specificity",
+                        "sensitivity",
+                        "precision",
+                        "f1",
+                    ]
+                ]
+                dataset_df["false_positive_rate"] = dataset_df[
+                    "false_positive_rate"
+                ].round(4)
+                dataset_df["specificity"] = dataset_df["specificity"].round(4)
+                dataset_df["sensitivity"] = dataset_df["sensitivity"].round(4)
+                dataset_df["precision"] = dataset_df["precision"].round(4)
+                dataset_df["f1"] = dataset_df["f1"].round(4)
+                dataset_df = dataset_df.sort_values(by=["f1"], ascending=[False])
+                f.write(dataset_df.to_markdown(index=False))
+                f.write("\n\n")
+
+
+def connected_components(origin_sets: list) -> list:
+    """
+    Find the connected components in a graph.
+
+    Args:
+        origin_sets (list): A list of origin sets.
+
+    Returns:
+        list: A list of connected components.
+    """
+    graph = defaultdict(list)
+
+    def dfs(node: str, graph: dict, visited: dict, component: list) -> None:
+        visited[node] = True
+        component.append(node)
+        for neighbor in graph[node]:
+            if not visited[neighbor]:
+                dfs(neighbor, graph, visited, component)
+
+    # Create an adjacency list
+    for origin_set in origin_sets:
+        for combination in combinations(origin_set, 2):
+            graph[combination[0]].append(combination[1])
+            graph[combination[1]].append(combination[0])
+
+    visited = {node: False for node in graph}
+    components = []
+
+    for node in graph:
+        if not visited[node]:
+            component: List[str] = []
+            dfs(node, graph, visited, component)
+            components.append(sorted(component))
+
+    return components

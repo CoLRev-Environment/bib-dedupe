@@ -17,6 +17,11 @@ Note: The datasets may have applied a different understanding of duplicates.
 | haematology        | Rathbone et al. 2015     | Included (based on [OSF](https://osf.io/dyvnj/)) |
 | respiratory        | Rathbone et al. 2015     | Included (based on [OSF](https://osf.io/dyvnj/)) |
 | stroke             | Rathbone et al. 2015     | Included (based on [OSF](https://osf.io/dyvnj/)) |
+| cardiac            | Hair et al. 2021         | Included (based on [OSF](https://osf.io/c9evs/)) |
+| depression         | Hair et al. 2021         | Included (based on [OSF](https://osf.io/c9evs/)) |
+| diabetes           | Hair et al. 2021         | Included (based on [OSF](https://osf.io/c9evs/)) |
+| neuroimaging       | Hair et al. 2021         | Included (based on [OSF](https://osf.io/c9evs/)) |
+| srsr               | Hair et al. 2021         | Included (based on [OSF](https://osf.io/c9evs/)) |
 |                    | Kwon et al. 2015         | Requested: 2023-11-14                            |
 |                    | Borissov et al. 2022     | Requested: 2023-11-14                            |
 
@@ -89,6 +94,8 @@ Kwon et al. (2015): "All sets of results from the de-duplication strategies outl
 ## References
 
 Borissov, N., Haas, Q., Minder, B., Kopp-Heim, D., von Gernler, M., Janka, H., ... & Amini, P. (2022). Reducing systematic review burden using Deduklick: a novel, automated, reliable, and explainable deduplication algorithm to foster medical research. Systematic Reviews, 11(1), 172. doi:10.1186/s13643-022-02045-9
+
+Hair, K., Bahor, Z., Macleod, M., Liao, J., & Sena, E. S. (2023). The Automated Systematic Search Deduplicator (ASySD): a rapid, open-source, interoperable tool to remove duplicate citations in biomedical systematic reviews. BMC Biology, 21(1), 189.
 
 Kwon, Y., Lemieux, M., McTavish, J., & Wathen, N. (2015). Identifying and removing duplicate records from systematic review searches. Journal of the Medical Library Association, 103(4), 184. doi:10.3163/1536-5050.103.4.004
 
