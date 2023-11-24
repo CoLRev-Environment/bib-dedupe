@@ -1,6 +1,6 @@
 import pandas as pd
 
-data_path = "/home/gerit/ownCloud/projects/CoLRev/bib-dedupe/data/depression"
+data_path = "/home/gerit/ownCloud/projects/CoLRev/bib-dedupe/data/neuroimaging"
 target_path = "/home/gerit/ownCloud/projects/CoLRev/bib-dedupe/data/problem_cases"
 
 fn = pd.read_csv(f"{data_path}/matches_FN_list.csv")

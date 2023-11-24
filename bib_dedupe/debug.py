@@ -6,7 +6,7 @@ import pandas as pd
 def debug() -> None:
     try:
         df_blocks = pd.read_csv("blocks_FN_list.csv")
-    except pd.errors.EmptyDataError:
+    except (pd.errors.EmptyDataError, FileNotFoundError):
         df_blocks = pd.DataFrame()
 
     try:
@@ -54,6 +54,10 @@ def debug() -> None:
                     lambda x: origin1 in x or origin2 in x
                 )
             ]
+
+            if selected_prepared_records_df.empty:
+                print("selected_prepared_records_df is empty. Continuing...")
+                continue
 
             actual_blocked_df = dedupe_instance.block_pairs_for_deduplication(
                 records_df=selected_prepared_records_df

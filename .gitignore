@@ -1,3 +1,4 @@
 bib_dedupe/__pycache__/
 tests/__pycache__/
 notebooks/.ipynb_checkpoints/
+data/**/matches_FN_list_remaining.csv

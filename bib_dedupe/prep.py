@@ -3,6 +3,8 @@
 import re
 import typing
 import urllib.parse
+from datetime import datetime
+from multiprocessing import Pool
 
 import colrev.record
 import numpy as np
@@ -28,8 +30,14 @@ NAME_PREFIXES_LOWER = [
 ]
 
 
+def apply_processing(column: np.array, function: typing.Callable) -> np.array:
+    return function(column)
+
+
 def get_records_for_dedupe(records_df: pd.DataFrame) -> pd.DataFrame:
     """Prepare records for dedupe"""
+
+    print("Start prep at", datetime.now())
 
     if 0 == records_df.shape[0]:
         return {}
@@ -143,28 +151,34 @@ def get_records_for_dedupe(records_df: pd.DataFrame) -> pd.DataFrame:
         inplace=True,
     )
 
-    records_df[Fields.AUTHOR] = prep_authors(records_df[Fields.AUTHOR].values)
-
+    set_container_title(records_df)
     records_df["author_full"] = records_df[Fields.AUTHOR]
 
+    function_mapping = {
+        Fields.AUTHOR: prep_authors,
+        Fields.TITLE: prep_title,
+        Fields.CONTAINER_TITLE: prep_container_title,
+        Fields.YEAR: prep_year,
+        Fields.VOLUME: prep_volume,
+        Fields.NUMBER: prep_number,
+        Fields.PAGES: prep_pages,
+        Fields.ABSTRACT: prep_abstract,
+        Fields.DOI: prep_doi,
+        Fields.ISBN: prep_isbn,
+    }
+
+    with Pool(processes=6) as pool:
+        columns_and_functions = zip(
+            [records_df[Fields].values for Fields in function_mapping.keys()],
+            function_mapping.values(),
+        )
+        results = pool.starmap(apply_processing, columns_and_functions)
+
+    for i, key in enumerate(function_mapping.keys()):
+        records_df[key] = results[i]
+
+    # TODO : integrate into prep_author if the author_full (minimally processed) is effective
     records_df[Fields.AUTHOR] = select_authors(records_df[Fields.AUTHOR].values)
-
-    set_container_title(records_df)
-
-    records_df[Fields.CONTAINER_TITLE] = prep_container_title(
-        records_df[Fields.CONTAINER_TITLE].values
-    )
-    records_df[Fields.CONTAINER_TITLE] = get_abbrev_container_title(
-        records_df[Fields.CONTAINER_TITLE].values
-    )
-    records_df[Fields.TITLE] = prep_title(records_df[Fields.TITLE].values)
-    records_df[Fields.YEAR] = prep_year(records_df[Fields.YEAR].values)
-    records_df[Fields.VOLUME] = prep_volume(records_df[Fields.VOLUME].values)
-    records_df[Fields.NUMBER] = prep_number(records_df[Fields.NUMBER].values)
-    records_df[Fields.PAGES] = prep_pages(records_df[Fields.PAGES].values)
-    records_df[Fields.ABSTRACT] = prep_abstract(records_df[Fields.ABSTRACT].values)
-    records_df[Fields.DOI] = prep_doi(records_df[Fields.DOI].values)
-    records_df[Fields.ISBN] = prep_isbn(records_df[Fields.ISBN].values)
 
     records_df = records_df.replace("nan", "")
 
@@ -175,6 +189,9 @@ def get_records_for_dedupe(records_df: pd.DataFrame) -> pd.DataFrame:
 
     # For blocking:
     records_df["first_author"] = records_df[Fields.AUTHOR].str.split().str[0]
+    records_df["short_title"] = records_df[Fields.TITLE].apply(
+        lambda x: " ".join(x.split()[:10])
+    )
     records_df["short_container_title"] = get_short_container_title(
         records_df[Fields.CONTAINER_TITLE].values
     )
@@ -183,8 +200,6 @@ def get_records_for_dedupe(records_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def join_origin(origins_array: np.array) -> np.array:
-    # def join_o(origins: List[str]) -> str:
-    #     return ";".join(origins)
     return np.array([";".join(origins) for origins in origins_array])
 
 
@@ -282,7 +297,10 @@ def prep_authors(authors_array: np.array, *, debug: bool = False) -> np.array:
 
         # Many databases do not handle accents properly...
         authors = colrev.env.utils.remove_accents(input_str=authors)
-        authors = authors.replace("nan", "").replace("Anonymous", "")
+
+        authors = re.sub(r"\d", "", authors)
+        if authors.lower() in ["nan", "anonymous"]:
+            return ""
 
         if ";" in authors:
             authors = authors.replace(";", " and ")
@@ -429,8 +447,8 @@ def select_authors(authors_array: np.array) -> np.array:
 def remove_erratum_suffix(title: str) -> str:
     erratum_phrases = ["erratum appears in ", "erratum in "]
     for phrase in erratum_phrases:
-        if phrase in title:
-            title = title.split(phrase)[0]
+        if phrase in title.lower():
+            title = title[: title.lower().rfind(phrase)]
 
     title = re.sub(r" review \d+ refs$", "", title)
 
@@ -438,11 +456,50 @@ def remove_erratum_suffix(title: str) -> str:
 
 
 def prep_title(title_array: np.array) -> np.array:
+    # Replace roman numbers
+    title_array = np.array(
+        [
+            re.sub(
+                r" iv[ |.]",
+                " 4 ",
+                re.sub(
+                    r" iii[ |.]",
+                    " 3 ",
+                    re.sub(
+                        r" ii[ |.]",
+                        " 2 ",
+                        re.sub(r" i[ |.]", " 1 ", title, flags=re.IGNORECASE),
+                        flags=re.IGNORECASE,
+                    ),
+                    flags=re.IGNORECASE,
+                ),
+                flags=re.IGNORECASE,
+            )
+            for title in title_array
+        ]
+    )
+
     # Remove html tags
     title_array = np.array([re.sub(r"<.*?>", " ", title) for title in title_array])
+
     # Remove language tags added by some databases (at the end)
     title_array = np.array(
         [re.sub(r"\. \[[A-Z][a-z]*\]$", "", title) for title in title_array]
+    )
+    # Remove ". Russian", ". Chinese" at the end
+    title_array = np.array(
+        [
+            re.sub(r"\. Russian$|\. Chinese$|\. Japanese$", "", title)
+            for title in title_array
+        ]
+    )
+
+    # Remove trailing "1" if it is not preceded by "part"
+    title_array = np.array(
+        [
+            re.sub(r"1$", "", title) if "part" not in title[-10:].lower() else title
+            for title in title_array
+        ]
     )
 
     # Remove erratum suffix
@@ -462,19 +519,15 @@ def prep_title(title_array: np.array) -> np.array:
         ]
     )
 
-    # Replace roman numbers and special characters
+    # Replace special characters
     title_array = np.array(
-        [
-            re.sub(r"\s+", " ", re.sub(r"[^A-Za-z0-9, \[\]]+", " ", title.lower()))
-            .replace(" iv ", " 4 ")
-            .replace(" iii ", " 3 ")
-            .replace(" ii ", " 2 ")
-            .replace(" i ", " 1 ")
-            .rstrip()
-            .lstrip()
-            for title in title_array
-        ]
+        [re.sub(r"[^A-Za-z0-9, \[\]]+", " ", title.lower()) for title in title_array]
     )
+    # Replace multiple spaces with a single space
+    title_array = np.array(
+        [re.sub(r"\s+", " ", title).rstrip().lstrip() for title in title_array]
+    )
+
     # Replace spaces between digits
     title_array = np.array(
         [
@@ -486,25 +539,6 @@ def prep_title(title_array: np.array) -> np.array:
 
 
 def prep_container_title(ct_array: np.array) -> np.array:
-    ct_array = np.array(
-        [
-            parse(value).split(".")[0].replace("proceedings of the", "")
-            if "date of publication" in value.lower()
-            or "conference start" in value.lower()
-            else parse(value).replace("proceedings of the", "")
-            for value in ct_array
-        ]
-    )
-    ct_array = np.array([value.replace(".", " ") for value in ct_array])
-    ct_array = np.array([re.sub(r"[^A-Za-z -]+", " ", value) for value in ct_array])
-    ct_array = np.array([re.sub(r"^the\s", "", value) for value in ct_array])
-    ct_array = np.array(
-        [re.sub(r"^\s*(st|nd|rd|th) ", "", value) for value in ct_array]
-    )
-    return ct_array
-
-
-def get_abbrev_container_title(ct_array: np.array) -> np.array:
     def get_abbrev(ct: str) -> str:
         # Use abbreviated versions
         # journal of infection and chemotherapy
@@ -515,10 +549,46 @@ def get_abbrev_container_title(ct_array: np.array) -> np.array:
         if match:
             ct = ct[: match.start()]
 
-        ct = ct.lower().replace("journal", "j").replace("-", " ")
-        stopwords = ["of", "the", "and", "de", "d", "et", "in", "y", "i", "&", "on"]
+        ct = ct.lower().replace("-", " ")
+        ct = ct.replace("journal", "j").replace("advanced", "adv")
+        stopwords = [
+            "of",
+            "the",
+            "and",
+            "de",
+            "d",
+            "et",
+            "in",
+            "y",
+            "i",
+            "&",
+            "on",
+            "part",
+            "annual",
+        ]
         ct = " ".join(word[:4] for word in ct.split() if word not in stopwords)
         return ct
+
+    ct_array = np.array(
+        [
+            parse(value).split(".")[0].replace("proceedings of the", "")
+            if "date of publication" in value.lower()
+            or "conference start" in value.lower()
+            else parse(value).replace("proceedings of the", "")
+            for value in ct_array
+        ]
+    )
+    # Replace words in parentheses at the end
+    ct_array = np.array([re.sub(r"\s*\([^)]*\)\s*$", "", value) for value in ct_array])
+    ct_array = np.array([value.replace(".", " ") for value in ct_array])
+    ct_array = np.array([re.sub(r"[^A-Za-z -]+", " ", value) for value in ct_array])
+    ct_array = np.array([re.sub(r"^the\s", "", value) for value in ct_array])
+    ct_array = np.array(
+        [
+            re.sub(r"^\s*(st|nd|rd|th) ", "", value, flags=re.IGNORECASE)
+            for value in ct_array
+        ]
+    )
 
     return np.array([get_abbrev(ct) for ct in ct_array])
 
@@ -538,6 +608,9 @@ def prep_volume(volume_array: np.array) -> np.array:
         [
             re.search(r"(\d+) \(.*\)", volume).group(1)  # type: ignore
             if re.search(r"(\d+) \(.*\)", volume) is not None
+            # pages included: "6 51-6"
+            else re.search(r"(\d+) .*", volume).group(1)  # type: ignore
+            if re.search(r"(\d+) \d+-\d+", volume) is not None
             else volume
             for volume in volume_array
         ]
@@ -558,12 +631,26 @@ def prep_volume(volume_array: np.array) -> np.array:
             for volume in volume_array
         ]
     )
-    return np.array(["" if volume == "nan" else volume for volume in volume_array])
+    return np.array(
+        [
+            "" if volume == "nan" or len(volume) > 100 else volume
+            for volume in volume_array
+        ]
+    )
 
 
 def prep_number(number_array: np.array) -> np.array:
     number_array = np.array(
         [re.sub(r"[A-Za-z.]*", "", number) for number in number_array]
+    )
+    number_array = np.array(
+        [
+            # pages included: "6 51-6"
+            re.search(r"(\d+) .*", number).group(1)  # type: ignore
+            if re.search(r"(\d+) \d+-\d+", number) is not None
+            else number
+            for number in number_array
+        ]
     )
 
     return np.array(
@@ -576,8 +663,26 @@ def prep_pages(pages_array: np.array) -> np.array:
         if value.isalpha():
             return ""
 
-        value = re.sub(r"S(\d+)", r"\1", value)
-        if re.match(r"^(pp\.?|)\d+\s*-?-\s*\d+$", value):
+        def roman_to_int(s: str) -> int:
+            rom_val = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "D": 500, "M": 1000}
+            int_val = 0
+            for i in range(len(s)):
+                if i > 0 and rom_val[s[i]] > rom_val[s[i - 1]]:
+                    int_val += rom_val[s[i]] - 2 * rom_val[s[i - 1]]
+                else:
+                    int_val += rom_val[s[i]]
+            return int_val
+
+        # Check if the value is a roman numeral range
+        roman_numeral_range = re.match(r"([IVXLCDM]+)-([IVXLCDM]+)", value, re.I)
+        if roman_numeral_range:
+            # Convert the roman numerals to integers
+            from_page = roman_to_int(roman_numeral_range.group(1).upper())
+            to_page = roman_to_int(roman_numeral_range.group(2).upper())
+            return f"{from_page}-{to_page}"
+
+        value = re.sub(r"[A-Za-z. ]*", "", value)
+        if re.match(r"^\d+\s*-?-\s*\d+$", value):
             from_page, to_page = re.findall(r"(\d+)", value)
             if len(from_page) > len(to_page):
                 return f"{from_page}-{from_page[:-len(to_page)]}{to_page}"
@@ -602,16 +707,27 @@ def prep_abstract(abstract_array: np.array) -> np.array:
     abstract_array = np.array(
         [re.sub(r"<.*?>", " ", abstract.lower()) for abstract in abstract_array]
     )
+
     abstract_array = np.array(
         [
-            abstract[: abstract.rfind("copyright") - 3]
-            if "copyright" in abstract[-200:]
-            else abstract[: abstract.rfind("©") - 3]
+            abstract[: abstract.rfind(". copyright")]
+            if ". copyright" in abstract[-300:]
+            else abstract[: abstract.rfind("©")]
             if "©" in abstract[-200:]
+            else re.sub(r"(\s*\d{4}\s*)?the authors[.?]$", "", abstract)
+            if "the authors" in abstract[-100:]
+            else abstract[: abstract.rfind("springer-verlag")]
+            if "springer-verlag" in abstract[-100:]
             else abstract
             for abstract in abstract_array
         ]
     )
+
+    # Remove trailing date
+    abstract_array = np.array(
+        [re.sub(r"\s*\(\d{4}\)$", "", abstract) for abstract in abstract_array]
+    )
+
     abstract_array = np.array(
         [re.sub(r"[^A-Za-z0-9 .,]", "", abstract) for abstract in abstract_array]
     )
@@ -631,6 +747,16 @@ def prep_doi(doi_array: np.array) -> np.array:
         [re.sub(r"http://dx.doi.org/", "", doi.lower()) for doi in doi_array]
     )
     doi_array = np.array([re.sub(r"\[doi\]", "", doi) for doi in doi_array])
+    doi_array = np.array([re.sub(r"[\r\n]+", " ; ", doi) for doi in doi_array])
+
+    doi_array = np.array(
+        [
+            doi.split(" ; ")[1]
+            if " ; " in doi and doi.split(" ; ")[1].startswith("10.")
+            else doi
+            for doi in doi_array
+        ]
+    )
     doi_array = np.array(
         [doi.split("[pii];")[1] if "[pii];" in doi else doi for doi in doi_array]
     )
@@ -639,7 +765,15 @@ def prep_doi(doi_array: np.array) -> np.array:
 
 
 def prep_isbn(isbn_array: np.array) -> np.array:
-    isbn_array = np.array([re.sub(r"[\r\n]", ";", isbn) for isbn in isbn_array])
+    isbn_array = np.array([re.sub(r"[\r\n]+", ";", isbn) for isbn in isbn_array])
+    isbn_array = np.array(
+        [
+            re.search(r"\b\d{4}-?\d{3}(\d|X)\b", isbn).group()  # type: ignore
+            if re.search(r"\b\d{4}-?\d{3}(\d|X)\b", isbn)
+            else isbn
+            for isbn in isbn_array
+        ]
+    )
     return np.array(["" if isbn == "nan" else isbn.lower() for isbn in isbn_array])
 
 

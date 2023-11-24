@@ -36,14 +36,12 @@ class BibDeduper:
 
         pairs_df = bib_dedupe.block.block(records_df)
 
-        bib_dedupe.sim.calculate_similarities(pairs_df)
-
         return pairs_df
 
     # flake8: noqa: E501
     # pylint: disable=line-too-long
     def identify_true_matches(
-        self, pairs: pd.DataFrame, *, merge_updated_papers: bool = True
+        self, pairs_df: pd.DataFrame, *, merge_updated_papers: bool = True
     ) -> pd.DataFrame:
         """
         Identifies the true matches from the given pairs.
@@ -62,7 +60,7 @@ class BibDeduper:
         """
 
         return bib_dedupe.match.match(
-            pairs, merge_updated_papers=merge_updated_papers, debug=self.debug
+            pairs_df, merge_updated_papers=merge_updated_papers, debug=self.debug
         )
 
     def get_merged_df(self, records_df: pd.DataFrame, *, matches: dict) -> pd.DataFrame:

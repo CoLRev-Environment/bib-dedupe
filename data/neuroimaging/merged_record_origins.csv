@@ -317,7 +317,6 @@ merged_origins
 "['source_1.bib/0000000753', 'source_1.bib/0000001769']"
 "['source_1.bib/0000000675', 'source_1.bib/0000001772']"
 "['source_1.bib/0000000715', 'source_1.bib/0000001774']"
-"['source_1.bib/0000000678', 'source_1.bib/0000000679', 'source_1.bib/0000001775', 'source_1.bib/0000001776']"
 "['source_1.bib/0000000658', 'source_1.bib/0000001778']"
 "['source_1.bib/0000000689', 'source_1.bib/0000001779']"
 "['source_1.bib/0000000731', 'source_1.bib/0000001780', 'source_1.bib/0000002483']"
@@ -901,3 +900,5 @@ merged_origins
 "['source_1.bib/0000001520', 'source_1.bib/0000003414']"
 "['source_1.bib/0000001533', 'source_1.bib/0000002005', 'source_1.bib/0000003432']"
 "['source_1.bib/0000001534', 'source_1.bib/0000003433']"
+"['source_1.bib/0000000679', 'source_1.bib/0000001775']"
+"['source_1.bib/0000000678', 'source_1.bib/0000001776']"
