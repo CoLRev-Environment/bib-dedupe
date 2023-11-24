@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 """Preparation for dedupe"""
 import re
+import time
 import typing
 import urllib.parse
 from datetime import datetime
@@ -9,9 +10,10 @@ from multiprocessing import Pool
 import colrev.record
 import numpy as np
 import pandas as pd
-from colrev.constants import ENTRYTYPES
-from colrev.constants import Fields
 from number_parser import parse
+
+from bib_dedupe.constants import ENTRYTYPES
+from bib_dedupe.constants import Fields
 
 # Note: for re.sub, "van der" must be checked before "van"
 NAME_PREFIXES_LOWER = [
@@ -37,7 +39,8 @@ def apply_processing(column: np.array, function: typing.Callable) -> np.array:
 def get_records_for_dedupe(records_df: pd.DataFrame) -> pd.DataFrame:
     """Prepare records for dedupe"""
 
-    print("Start prep at", datetime.now())
+    print("Prep started at", datetime.now())
+    start_time = time.time()
 
     if 0 == records_df.shape[0]:
         return {}
@@ -187,14 +190,8 @@ def get_records_for_dedupe(records_df: pd.DataFrame) -> pd.DataFrame:
     if Fields.JOURNAL in records_df.columns:
         records_df = records_df.drop(columns=[Fields.JOURNAL])
 
-    # For blocking:
-    records_df["first_author"] = records_df[Fields.AUTHOR].str.split().str[0]
-    records_df["short_title"] = records_df[Fields.TITLE].apply(
-        lambda x: " ".join(x.split()[:10])
-    )
-    records_df["short_container_title"] = get_short_container_title(
-        records_df[Fields.CONTAINER_TITLE].values
-    )
+    end_time = time.time()
+    print(f"Prep completed after: {end_time - start_time:.2f} seconds")
 
     return records_df
 
@@ -538,46 +535,55 @@ def prep_title(title_array: np.array) -> np.array:
     return title_array
 
 
+JOURNAL_STOPWORDS = [
+    "of",
+    "for",
+    "the",
+    "and",
+    "de",
+    "d",
+    "et",
+    "in",
+    "y",
+    "i",
+    "&",
+    "on",
+    "part",
+    "annual",
+]
+
+
 def prep_container_title(ct_array: np.array) -> np.array:
     def get_abbrev(ct: str) -> str:
         # Use abbreviated versions
         # journal of infection and chemotherapy
         # j infect chemother
 
-        ct = parse(str(ct))  # replace numbers
+        ct = str(ct)
         match = re.search(r"\.\d+ \(", ct)
         if match:
             ct = ct[: match.start()]
 
-        ct = ct.lower().replace("-", " ")
-        ct = ct.replace("journal", "j").replace("advanced", "adv")
-        stopwords = [
-            "of",
-            "the",
-            "and",
-            "de",
-            "d",
-            "et",
-            "in",
-            "y",
-            "i",
-            "&",
-            "on",
-            "part",
-            "annual",
-        ]
-        ct = " ".join(word[:4] for word in ct.split() if word not in stopwords)
+        ct = ct.lower()
+
+        if ct != "plos one":
+            ct = parse(ct)  # replace numbers
+
+        ct = ct.replace("-", " ").replace("journal", "j").replace("advanced", "adv")
+
+        ct = " ".join(word[:4] for word in ct.split() if word not in JOURNAL_STOPWORDS)
         return ct
 
     ct_array = np.array(
         [
-            parse(value).split(".")[0].replace("proceedings of the", "")
+            value.split(".")[0].replace("proceedings of the", "")
             if "date of publication" in value.lower()
             or "conference start" in value.lower()
-            else parse(value).replace("proceedings of the", "")
+            else value.replace("proceedings of the", "")
             for value in ct_array
         ]
     )
+
     # Replace words in parentheses at the end
     ct_array = np.array([re.sub(r"\s*\([^)]*\)\s*$", "", value) for value in ct_array])
     ct_array = np.array([value.replace(".", " ") for value in ct_array])
@@ -683,11 +689,13 @@ def prep_pages(pages_array: np.array) -> np.array:
 
         value = re.sub(r"[A-Za-z. ]*", "", value)
         if re.match(r"^\d+\s*-?-\s*\d+$", value):
-            from_page, to_page = re.findall(r"(\d+)", value)
-            if len(from_page) > len(to_page):
-                return f"{from_page}-{from_page[:-len(to_page)]}{to_page}"
+            from_page_str, to_page_str = re.findall(r"(\d+)", value)
+            if len(from_page_str) > len(to_page_str):
+                return (
+                    f"{from_page_str}-{from_page_str[:-len(to_page_str)]}{to_page_str}"
+                )
             else:
-                return f"{from_page}-{to_page}"
+                return f"{from_page_str}-{to_page_str}"
         if value in [
             " ",
             None,
@@ -775,9 +783,3 @@ def prep_isbn(isbn_array: np.array) -> np.array:
         ]
     )
     return np.array(["" if isbn == "nan" else isbn.lower() for isbn in isbn_array])
-
-
-def get_short_container_title(ct_array: np.array) -> np.array:
-    return np.array(
-        ["".join(item[0] for item in ct.split() if item.isalpha()) for ct in ct_array]
-    )

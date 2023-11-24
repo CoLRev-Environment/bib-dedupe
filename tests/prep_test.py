@@ -152,6 +152,7 @@ def test_prep_authors(input_author: str, expected_output: str) -> None:
             "hawa inte conf syst scie",
         ),
         ("J Mol Med (Berl)", "j mol med"),
+        ("PLoS One", "plos one"),
         (
             "Cochrane Database of Systematic Reviews",
             "coch data syst revi",

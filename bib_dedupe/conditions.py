@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """Matching rules for dedupe"""
-from colrev.constants import Fields
+from bib_dedupe.constants import Fields
 
 # flake8: noqa: E501
 # pylint: disable=line-too-long

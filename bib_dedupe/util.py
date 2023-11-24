@@ -11,8 +11,9 @@ from typing import Dict
 from typing import List
 
 import pandas as pd
-from colrev.constants import Fields
-from colrev.constants import FieldSet
+
+from bib_dedupe.constants import Fields
+from bib_dedupe.constants import FieldSet
 
 # pylint: disable=too-few-public-methods
 

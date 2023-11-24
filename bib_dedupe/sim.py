@@ -1,13 +1,15 @@
 #! /usr/bin/env python
 """Similarities for dedupe"""
 import re
+import time
 from datetime import datetime
 
 import colrev.env.language_service
 import numpy as np
 import pandas as pd
-from colrev.constants import Fields
 from rapidfuzz import fuzz
+
+from bib_dedupe.constants import Fields
 
 
 def calculate_token_sort_ratio_similarity(
@@ -306,7 +308,8 @@ def calculate_similarities(pairs_df: pd.DataFrame) -> pd.DataFrame:
     """
     # Add similarities if both fields exist
 
-    print("Start sim at", datetime.now())
+    print("Sim started at", datetime.now())
+    start_time = time.time()
 
     similarity_functions = {
         Fields.AUTHOR: calculate_author_similarity,
@@ -340,5 +343,8 @@ def calculate_similarities(pairs_df: pd.DataFrame) -> pd.DataFrame:
             pairs_df[field] = function(  # type: ignore
                 pairs_df[f"{field}_1"].values, pairs_df[f"{field}_2"].values
             )
+
+    end_time = time.time()
+    print(f"Sim completed after: {end_time - start_time:.2f} seconds")
 
     return pairs_df

@@ -1,21 +1,24 @@
 #! /usr/bin/env python
 """Match for dedupe"""
 import pprint
+import time
 from datetime import datetime
 
 import pandas as pd
-from colrev.constants import Colors
-from colrev.constants import Fields
 
 import bib_dedupe.conditions
 import bib_dedupe.sim
 import bib_dedupe.util
+from bib_dedupe.constants import Colors
+from bib_dedupe.constants import Fields
 
 
 def match(pairs: pd.DataFrame, *, merge_updated_papers: bool, debug: bool) -> dict:
     pairs = bib_dedupe.sim.calculate_similarities(pairs)
 
-    print("Start matching at", datetime.now())
+    print("Match started at", datetime.now())
+    start_time = time.time()
+
     p_printer = pprint.PrettyPrinter(indent=4, width=140, compact=False)
 
     updated_paper_pairs = pd.DataFrame()
@@ -132,6 +135,9 @@ def match(pairs: pd.DataFrame, *, merge_updated_papers: bool, debug: bool) -> di
     duplicate_origin_sets = bib_dedupe.util.connected_components(
         origin_sets=origin_sets
     )
+
+    end_time = time.time()
+    print(f"Match completed after: {end_time - start_time:.2f} seconds")
 
     return {
         "duplicate_origin_sets": duplicate_origin_sets,
