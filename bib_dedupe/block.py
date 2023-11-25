@@ -59,6 +59,11 @@ block_fields_list = [
         Fields.VOLUME,
         Fields.PAGES,
     ],
+    [
+        "short_container_title",
+        Fields.YEAR,
+        Fields.PAGES,
+    ],
     # TODO : conferences, books, ...
 ]
 
@@ -74,14 +79,13 @@ def block(records_df: pd.DataFrame) -> pd.DataFrame:
     start_time = time.time()
 
     pairs_df = pd.DataFrame(columns=["ID1", "ID2"])
-
     # For blocking:
-    records_df["first_author"] = records_df[Fields.AUTHOR].str.split().str[0]
-    records_df["short_title"] = records_df[Fields.TITLE].apply(
-        lambda x: " ".join(x.split()[:10])
-    )
-    records_df["short_container_title"] = get_short_container_title(
-        records_df[Fields.CONTAINER_TITLE].values
+    records_df = records_df.assign(
+        first_author=records_df[Fields.AUTHOR].str.split().str[0],
+        short_title=records_df[Fields.TITLE].apply(lambda x: " ".join(x.split()[:10])),
+        short_container_title=get_short_container_title(
+            records_df[Fields.CONTAINER_TITLE].values
+        ),
     )
 
     pool = multiprocessing.Pool()
@@ -114,6 +118,7 @@ def block(records_df: pd.DataFrame) -> pd.DataFrame:
 
     end_time = time.time()
     print(f"Block completed after: {end_time - start_time:.2f} seconds")
+
     return pairs_df
 
 
@@ -137,8 +142,10 @@ def create_pairs_for_block_fields(
     ]
     # Speedup with hashes is two-fold (compared to the code in comments below)
     non_empty_rows = non_empty_rows.assign(
+        # block_hash=non_empty_rows[block_fields].apply(lambda x: tuple(x), axis=1)
         block_hash=non_empty_rows[block_fields].apply(lambda x: hash(tuple(x)), axis=1)
     )
+
     grouped = (
         non_empty_rows.groupby("block_hash", group_keys=False)["ID"]
         .apply(lambda x: pd.DataFrame(list(combinations(x, 2)), columns=["ID1", "ID2"]))

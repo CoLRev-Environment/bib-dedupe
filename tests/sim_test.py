@@ -1,4 +1,3 @@
-import numpy as np
 import pytest
 
 from bib_dedupe.sim import calculate_author_similarity
@@ -24,12 +23,8 @@ from bib_dedupe.sim import calculate_year_similarity
 def test_calculate_container_similarity(
     container_title_1: str, container_title_2: str, expected_output: float
 ) -> None:
-    container_title_1_array = np.array([container_title_1])
-    container_title_2_array = np.array([container_title_2])
-    result = calculate_container_similarity(
-        container_title_1_array, container_title_2_array
-    )
-    assert result[0] == expected_output
+    result = calculate_container_similarity(container_title_1, container_title_2)
+    assert result == expected_output
 
 
 @pytest.mark.parametrize(
@@ -80,10 +75,8 @@ def test_calculate_container_similarity(
 def test_calculate_title_similarity(
     container_title_1: str, container_title_2: str, expected_output: float
 ) -> None:
-    title_array_1 = np.array([container_title_1])
-    title_array_2 = np.array([container_title_2])
-    result = calculate_title_similarity(title_array_1, title_array_2)
-    assert result[0] == expected_output
+    result = calculate_title_similarity(container_title_1, container_title_2)
+    assert result == expected_output
 
 
 @pytest.mark.parametrize(
@@ -113,35 +106,29 @@ def test_calculate_author_similarity(
     author_full_2: str,
     expected_output: float,
 ) -> None:
-    author_array_1 = np.array([author_1])
-    author_full_array_1 = np.array([author_full_1])
-    author_array_2 = np.array([author_2])
-    author_full_array_2 = np.array([author_full_2])
     result = calculate_author_similarity(
-        author_array_1, author_full_array_1, author_array_2, author_full_array_2
+        author_1, author_full_1, author_2, author_full_2
     )
-    assert result[0] == expected_output
+    assert result == expected_output
 
 
 @pytest.mark.parametrize(
     "year_1, year_2, expected_output",
     [
-        (2000, 2000, 1.0),
-        (2000, 2001, 0.95),
-        (2000, 2002, 0.8),
-        (2000, 2003, 0.0),
-        ("asdf", 2023, 0.0),
+        ("2000", "2000", 1.0),
+        ("2000", "2001", 0.95),
+        ("2000", "2002", 0.8),
+        ("2000", "2003", 0.0),
+        ("asdf", "2023", 0.0),
     ],
 )
 def test_calculate_year_similarity(
-    year_1: int,
-    year_2: int,
+    year_1: str,
+    year_2: str,
     expected_output: float,
 ) -> None:
-    year_array_1 = np.array([year_1])
-    year_array_2 = np.array([year_2])
-    result = calculate_year_similarity(year_array_1, year_array_2)
-    assert result[0] == expected_output
+    result = calculate_year_similarity(year_1, year_2)
+    assert result == expected_output
 
 
 @pytest.mark.parametrize(
@@ -157,7 +144,5 @@ def test_calculate_page_similarity(
     pages_2: str,
     expected_output: float,
 ) -> None:
-    pages_array_1 = np.array([pages_1])
-    pages_array_2 = np.array([pages_2])
-    result = calculate_page_similarity(pages_array_1, pages_array_2)
-    assert result[0] == expected_output
+    result = calculate_page_similarity(pages_1, pages_2)
+    assert result == expected_output

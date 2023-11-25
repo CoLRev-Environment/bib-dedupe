@@ -19,6 +19,17 @@ def match(pairs: pd.DataFrame, *, merge_updated_papers: bool, debug: bool) -> di
     print("Match started at", datetime.now())
     start_time = time.time()
 
+    if pairs.empty:
+        end_time = time.time()
+        print(f"Match completed after: {end_time - start_time:.2f} seconds")
+
+        return {
+            "duplicate_origin_sets": list(),
+            "true_pairs": pd.DataFrame(),
+            "maybe_pairs": pd.DataFrame(),
+            "updated_paper_pairs": pd.DataFrame(),
+        }
+
     p_printer = pprint.PrettyPrinter(indent=4, width=140, compact=False)
 
     updated_paper_pairs = pd.DataFrame()
