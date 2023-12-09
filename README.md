@@ -11,10 +11,13 @@ This approach enables validation, undo operations, and a more nuanced understand
 
 ## Features
 
-- **Entity Resolution**: Bib-Dedupe goes beyond traditional deduplication by performing entity resolution, linking duplicate records instead of deleting them. This allows for validation, undo operations, and a more comprehensive understanding of record relationships.
+- Goal: automated duplicate linking without false positives
+- preprocessing approach that mirrors the specific error generation process of academic databases (e.g., re-formatting authors, abbreviating journals)
+- **Entity Resolution**: Bib-Dedupe does not simply delete duplicates, but it links duplicates to resolve the entitity and integrates the data. This allows for validation, undo operations, and a more comprehensive understanding of record relationships.
 - **Programmatic Access**: Bib-Dedupe is designed for seamless integration into your research workflow, providing programmatic access for easy incorporation into scripts and applications.
 - **Transparent and Reproducible Rules**: Bib-Dedupe's blocking and matching rules are transparent and easily reproducible. Researchers can fine-tune these rules based on their specific needs, promoting reproducibility in deduplication processes.
 - **Continuous Benchmarking**: Continuous integration tests running on GitHub Actions ensure ongoing benchmarking, maintaining the library's reliability and performance across datasets.
+- **Efficient and Parallel Computation**: Bib-Dedupe implements computations efficiently and in parallel, using appropriate data structures and functions for optimal performance.
 
 ## Installation
 
@@ -33,37 +36,36 @@ import bib_dedupe
 # Load your bibliographic dataset into a pandas DataFrame
 records_df = pd.read_csv("records.csv")
 
+# Get the merged_df
+merged_df = bib_dedupe.merge(records_df)
+
+```
+
+For more detailed usage instructions and customization options, refer to the documentation.
+
+For advanced use cases, it is also possible to complete and customize each step individually
+
+```python
 # Initialize Bib-Dedupe
 deduper = bib_dedupe.BibDeduper()
 
 # Block records
-blocked_df = deduper.block_pairs_for_deduplication(
-    records_df=records_df
-)
+blocked_df = deduper.block(records_df)
 # Identify matches
-matches = deduper.identify_true_matches(blocked_df)
+matches = deduper.match(blocked_df)
 
-# Review and handle identified duplicates as needed
+# Merge
+merged_df = deduper.merge(records_df, matches=matches)
 ```
-
-For more detailed usage instructions and customization options, refer to the documentation.
 
 ## Continuous evaluation
 
 Bib-dedupe is continuously evaluated against libraries for duplicate removal in bibliographic datasets.
 The notebooks are available for the [evaluation](notebooks/evaluation.ipynb).
-The datasets are available in the [tests/data](tests/data) section.
-A summary of the evaluation is available in the [README.md](notebooks/README.md), detailed results are exported to a [csv file](output/evaluation.csv) and plotted based on this [notebook](notebooks/evaluation.ipynb):
+The datasets are available in the [data](data) section.
+A summary of the evaluation is available in the [README.md](notebooks/README.md), aggregated summaries are exported to [current_results.md](output/current_results.md), and detailed results are exported to a [csv file](output/evaluation.csv):
 
-![Evaluation](output/evaluation_digital_work.png)
-
-![Evaluation](output/evaluation_haematology.png)
-
-![Evaluation](output/evaluation_respiratory.png)
-
-![Evaluation](output/evaluation_stroke.png)
-
-![Evaluation](output/evaluation_cytology_screening.png)
+![Evaluation](output/evaluation_total.png)
 
 ## Documentation
 

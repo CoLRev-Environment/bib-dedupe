@@ -5,7 +5,6 @@ import re
 import time
 from datetime import datetime
 
-import colrev.env.language_service
 import numpy as np
 import pandas as pd
 from rapidfuzz import fuzz
@@ -13,14 +12,28 @@ from rapidfuzz import fuzz
 from bib_dedupe.constants import Fields
 
 
-def calculate_token_sort_ratio_similarity(string_1: str, string_2: str) -> float:
+def sim_token_sort_ratio(string_1: str, string_2: str) -> float:
     """Calculate the token sort ratio similarity between two strings."""
     if string_1 != "" and string_2 != "":
         return fuzz.token_sort_ratio(string_1, string_2) / 100
     return 0.0
 
 
-def calculate_author_similarity(
+NON_WESTERN_NAME_PARTICLES = [
+    " wu",
+    "zho",
+    " chen",
+    " gong",
+    " liu",
+    " zha",
+    " ya",
+    " cha",
+    " tan",
+    " yua",
+]
+
+
+def sim_author(
     author_1: str,
     author_full_1: str,
     author_2: str,
@@ -33,22 +46,47 @@ def calculate_author_similarity(
     if author_1 == author_2:  # to save computational time
         return 1.0
 
-    abbreviated_similarity = (
+    author_1 = author_1.replace("vander", "")
+    author_2 = author_2.replace("vander", "")
+
+    abbreviated = (
         fuzz.token_sort_ratio(author_1[:200], author_2[:200]) / 100
         if len(author_1) > 200 or len(author_2) > 200
         else 0
     )
     author_partial_diff = fuzz.partial_ratio(author_1, author_2) / 100
-    author_diff = fuzz.token_sort_ratio(author_1, author_2) / 100
+
+    author_diff = 0.0
+    # if any(x in author_1 for x in NON_WESTERN_NAME_PARTICLES) and any(
+    #     x in author_2 for x in NON_WESTERN_NAME_PARTICLES
+    # ):
+    #     author_diff = fuzz.partial_token_sort_ratio(author_1, author_2) / 100
+
+    if len(author_full_1) > 20 and len(author_full_2) > 20:
+        # TODO : test whether similarity of capital letters may be sufficient (in combination with title/...)
+        # Extract capital letters from both author_full_1 and author_full_2
+        capital_letters_author_full_1 = re.findall(r"[A-Z]", author_full_1)
+        capital_letters_author_full_2 = re.findall(r"[A-Z]", author_full_2)
+        # TODO: sort ratio
+        # Calculate similarity of capital letters in author_full_1 and author_full_2
+        capital_letters = (
+            fuzz.token_sort_ratio(
+                " ".join(capital_letters_author_full_1),
+                " ".join(capital_letters_author_full_2),
+            )
+            / 100
+        )
+        author_diff = capital_letters
+
     author_full_diff = 0.0
+
     if author_full_1 != "" and author_full_2 != "":
         author_full_diff = fuzz.token_sort_ratio(author_full_1, author_full_2) / 100
-    return max(
-        abbreviated_similarity, author_partial_diff, author_diff, author_full_diff
-    )
+
+    return max(abbreviated, author_partial_diff, author_diff, author_full_diff)
 
 
-def calculate_page_similarity(pages_string_1: str, pages_string_2: str) -> float:
+def sim_page(pages_string_1: str, pages_string_2: str) -> float:
     """
     Calculate the page similarity between two strings.
     """
@@ -56,10 +94,21 @@ def calculate_page_similarity(pages_string_1: str, pages_string_2: str) -> float
     pages_string_1 = re.sub(r"[a-zA-Z]", "", pages_string_1)
     pages_string_2 = re.sub(r"[a-zA-Z]", "", pages_string_2)
 
+    if (
+        (
+            (pages_string_1.endswith(pages_string_2) and pages_string_2.isdigit())
+            or (pages_string_2.endswith(pages_string_1) and pages_string_1.isdigit())
+        )
+        and pages_string_1 != ""
+        and pages_string_2 != ""
+    ):
+        return 1.0
+
     pages_string_1_match = re.search(r"\d+", pages_string_1)
     pages_string_1 = pages_string_1_match.group() if pages_string_1_match else ""
     pages_string_2_match = re.search(r"\d+", pages_string_2)
     pages_string_2 = pages_string_2_match.group() if pages_string_2_match else ""
+
     if (
         pages_string_1 != ""
         and pages_string_2 != ""
@@ -70,9 +119,10 @@ def calculate_page_similarity(pages_string_1: str, pages_string_2: str) -> float
         return fuzz.token_sort_ratio(pages_string_1, pages_string_2) / 100
 
 
-def calculate_title_similarity(
-    title_1: str, title_2: str, debug: bool = False
-) -> float:
+TITLE_STOPWORDS = ["the", "a", "an", "in", "on", "at", "and", "or", "of"]
+
+
+def sim_title(title_1: str, title_2: str, debug: bool = False) -> float:
     """
     Calculate the title similarity between two strings.
     """
@@ -80,66 +130,102 @@ def calculate_title_similarity(
     t1 = str(title_1)
     t2 = str(title_2)
 
-    if t1.replace(" ", "") == t2.replace(" ", ""):
+    if t1 == "" and t2 == "":
+        return 0.0
+
+    if t1.replace(" ", "") == t2.replace(" ", "") and t1.replace(" ", "") != "":
         return 1.0
 
-    if len(t1) > 1.7 * len(t2):
-        language_service = colrev.env.language_service.LanguageService()
-        substring_similarity = fuzz.ratio(t1[: len(t2)], t2) / 100
-        if substring_similarity > 0.97:
-            lang_second_half = language_service.compute_language(text=t1[len(t2) :])
-            if lang_second_half != "eng":
-                t1 = t1[: len(t2)]
+    # In long titles, secondary titles may not be added in all cases
+    if len(t1) > 60 and len(t2) > 60 and t1.startswith(t2) or t2.startswith(t1):
+        return 1.0
 
-    if len(t2) > 1.7 * len(t1):
-        language_service = colrev.env.language_service.LanguageService()
-        substring_similarity = fuzz.ratio(t2[: len(t1)], t1) / 100
-        if substring_similarity > 0.97:
-            lang_second_half = language_service.compute_language(text=t2[len(t1) :])
-            if lang_second_half != "eng":
-                t2 = t2[: len(t1)]
+    # Remove chemical formulae
+    if "[" in t1:
+        t1 = re.sub(r"\[[a-z0-9 ]{1,5}\]", "", t1)
+    if "[" in t2:
+        t2 = re.sub(r"\[[a-z0-9 ]{1,5}\]", "", t2)
 
     # Similarity for mismatching numbers (part 1 vs 2) should be 0
     t1_digits = re.findall(r"(?<!\[)\d+", t1)
     t2_digits = re.findall(r"(?<!\[)\d+", t2)
-    if t1_digits != t2_digits and len(t1_digits) < 3:
+    if (
+        t1_digits != t2_digits
+        and "".join(t1_digits) != "".join(t2_digits)
+        and len(t1_digits) < 3
+    ):
         if debug:
             print(f"mismatching digits: {t1_digits} - {t2_digits}")
         return 0
-    t1_parts = re.findall(r"part [a-z]", t1)
-    t2_parts = re.findall(r"part [a-z]", t2)
-    if t1_parts != t2_parts and len(t1_digits) < 3:
+
+    # Women vs men split studies
+    if any(
+        [
+            ((term in t1 and term not in t2) or (term in t2 and term not in t1))
+            for term in ["women", "comment", "response", "author"]
+        ]
+    ):
         return 0
 
-    effect_1 = re.findall(r"effect[s]? of (\w+)", t1)
-    effect_2 = re.findall(r"effect[s]? of (\w+)", t2)
-    if effect_1 != effect_2:
+    # In vivo vs. in vitro
+    if "vivo" in t1 and "vitro" in t2:
+        return 0
+    if "vitro" in t1 and "vivo" in t2:
+        return 0
+    if "rats" in t1 and "rats" not in t2:
+        return 0
+    if "rats" not in t1 and "rats" in t2:
         return 0
 
-    treatment_1 = re.findall(r"treatment of (\w+)", t1)
-    treatment_2 = re.findall(r"treatment of (\w+)", t2)
-    if treatment_1 != treatment_2:
-        return 0
+    if any(term in t1 for term in ["part", "effect", "treatment"]):
+        t1_parts = re.findall(r"part [a-z]", t1)
+        t2_parts = re.findall(r"part [a-z]", t2)
+        if t1_parts != t2_parts and len(t1_digits) < 3:
+            return 0
+
+        effect_1 = re.findall(r"effect[s]? of (\w+)", t1)
+        effect_2 = re.findall(r"effect[s]? of (\w+)", t2)
+        if effect_1 != effect_2:
+            return 0
+
+        treatment_1 = re.findall(r"treatment of (\w+)", t1)
+        treatment_2 = re.findall(r"treatment of (\w+)", t2)
+        if treatment_1 != treatment_2:
+            return 0
+
+        patients_1 = re.findall(r"(\w+) patients", t1)
+        patients_2 = re.findall(r"(\w+) patients", t2)
+        if patients_1 != patients_2:
+            return 0
+
+    if t1.endswith(t2) or t2.endswith(t1):
+        return 1.0
 
     # Remove common stopwords from t1 and t2
-    stopwords = ["the", "a", "an", "in", "on", "at", "and", "or", "of"]
-    t1 = " ".join(word for word in t1.split() if word not in stopwords)
-    t2 = " ".join(word for word in t2.split() if word not in stopwords)
-
-    # Remove chemical formulae
-    t1 = re.sub(r"\[[a-z0-9 ]{1,5}\]", "", t1)
-    t2 = re.sub(r"\[[a-z0-9 ]{1,5}\]", "", t2)
+    t1 = " ".join(word for word in t1.split() if word not in TITLE_STOPWORDS)
+    t2 = " ".join(word for word in t2.split() if word not in TITLE_STOPWORDS)
 
     # Insert a space between digits that come directly after a string
     t1 = re.sub(r"([A-Za-z])(\d)", r"\1 \2", t1)
     t2 = re.sub(r"([A-Za-z])(\d)", r"\1 \2", t2)
 
-    title_diff = fuzz.token_sort_ratio(t1, t2) / 100
+    title_diff = fuzz.ratio(t1, t2) / 100
+
+    # Title fields containing translated version of the title
+    if title_diff < 0.7:
+        if len(t1) > (1.7 * len(t2)):
+            partial_ratio = fuzz.partial_ratio(t1, t2) / 100
+            if partial_ratio > title_diff:
+                return partial_ratio
+        if len(t2) > (1.7 * len(t1)):
+            partial_ratio = fuzz.partial_ratio(t2, t1) / 100
+            if partial_ratio > title_diff:
+                return partial_ratio
 
     return title_diff
 
 
-def calculate_year_similarity(year_1_str: str, year_2_str: str) -> float:
+def sim_year(year_1_str: str, year_2_str: str) -> float:
     """
     Calculate the similarity between two years.
     """
@@ -174,10 +260,20 @@ def calculate_year_similarity(year_1_str: str, year_2_str: str) -> float:
     return similarity
 
 
-def calculate_number_similarity(n1_str: str, n2_str: str) -> float:
+def sim_doi(doi_1_str: str, doi_2_str: str) -> float:
+    if doi_1_str == "" or doi_2_str == "":
+        return 0
+
+    return fuzz.ratio(doi_1_str, doi_2_str) / 100
+
+
+def sim_number(n1_str: str, n2_str: str) -> float:
     """
     Calculate the similarity between two numbers.
     """
+
+    if n1_str == "" or n2_str == "":
+        return 0
 
     n1 = int(n1_str) if str(n1_str).isdigit() else 0
     n2 = int(n2_str) if str(n2_str).isdigit() else 0
@@ -194,95 +290,158 @@ def calculate_number_similarity(n1_str: str, n2_str: str) -> float:
         return fuzz.token_sort_ratio(str(n1), str(n2)) / 100
 
 
-J_TRANSLATIONS = {"nati medi j chin": "zhon yi xue za zhi"}
+def sim_abstract(abstract_1: str, abstract_2: str) -> float:
+    abstract_1 = str(abstract_1)
+    abstract_2 = str(abstract_2)
+
+    if abstract_1 == "" or abstract_2 == "":
+        return 0.0
+
+    if len(abstract_1) > 500 and len(abstract_2) > 500:
+        if abstract_1.startswith(abstract_2[:-100]) or abstract_2.startswith(
+            abstract_1[:-100]
+        ):
+            return 1.0
+
+    return fuzz.ratio(abstract_1, str(abstract_2)) / 100
 
 
-def calculate_container_similarity(container_1: str, container_2: str) -> float:
+def sim_container_title(container_1: str, container_2: str) -> float:
     """
     Calculate the similarity between two containers.
     """
 
-    if container_1 != "" and container_2 != "":
-        if container_1 in J_TRANSLATIONS and J_TRANSLATIONS[container_1] == container_2:
-            return 1.0
-        if container_2 in J_TRANSLATIONS and J_TRANSLATIONS[container_2] == container_1:
-            return 1.0
+    if container_1 == "" or container_2 == "":
+        return 0.0
 
-        abbreviation_match = 0
-        if " " not in container_1 and " " in container_2:
-            first_letters_1 = container_1
-            first_letters_2 = "".join(word[0] for word in container_2.split())
-            abbreviation_match = 1 if first_letters_1 == first_letters_2 else 0
-        if " " not in container_2 and " " in container_1:
-            first_letters_1 = "".join(word[0] for word in container_1.split())
-            first_letters_2 = container_2
-            abbreviation_match = 1 if first_letters_1 == first_letters_2 else 0
-        word_match = 1
-        words_1 = container_1.split()
-        words_2 = container_2.split()
-        if len(words_1) != len(words_2):
-            word_match = 0
-        else:
-            for word_1, word_2 in zip(words_1, words_2):
-                if not word_1.startswith(word_2) and not word_2.startswith(word_1):
-                    word_match = 0
-                    break
+    if ("euro " in container_1 and "am " in container_2) or (
+        "euro " in container_2 and "am " in container_1
+    ):
+        return 0.0
 
-        overall_similarity = (
-            fuzz.partial_ratio(str(container_1), str(container_2)) / 100
-        )
+    if {container_1, container_2} == {"j alzh dise", "adv alzh dise"}:
+        return 0.0
 
-        return max(overall_similarity, abbreviation_match, word_match)
+    container_1 = container_1.replace("res", "")
+    container_2 = container_2.replace("res", "")
+
+    abbreviation_match = 0
+    if " " not in container_1 and " " in container_2:
+        first_letters_1 = container_1
+        first_letters_2 = "".join(word[0] for word in container_2.split())
+        abbreviation_match = 1 if first_letters_1 == first_letters_2 else 0
+    if " " not in container_2 and " " in container_1:
+        first_letters_1 = "".join(word[0] for word in container_1.split())
+        first_letters_2 = container_2
+        abbreviation_match = 1 if first_letters_1 == first_letters_2 else 0
+    word_match = 1
+    words_1 = container_1.split()
+    words_2 = container_2.split()
+    if len(words_1) != len(words_2):
+        word_match = 0
     else:
-        return 0
+        for word_1, word_2 in zip(words_1, words_2):
+            if not word_1.startswith(word_2) and not word_2.startswith(word_1):
+                word_match = 0
+                break
 
+    spaces_1 = container_1.count(" ")
+    spaces_2 = container_2.count(" ")
 
-def calculate_title_partial_ratio(title_1: str, title_2: str) -> float:
-    """
-    Calculate the partial ratio between two titles.
-    """
-    if title_1 != "" and title_2 != "":
-        return fuzz.partial_ratio(str(title_1), str(title_2)) / 100
+    if spaces_1 < 5 and spaces_2 < 5:
+        if container_1.startswith(container_2) or container_2.startswith(container_1):
+            return 1.0
+        overall = fuzz.ratio(str(container_1), str(container_2)) / 100
     else:
-        return 0
+        overall = fuzz.partial_ratio(str(container_1), str(container_2)) / 100
+
+    # print(overall, abbreviation_match, word_match)
+
+    return max(overall, abbreviation_match, word_match)
 
 
 similarity_functions = {
-    # Fields.AUTHOR: calculate_author_similarity,
-    Fields.PAGES: calculate_page_similarity,
-    Fields.TITLE: calculate_title_similarity,
-    Fields.YEAR: calculate_year_similarity,
-    Fields.NUMBER: calculate_number_similarity,
-    Fields.CONTAINER_TITLE: calculate_container_similarity,
-    # "title_partial_ratio": calculate_title_partial_ratio,
-    Fields.VOLUME: calculate_token_sort_ratio_similarity,
-    Fields.ABSTRACT: calculate_token_sort_ratio_similarity,
-    Fields.ISBN: calculate_token_sort_ratio_similarity,
-    Fields.DOI: calculate_token_sort_ratio_similarity,
+    Fields.PAGES: sim_page,
+    Fields.TITLE: sim_title,
+    Fields.YEAR: sim_year,
+    Fields.NUMBER: sim_number,
+    Fields.CONTAINER_TITLE: sim_container_title,
+    Fields.VOLUME: sim_token_sort_ratio,
+    Fields.ABSTRACT: sim_abstract,
+    Fields.ISBN: sim_token_sort_ratio,
+    Fields.DOI: sim_doi,
 }
 
 
 def process_df_split(split_df: pd.DataFrame) -> pd.DataFrame:
     for index, row in split_df.iterrows():
-        split_df.loc[index, Fields.AUTHOR] = calculate_author_similarity(
-            row["author_1"],
-            row["author_full_1"],
-            row["author_2"],
-            row["author_full_2"],
-        )
-        split_df.loc[index, "title_partial_ratio"] = calculate_title_partial_ratio(  # type: ignore
-            row["title_1"], row["title_2"]
+        split_df.loc[index, Fields.AUTHOR] = sim_author(
+            str(row["author_1"]),
+            str(row["author_full_1"]),
+            str(row["author_2"]),
+            str(row["author_full_2"]),
         )
 
         for field, function in similarity_functions.items():
-            # if function == calculate_author_similarity:
-
-            # elif function == calculate_title_partial_ratio:
-
-            # else:
             split_df.loc[index, field] = function(  # type: ignore
-                row[f"{field}_1"], row[f"{field}_2"]
+                str(row[f"{field}_1"]), str(row[f"{field}_2"])
             )
+
+    # Fix similarities for misassigned fields
+    conditions = [
+        (
+            (split_df["pages_1"] == "")
+            & (split_df["number_1"] == split_df["pages_2"])
+            & (split_df["number_2"] == ""),
+            Fields.PAGES,
+        ),
+        (
+            (split_df["pages_1"] == "")
+            & (split_df["number_1"] == split_df["pages_2"])
+            & (split_df["number_2"] == ""),
+            Fields.NUMBER,
+        ),
+        (
+            (split_df["pages_2"] == "")
+            & (split_df["number_2"] == split_df["pages_1"])
+            & (split_df["number_1"] == ""),
+            Fields.PAGES,
+        ),
+        (
+            (split_df["pages_2"] == "")
+            & (split_df["number_2"] == split_df["pages_1"])
+            & (split_df["number_1"] == ""),
+            Fields.NUMBER,
+        ),
+        (
+            (split_df["volume_1"] == "")
+            & (split_df["number_1"] == split_df["volume_2"])
+            & (split_df["number_2"] == ""),
+            Fields.VOLUME,
+        ),
+        (
+            (split_df["volume_1"] == "")
+            & (split_df["number_1"] == split_df["volume_2"])
+            & (split_df["number_2"] == ""),
+            Fields.NUMBER,
+        ),
+        (
+            (split_df["volume_2"] == "")
+            & (split_df["number_2"] == split_df["volume_1"])
+            & (split_df["number_1"] == ""),
+            Fields.VOLUME,
+        ),
+        (
+            (split_df["volume_2"] == "")
+            & (split_df["number_2"] == split_df["volume_1"])
+            & (split_df["number_1"] == ""),
+            Fields.NUMBER,
+        ),
+    ]
+
+    for condition, field in conditions:
+        if condition.any():
+            split_df.loc[condition, field] = 1.0
 
     return split_df
 
@@ -298,7 +457,7 @@ def calculate_similarities(pairs_df: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: DataFrame with calculated similarities.
     """
 
-    print("Sim started at", datetime.now())
+    print("Sim started at", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     start_time = time.time()
 
     # pairs_df = process_df_split(pairs_df)

@@ -2,6 +2,8 @@
 """Default deduplication module for CoLRev"""
 from __future__ import annotations
 
+import typing
+
 import pandas as pd
 
 import bib_dedupe.block
@@ -17,13 +19,12 @@ class BibDeduper:
     def __init__(self, *, debug: bool = False):
         self.debug = debug
 
-    @classmethod
-    def get_records_for_dedupe(cls, *, records_df: pd.DataFrame) -> pd.DataFrame:
+    def get_records_for_dedupe(self, *, records_df: pd.DataFrame) -> pd.DataFrame:
         """Get (pre-processed) records for dedupe"""
 
         return bib_dedupe.prep.get_records_for_dedupe(records_df)
 
-    def block_pairs_for_deduplication(self, records_df: pd.DataFrame) -> pd.DataFrame:
+    def block(self, records_df: pd.DataFrame) -> pd.DataFrame:
         """
         This method is used to block pairs for deduplication.
 
@@ -38,11 +39,12 @@ class BibDeduper:
 
         return pairs_df
 
+    # TODO : rename:
     # flake8: noqa: E501
     # pylint: disable=line-too-long
-    def identify_true_matches(
+    def match(
         self, pairs_df: pd.DataFrame, *, merge_updated_papers: bool = True
-    ) -> pd.DataFrame:
+    ) -> dict:
         """
         Identifies the true matches from the given pairs.
 
@@ -63,7 +65,9 @@ class BibDeduper:
             pairs_df, merge_updated_papers=merge_updated_papers, debug=self.debug
         )
 
-    def get_merged_df(self, records_df: pd.DataFrame, *, matches: dict) -> pd.DataFrame:
+    def merge(
+        self, records_df: pd.DataFrame, *, matches: typing.Optional[dict] = None
+    ) -> pd.DataFrame:
         """
         This function returns a DataFrame after merging the records.
 
@@ -75,4 +79,22 @@ class BibDeduper:
             pd.DataFrame: The merged DataFrame.
         """
 
+        if not matches:
+            actual_blocked_df = self.block(records_df=records_df)
+            matches = self.match(actual_blocked_df)
+
         return bib_dedupe.merge.merge(records_df, matches=matches)
+
+
+def merge(
+    records_df: pd.DataFrame, *, matches: typing.Optional[dict] = None
+) -> pd.DataFrame:
+    deduper = BibDeduper()
+    # Block records
+    blocked_df = deduper.block(records_df=records_df)
+    # Identify matches
+    matches = deduper.match(blocked_df)
+
+    # Merge
+    merged_df = deduper.merge(records_df, matches=matches)
+    return merged_df

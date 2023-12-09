@@ -1,4 +1,11 @@
+import time
+from datetime import datetime
+
 import pandas as pd
+
+
+print("Extract-cases started at", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+start_time = time.time()
 
 data_path = "/home/gerit/ownCloud/projects/CoLRev/bib-dedupe/data/neuroimaging"
 target_path = "/home/gerit/ownCloud/projects/CoLRev/bib-dedupe/data/problem_cases"
@@ -8,6 +15,7 @@ fp = pd.read_csv(f"{data_path}/matches_FP_list.csv")
 
 records_df = pd.read_csv(f"{data_path}/records_pre_merged.csv")
 records_df["colrev_origin"] = records_df["colrev_origin"].apply(eval).tolist()
+records_df.reset_index(drop=True, inplace=True)
 records_df = records_df[
     records_df["ID"].isin(fn["ID"]) | records_df["ID"].isin(fp["ID"])
 ]
@@ -26,3 +34,6 @@ merged_record_origins_df = merged_record_origins_df[
 
 merged_record_origins_df.to_csv(f"{target_path}/merged_record_origins.csv", index=False)
 records_df.to_csv(f"{target_path}/records_pre_merged.csv", index=False)
+
+end_time = time.time()
+print(f"Extract-cases completed after: {end_time - start_time:.2f} seconds")

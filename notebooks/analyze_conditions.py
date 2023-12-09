@@ -4,7 +4,7 @@ import bib_dedupe.conditions
 from bib_dedupe.bib_dedupe import BibDeduper
 
 
-data_path = "/home/gerit/ownCloud/projects/CoLRev/bib-dedupe/data/srsr"
+data_path = "/home/gerit/ownCloud/projects/CoLRev/bib-dedupe/data/depression"
 
 try:
     fn = pd.read_csv(f"{data_path}/matches_FN_list.csv")
@@ -31,7 +31,7 @@ selected_rows = pre_merged[
 deduper = BibDeduper()
 records_for_dedupe = deduper.get_records_for_dedupe(records_df=selected_rows)
 
-actual_blocked_df = deduper.block_pairs_for_deduplication(records_df=records_for_dedupe)
+actual_blocked_df = deduper.block(records_df=records_for_dedupe)
 
 q_stats = {
     duplicate_condition: {
@@ -50,13 +50,15 @@ for i in range(len(actual_blocked_df)):
         case = (
             f"{item_df['colrev_origin_1'].iloc[0]};{item_df['colrev_origin_2'].iloc[0]}"
         )
-        if item_df.query(duplicate_condition).shape[0] > 0:
-            if case in fp["case"].values:
-                q_stats[duplicate_condition]["FP"] += 1
-        # else:
-        #     if case in fn['case'].values:
-        #         q_stats[duplicate_condition]["FN"] += 1
-
+        try:
+            if item_df.query(duplicate_condition).shape[0] > 0:
+                if case in fp["case"].values:
+                    q_stats[duplicate_condition]["FP"] += 1
+            # else:
+            #     if case in fn['case'].values:
+            #         q_stats[duplicate_condition]["FN"] += 1
+        except pd.errors.UndefinedVariableError as e:
+            print(e)
 
 q_stats_df = pd.DataFrame.from_dict(q_stats, orient="index")
 q_stats_df.to_csv(f"{data_path}/q_stats.csv")

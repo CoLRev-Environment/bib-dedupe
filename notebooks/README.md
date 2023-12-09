@@ -8,6 +8,54 @@ Borissov et al. (2022): "Following a standardized definition [6, 7, 9], we defin
 
 Note: The datasets may have applied a different understanding of duplicates.
 
+The similarity-functions should be sensitive to important differences (e.g., "in vivo" vs "in vitro" should not be 92% similar, "men" vs "women" should not be 94% similar)
+
+Bib-Dedupe could support different labels:
+
+- Distinct
+- Duplicate
+- Maybe
+- Updated
+- Reprinted
+- Extended (conference-journal)
+- Included (inbook-book)
+
+A flag could be used to indicate whether they should be merged (retain_reprinted = False, ...)
+
+TODO : start with the maybe category (and indicate that Bib-dedupe will be extended) - the other categories would require separate "true-origin-pars" lists.
+
+Updates
+- In some cases, papers are continuously updated, such as Cochrane review papers. These updates can be treated as separate entities or as part of the original paper, depending on the requirements of the analysis.
+- For example, the following two papers are updates of the same study:
+    https://www.cochranelibrary.com/cdsr/doi/10.1002/14651858.CD009128.pub2
+    https://www.cochranelibrary.com/cdsr/doi/10.1002/14651858.CD009128.pub3
+- These updates often have similar DOIs
+- Aka current/previous versions:
+https://currentprotocols.onlinelibrary.wiley.com/doi/10.1002/0471142301.ns0810as14
+https://currentprotocols.onlinelibrary.wiley.com/doi/10.1002/0471142301.ns0810as55
+
+Reprints
+- (e.g., abstract_similarity= 1.0)
+- physiological effects of medium chain triglycerides potential agents in the prevention of obesity reprinted from vol 132 pg 329 2002
+- srsr  source_1.bib/0000023119;source_1.bib/0000056666
+- "reprint of " - "reprinted from" (source_1.bib/0000054209;source_1.bib/0000017201)
+- check: "reprinted in ..." in title.
+- The book series "Advances in Alzheimer's Disease" brings together the latest insights in Alzheimer’s disease research in specific areas in which major advances have been made. It assembles and builds on work recently published in the Journal of Alzheimer's Disease (JAD) and also includes further contributions to ensure comprehensive coverage of the topic. The emphasis is on the development of novel approaches to understanding and treating Alzheimer’s and related diseases.
+adva alzh s dise
+j alzh s dise
+
+Corrected and republished
+- Comparative analysis of anxiety-like behaviors and sensorimotor functions in two rat mutants, ci2 and ci3, with lateralized rotational behavior. Lindema S, Gernet M, Bennay M, Koch M, Löscher W. Physiol Behav. 2008 Jan 28;93(1-2):417-26. doi: 10.1016/j.physbeh.2007.11.034. PMID: 18320635
+
+Multiple letters and replies:
+- haematology - source_1.bib/0000000008;source_1.bib/0000000039
+
+Included
+- Part 1-2, ...
+- TBD: match books/inbooks separately and exclude proceedigns items?!
+
+
+
 ## Evaluation datasets
 
 | Dataset            | Reference                | Status                                           |

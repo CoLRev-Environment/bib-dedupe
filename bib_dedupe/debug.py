@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 """Debug for dedupe"""
+import pprint
+
 import pandas as pd
 
 
@@ -19,14 +21,16 @@ def debug() -> None:
     except pd.errors.EmptyDataError:
         df_matches_fp = pd.DataFrame()
 
-    from colrev.ops.dedupe_benchmark import DedupeBenchmarker
+    from bib_dedupe.dedupe_benchmark import DedupeBenchmarker
     from bib_dedupe.bib_dedupe import BibDeduper
     from pathlib import Path
 
     dedupe_benchmark = DedupeBenchmarker(
         benchmark_path=Path.cwd(),
+        merge_updated_papers=True,
     )
     records_df = dedupe_benchmark.get_records_for_dedupe()
+    p_printer = pprint.PrettyPrinter(indent=4, width=140, compact=False)
 
     while True:
         origin_pair = input("origin_pair:")
@@ -59,10 +63,10 @@ def debug() -> None:
                 print("selected_prepared_records_df is empty. Continuing...")
                 continue
 
-            actual_blocked_df = dedupe_instance.block_pairs_for_deduplication(
+            actual_blocked_df = dedupe_instance.block(
                 records_df=selected_prepared_records_df
             )
-            matches = dedupe_instance.identify_true_matches(actual_blocked_df)
-            print(matches)
+            matches = dedupe_instance.match(actual_blocked_df)
+            p_printer.pprint(matches)
         except ValueError as exc:
             print(exc)
