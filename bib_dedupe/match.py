@@ -44,7 +44,7 @@ def match(
         print(f"Match completed after: {end_time - start_time:.2f} seconds")
 
         return {
-            "duplicate_origin_sets": list(),
+            "duplicate_id_sets": list(),
             "true_pairs": pd.DataFrame(),
             "maybe_pairs": pd.DataFrame(),
             "updated_paper_pairs": pd.DataFrame(),
@@ -70,12 +70,11 @@ def match(
 
     updated_paper_pairs = pairs.query("(" + " | ".join(updated_pair_conditions) + ")")
 
-    updated_paper_pair_origin_sets = [
-        row["colrev_origin_1"].split(";") + row["colrev_origin_2"].split(";")
-        for _, row in updated_paper_pairs.iterrows()
+    updated_paper_pair_id_sets = [
+        list(row[["ID_1", "ID_2"]]) for _, row in updated_paper_pairs.iterrows()
     ]
-    updated_paper_pairs_origin_sets = bib_dedupe.util.connected_components(
-        origin_sets=updated_paper_pair_origin_sets
+    updated_paper_pairs_id_sets = bib_dedupe.util.connected_components(
+        id_sets=updated_paper_pair_id_sets
     )
 
     duplicate_conditions = bib_dedupe.conditions.duplicate_conditions
@@ -117,6 +116,7 @@ def match(
 
     non_duplicate_conditions = bib_dedupe.conditions.non_duplicate_conditions
     if debug:
+        print()
         print("Exclude conditions:")
         for non_duplicate_condition in non_duplicate_conditions:
             if pairs.query(non_duplicate_condition).shape[0] != 0:
@@ -139,7 +139,6 @@ def match(
 
     maybe_pairs = pd.DataFrame()
 
-    # TODO : think: how do we measure similarity for missing values?
     # TODO : integrate __prevent_invalid_merges here?!
 
     # TODO : for maybe_pairs, create a similarity score over all fields
@@ -180,27 +179,24 @@ def match(
     # maybe_pairs = pd.concat([maybe_pairs, important_mismatch])
     maybe_pairs = maybe_pairs.drop_duplicates()
 
-    origin_sets = [
-        row["colrev_origin_1"].split(";") + row["colrev_origin_2"].split(";")
-        for _, row in true_pairs.iterrows()
-    ]
+    id_sets = [list(row[["ID_1", "ID_2"]]) for _, row in true_pairs.iterrows()]
 
     if merge_updated_papers:
-        origin_sets += [
-            row["colrev_origin_1"].split(";") + row["colrev_origin_2"].split(";")
-            for _, row in updated_paper_pairs.iterrows()
+        id_sets += [
+            list(row[["ID_1", "ID_2"]]) for _, row in updated_paper_pairs.iterrows()
         ]
 
-    duplicate_origin_sets = bib_dedupe.util.connected_components(
-        origin_sets=origin_sets
-    )
+    duplicate_id_sets = bib_dedupe.util.connected_components(id_sets=id_sets)
 
     end_time = time.time()
     print(f"Match completed after: {end_time - start_time:.2f} seconds")
 
+    # TODO : return one df with a "duplicate_label" column
+    # TODO : drop metadata if include_metadata False
+
     return {
-        "duplicate_origin_sets": duplicate_origin_sets,
+        "duplicate_id_sets": duplicate_id_sets,
         "true_pairs": true_pairs,
         "maybe_pairs": maybe_pairs,
-        "updated_paper_pairs": updated_paper_pairs_origin_sets,
+        "updated_paper_pairs": updated_paper_pairs_id_sets,
     }

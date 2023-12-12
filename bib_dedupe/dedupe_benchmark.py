@@ -23,7 +23,7 @@ class DedupeBenchmarker:
 
     # pylint: disable=too-many-instance-attributes
 
-    true_merged_origins: list
+    true_merged_ids: list
     records_df: pd.DataFrame
 
     def __init__(
@@ -45,11 +45,9 @@ class DedupeBenchmarker:
         self.records_pre_merged_path = Path(
             self.benchmark_path, "records_pre_merged.csv"
         )
-        self.merged_record_origins_path = Path(
-            self.benchmark_path, "merged_record_origins.csv"
-        )
-        self.updated_papers_origins_path = Path(
-            self.benchmark_path, "updated_papers_origins.csv"
+        self.merged_record_ids_path = Path(self.benchmark_path, "merged_record_ids.csv")
+        self.updated_papers_ids_path = Path(
+            self.benchmark_path, "updated_papers_ids.csv"
         )
         self.merge_updated_papers = merge_updated_papers
         if regenerate_benchmark_from_history:
@@ -58,28 +56,26 @@ class DedupeBenchmarker:
             self.__load_data()
 
     def __load_data(self) -> None:
-        true_merged_origins_df = pd.read_csv(str(self.merged_record_origins_path))
-        self.true_merged_origins = (
-            true_merged_origins_df["merged_origins"].apply(eval).tolist()
-        )
+        true_merged_ids_df = pd.read_csv(str(self.merged_record_ids_path))
+        self.true_merged_ids = true_merged_ids_df["merged_ids"].str.split(";").tolist()
 
         if self.merge_updated_papers:
-            if self.updated_papers_origins_path.is_file():
-                true_updated_papers_origins_df = pd.read_csv(
-                    str(self.updated_papers_origins_path)
+            if self.updated_papers_ids_path.is_file():
+                true_updated_papers_ids_df = pd.read_csv(
+                    str(self.updated_papers_ids_path)
                 )
             else:
-                true_updated_papers_origins_df = pd.DataFrame(columns=["origins"])
+                true_updated_papers_ids_df = pd.DataFrame(columns=["ids"])
 
-            # print("before", self.true_merged_origins)
-            self.true_merged_origins = bib_dedupe.util.connected_components(
-                self.true_merged_origins
-                + true_updated_papers_origins_df["origins"].apply(eval).tolist()
+            # print("before", self.true_merged_ids)
+            self.true_merged_ids = bib_dedupe.util.connected_components(
+                self.true_merged_ids
+                + true_updated_papers_ids_df["ids"].str.split(";").tolist()
             )
-            # print("after", self.true_merged_origins)
+
+            # print("after", self.true_merged_ids)
 
         records_df = pd.read_csv(str(self.records_pre_merged_path))
-        records_df[Fields.ORIGIN] = records_df[Fields.ORIGIN].apply(eval).tolist()
         self.records_df = records_df
 
     def get_records_for_dedupe(self) -> pd.DataFrame:
@@ -206,22 +202,16 @@ class DedupeBenchmarker:
         records_df = pd.DataFrame.from_dict(records, orient="index")
         self.records_df = records_df
 
-        merged_record_origins = []
+        merged_record_ids = []
         for row in list(records_df.to_dict(orient="records")):
-            if len(row[Fields.ORIGIN]) > 1:
-                merged_record_origins.append(row[Fields.ORIGIN])
+            if len(row[Fields.ID]) > 1:
+                merged_record_ids.append(row[Fields.ID])
 
-        merged_record_origins = bib_dedupe.util.connected_components(
-            merged_record_origins
-        )
-        self.true_merged_origins = merged_record_origins
-        merged_record_origins_df = pd.DataFrame(
-            {"merged_origins": merged_record_origins}
-        )
+        merged_record_ids = bib_dedupe.util.connected_components(merged_record_ids)
+        self.true_merged_ids = merged_record_ids
+        merged_record_ids_df = pd.DataFrame({"merged_ids": merged_record_ids})
         records_pre_merged_df.to_csv(str(self.records_pre_merged_path), index=False)
-        merged_record_origins_df.to_csv(
-            str(self.merged_record_origins_path), index=False
-        )
+        merged_record_ids_df.to_csv(str(self.merged_record_ids_path), index=False)
 
     # pylint: disable=too-many-locals
     # pylint: disable=too-many-branches
@@ -235,13 +225,11 @@ class DedupeBenchmarker:
         """Compare the predicted matches and blocked pairs to the ground truth."""
 
         ground_truth_pairs = set()
-        for item in self.true_merged_origins:
+        for item in self.true_merged_ids:
             for combination in combinations(item, 2):
                 ground_truth_pairs.add(";".join(sorted(combination)))
 
-        blocked = blocked_df.apply(
-            lambda row: [row["colrev_origin_1"], row["colrev_origin_2"]], axis=1
-        )
+        blocked = blocked_df.apply(lambda row: [row["ID_1"], row["ID_2"]], axis=1)
 
         blocked_pairs = set()
         for item in blocked:
@@ -259,14 +247,10 @@ class DedupeBenchmarker:
         matches_fp_list = []
         matches_fn_list = []
 
-        all_origins = [
-            origin
-            for sublist in self.records_df[Fields.ORIGIN].tolist()
-            for origin in sublist
-        ]
+        all_ids = self.records_df["ID"].tolist()
 
         # Note: the following takes long:
-        for combination in combinations(all_origins, 2):
+        for combination in combinations(all_ids, 2):
             pair = ";".join(sorted(combination))
 
             if pair in blocked_pairs:
@@ -353,26 +337,14 @@ class DedupeBenchmarker:
             "runtime": self.get_runtime(timestamp),
         }
 
-        origin_id_dict = {
-            record["colrev_origin"]: record["ID"]
-            for _, record in records_df[["ID", "colrev_origin"]].iterrows()
-        }
+        all_ids = records_df["ID"].tolist()
 
-        true_merged_ids = []
-        for true_merged_origin_set in self.true_merged_origins:
-            true_merged_id_list = []
-            for origin in true_merged_origin_set:
-                if origin not in origin_id_dict:
-                    print(f"Error: {origin} not in records")
-                    print(true_merged_origin_set)
-                    print(origin_id_dict)
-                    continue
-                true_merged_id_list.append(origin_id_dict.pop(origin))
-            true_merged_ids.append(true_merged_id_list)
-        true_non_merged_ids = list(origin_id_dict.values())
+        true_non_merged_ids = [
+            x for x in all_ids if not any(x in y for y in self.true_merged_ids)
+        ]
 
-        # Assume that IDs are not changed (merged origins are not available)
-        # For each origin-set, **exactly one** must be in the merged_df
+        # Assume that IDs are not changed (merged IDs are not available)
+        # For each ID-set, **exactly one** must be in the merged_df
 
         for true_non_merged_id in true_non_merged_ids:
             if true_non_merged_id in merged_df["ID"].tolist():
@@ -380,7 +352,7 @@ class DedupeBenchmarker:
             else:
                 results["FP"] += 1
 
-        for true_merged_id_set in true_merged_ids:
+        for true_merged_id_set in self.true_merged_ids:
             nr_in_merged_df = merged_df[merged_df["ID"].isin(true_merged_id_set)].shape[
                 0
             ]
@@ -422,7 +394,7 @@ class DedupeBenchmarker:
     ) -> pd.DataFrame:
         """Get the cases for results
 
-        records_df = [ID, origin, title, author, ...]
+        records_df = [ID, title, author, ...]
         results = {"blocks_FN_list", "matches_FP_list", "matches_FN_list", "updated_paper_pairs"}
         """
 
@@ -435,7 +407,7 @@ class DedupeBenchmarker:
 
         results = self.compare(
             blocked_df=blocked_df,
-            predicted=matches["duplicate_origin_sets"],
+            predicted=matches["duplicate_id_sets"],
             updated_paper_pairs=matches["updated_paper_pairs"],
         )
 
@@ -445,23 +417,24 @@ class DedupeBenchmarker:
             "matches_FN_list",
             "updated_paper_pairs",
         ]:
-            origin_pairs = results[list_name]
-            cases_df = pd.DataFrame()
-            for pair in origin_pairs:
-                pair_df = prepared_records_df[
-                    prepared_records_df[Fields.ORIGIN].isin(pair)
-                ].copy()
-                pair_df.loc[:, "case"] = ";".join(pair)
-                cases_df = pd.concat([cases_df, pair_df])
+            id_pairs = results[list_name]
+            pair_dfs = []
+            for pair in id_pairs:
+                if pair and any(prepared_records_df[Fields.ID].isin(pair)):
+                    pair_df = prepared_records_df[
+                        prepared_records_df[Fields.ID].isin(pair)
+                    ].copy()
+                    pair_df.loc[:, "case"] = ";".join(pair)
+                    pair_dfs.append(pair_df)
+            if pair_dfs:
+                cases_df = pd.concat(pair_dfs)
+            else:
+                cases_df = pd.DataFrame()
 
             if not cases_df.empty:
                 cases_df = cases_df[
-                    ["case", "ID", "colrev_origin"]
-                    + [
-                        col
-                        for col in cases_df.columns
-                        if col not in ["case", "ID", "colrev_origin"]
-                    ]
+                    ["case", "ID"]
+                    + [col for col in cases_df.columns if col not in ["case", "ID"]]
                 ]
                 cases_df = cases_df.sort_values(by=["case", "ID"])
 

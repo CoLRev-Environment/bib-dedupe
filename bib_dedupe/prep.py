@@ -65,6 +65,13 @@ JOURNAL_TRANSLATIONS_DICT[
 JOURNAL_TRANSLATIONS_DICT[
     "Revista Brasileira de Psiquiatria"
 ] = "Brazilian Journal of Psychiatry"
+JOURNAL_TRANSLATIONS_DICT[
+    "Jinko Chino Gakkai Ronbunshi"
+] = "Transactions of the Japanese Society for Artificial Intelligence"
+JOURNAL_TRANSLATIONS_DICT[
+    "Nihon Jibiinkoka Gakkai Kaiho"
+] = "Journal of Otolaryngology of Japan"
+JOURNAL_TRANSLATIONS_DICT["Aizheng"] = "Chinese Journal of Cancer"
 
 JOURNAL_TRANSLATIONS_DICT = {
     k.lower(): v.lower() for k, v in JOURNAL_TRANSLATIONS_DICT.items()
@@ -86,10 +93,6 @@ NAME_PREFIXES_LOWER = [
     "da",
     "di",
 ]
-
-
-def join_origin(origins_array: np.array) -> np.array:
-    return np.array([";".join(origins) for origins in origins_array])
 
 
 def set_container_title(records_df: pd.DataFrame) -> None:
@@ -183,6 +186,9 @@ def get_authors_split(authors: str) -> list:
 def prep_authors(authors_array: np.array, *, debug: bool = False) -> np.array:
     def preprocess_author(authors: str, *, debug: bool) -> str:
         authors = str(authors)
+
+        if authors in ["Anonymous"]:
+            return ""
 
         # Many databases do not handle accents properly...
         authors = (
@@ -414,6 +420,7 @@ def prep_title(title_array: np.array) -> np.array:
             for title in title_array
         ]
     )
+
     # Replace roman numbers
     title_array = np.array(
         [
@@ -532,6 +539,34 @@ JOURNAL_STOPWORDS = [
     "der",
 ]
 
+JOURNAL_ABBREV = {
+    "amer": "am",
+    "soci": "soc",
+    "expe": "exp",
+    "mole": "mol",
+    "scie": "sci",
+    "brit": "br",
+    "bole": "bol",
+    "inte": "int",
+    "arqu": "arq",
+    "polo": "pol",
+    "vete": "vet",
+    "desi": "des",
+    "mede": "med",
+    "tera": "ter",
+    "huma": "hum",
+    "revu": "rev",
+    "natu": "nat",
+    "move": "mov",
+    "cana": "can",
+    "euro": "eur",
+    "adva": "adv",
+    "medi": "med",
+    "anna": "ann",
+    "revi": "rev",
+    "rese": "res",
+}
+
 
 def prep_container_title(ct_array: np.array) -> np.array:
     def get_abbrev(ct: str) -> str:
@@ -560,30 +595,9 @@ def prep_container_title(ct_array: np.array) -> np.array:
 
         ct = " ".join(word[:4] for word in ct.split() if word not in JOURNAL_STOPWORDS)
         # use the same abbreviations (container_title is used for blocking)
-        ct = (
-            ct.replace("amer", "am")
-            .replace("soci", "soc")
-            .replace("expe", "exp")
-            .replace("mole", "mol")
-            .replace("scie", "sci")
-            .replace("brit", "br")
-            .replace("arqu", "arq")
-            .replace("polo", "pol")
-            .replace("vete", "vet")
-            .replace("desi", "des")
-            .replace("mede", "med")
-            .replace("tera", "ter")
-            .replace("huma", "hum")
-            .replace("revu", "rev")
-            .replace("move", "mov")
-            .replace("cana", "can")
-            .replace("euro", "eur")
-            .replace("adva", "adv")
-            .replace("medi", "med")
-            .replace("anna", "ann")
-            .replace("revi", "rev")
-            .replace("rese", "res")
-        )
+        for original, replacement in JOURNAL_ABBREV.items():
+            ct = ct.replace(original, replacement)
+
         # Replace trailing "supp" or leading "proc"
         ct = re.sub(r"^proc\s|\ssupp$", "", ct)
         return ct
@@ -623,9 +637,12 @@ def prep_container_title(ct_array: np.array) -> np.array:
     ct_array = np.array(
         [re.sub(r"\s*\([^)]*\)\s*$|('s)", "", value) for value in ct_array]
     )
+
     # ct_array = np.array([value.replace(".", " ") for value in ct_array])
+    ct_array = np.array(
+        [re.sub(r"^the\s|^(l')|", "", value, flags=re.IGNORECASE) for value in ct_array]
+    )
     ct_array = np.array([re.sub(r"[^A-Za-z ]+", " ", value) for value in ct_array])
-    ct_array = np.array([re.sub(r"^the\s", "", value) for value in ct_array])
     ct_array = np.array(
         [
             re.sub(r"^\s*(st|nd|rd|th) ", "", value, flags=re.IGNORECASE)
@@ -639,9 +656,14 @@ def prep_container_title(ct_array: np.array) -> np.array:
 def prep_year(year_array: np.array) -> np.array:
     def process_year(value: str) -> str:
         try:
-            return str(int(float(value)))
+            int_value = int(float(value))
+
+            if not 1900 < int_value < 2100:
+                return ""
+
         except ValueError:
-            return value
+            return ""
+        return str(int_value)
 
     return np.array([process_year(year) for year in year_array])
 
@@ -794,6 +816,13 @@ def prep_abstract(abstract_array: np.array) -> np.array:
 
     abstract_array = np.array(
         [
+            re.sub(r"^aims\s|^objectives|^background", "", abstract)
+            for abstract in abstract_array
+        ]
+    )
+
+    abstract_array = np.array(
+        [
             abstract[: abstract.rfind(". copyright")]
             if ". copyright" in abstract[-300:]
             else abstract[: abstract.rfind("©")]
@@ -806,6 +835,8 @@ def prep_abstract(abstract_array: np.array) -> np.array:
             if re.search(r"\.\s*\d{4}.*$", abstract)
             else re.sub(r" \(c\) \d{4}.*\.$", "", abstract)
             if re.search(r"\. \(c\) \d{4}.*\.$", abstract)
+            else re.sub(r"\.\(abstract truncated at 400 words\)$", "", abstract)
+            if ".(abstract truncated at 400 words)" in abstract[-80:]
             else abstract
             for abstract in abstract_array
         ]
@@ -829,7 +860,7 @@ def prep_abstract(abstract_array: np.array) -> np.array:
     )
     return np.array(
         [
-            "" if abstract == "nan" else abstract.lower().rstrip(" .")
+            "" if abstract == "nan" else abstract.lower().rstrip(" .").lstrip(" .")
             for abstract in abstract_array
         ]
     )
@@ -983,9 +1014,6 @@ def get_records_for_dedupe(records_df: pd.DataFrame, *, cpu: int = -1) -> pd.Dat
         if optional_field not in records_df:
             records_df[optional_field] = ""
 
-    if Fields.ORIGIN in records_df:
-        records_df[Fields.ORIGIN] = join_origin(records_df[Fields.ORIGIN].values)
-
     records_df.drop(
         labels=list(
             records_df.columns.difference(
@@ -1001,7 +1029,6 @@ def get_records_for_dedupe(records_df: pd.DataFrame, *, cpu: int = -1) -> pd.Dat
                     Fields.VOLUME,
                     Fields.NUMBER,
                     Fields.PAGES,
-                    Fields.ORIGIN,
                     Fields.STATUS,
                     Fields.ABSTRACT,
                     Fields.URL,
@@ -1064,6 +1091,7 @@ def get_records_for_dedupe(records_df: pd.DataFrame, *, cpu: int = -1) -> pd.Dat
 
     records_df["ID"] = records_df["ID"].astype(str)
     records_df.loc[records_df["title"] == "nan", "title"] = ""
+    records_df.loc[records_df["year"] == "nan", "year"] = ""
     records_df.loc[records_df["author_full"] == "nan", "author_full"] = ""
     records_df.loc[records_df["container_title"] == "nan", "container_title"] = ""
 

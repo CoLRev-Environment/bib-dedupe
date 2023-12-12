@@ -19,20 +19,6 @@ def sim_token_sort_ratio(string_1: str, string_2: str) -> float:
     return 0.0
 
 
-NON_WESTERN_NAME_PARTICLES = [
-    " wu",
-    "zho",
-    " chen",
-    " gong",
-    " liu",
-    " zha",
-    " ya",
-    " cha",
-    " tan",
-    " yua",
-]
-
-
 def sim_author(
     author_1: str,
     author_full_1: str,
@@ -42,6 +28,9 @@ def sim_author(
     """
     Calculate the author similarity between two strings.
     """
+
+    if author_1 == "" and author_2 == "":
+        return 0.0
 
     if author_1 == author_2:  # to save computational time
         return 1.0
@@ -57,12 +46,8 @@ def sim_author(
     author_partial_diff = fuzz.partial_ratio(author_1, author_2) / 100
 
     author_diff = 0.0
-    # if any(x in author_1 for x in NON_WESTERN_NAME_PARTICLES) and any(
-    #     x in author_2 for x in NON_WESTERN_NAME_PARTICLES
-    # ):
-    #     author_diff = fuzz.partial_token_sort_ratio(author_1, author_2) / 100
 
-    if len(author_full_1) > 20 and len(author_full_2) > 20:
+    if len(author_full_1) > 5 and len(author_full_2) > 5:
         # TODO : test whether similarity of capital letters may be sufficient (in combination with title/...)
         # Extract capital letters from both author_full_1 and author_full_2
         capital_letters_author_full_1 = re.findall(r"[A-Z]", author_full_1)
@@ -162,7 +147,15 @@ def sim_title(title_1: str, title_2: str, debug: bool = False) -> float:
     if any(
         [
             ((term in t1 and term not in t2) or (term in t2 and term not in t1))
-            for term in ["women", "comment", "response", "author"]
+            for term in [
+                "women",
+                "comment",
+                "response",
+                "author",
+                "erratum",
+                "protocol",
+                "correction",
+            ]
         ]
     ):
         return 0

@@ -33,30 +33,25 @@ def debug() -> None:
     p_printer = pprint.PrettyPrinter(indent=4, width=140, compact=False)
 
     while True:
-        origin_pair = input("origin_pair:")
+        id_pair = input("id_pair:")
 
         dedupe_instance = BibDeduper()
         dedupe_instance.debug = True  # to print details
 
         try:
-            if "case" in df_blocks.columns and origin_pair in df_blocks["case"].values:
-                print(f"Origin pair {origin_pair} found in blocks_FN_list.csv")
-            if (
-                "case" in df_matches.columns
-                and origin_pair in df_matches["case"].values
-            ):
-                print(f"Origin pair {origin_pair} found in matches_FN_list.csv")
+            if "case" in df_blocks.columns and id_pair in df_blocks["case"].values:
+                print(f"ID pair {id_pair} found in blocks_FN_list.csv")
+            if "case" in df_matches.columns and id_pair in df_matches["case"].values:
+                print(f"ID pair {id_pair} found in matches_FN_list.csv")
             if (
                 "case" in df_matches_fp.columns
-                and origin_pair in df_matches_fp["case"].values
+                and id_pair in df_matches_fp["case"].values
             ):
-                print(f"Origin pair {origin_pair} found in matches_FP_list.csv")
+                print(f"ID pair {id_pair} found in matches_FP_list.csv")
 
-            origin1, origin2 = origin_pair.split(";")
+            id1, id2 = id_pair.split(";")
             selected_prepared_records_df = records_df[
-                records_df["colrev_origin"].apply(
-                    lambda x: origin1 in x or origin2 in x
-                )
+                records_df["ID"].apply(lambda x: id1 == x or id2 == x)
             ]
 
             if selected_prepared_records_df.empty:

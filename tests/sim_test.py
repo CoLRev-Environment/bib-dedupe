@@ -137,6 +137,9 @@ def test_sim_container_title(
             "author s response comment re assessment safety silver household water treatment rapid systematic review mammalian vivo genotoxicity studies",
             0.0,
         ),
+        # ("cardiac vascular remodelling effect antihypertensive agents",
+        #  "session 2 cardiac vascular remodelling effect antihypertensive agents",
+        #  1.0),
         ("", "", 0.0),
     ],
 )
@@ -177,6 +180,7 @@ def test_sim_title(title_1: str, title_2: str, expected_output: float) -> None:
             "Van Wylen D. G. L.Manthei S. A.",
             0.9285714285714286,
         ),
+        ("jabeen", "JabeenHaleem D.", "haleem", "HaleemD.J.", 1.0),
     ],
 )
 def test_sim_author(

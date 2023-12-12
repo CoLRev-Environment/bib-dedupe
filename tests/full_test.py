@@ -24,7 +24,7 @@ def test_full() -> None:
     matches = dedupe_instance.match(
         actual_blocked_df, merge_updated_papers=merge_updated_papers
     )
-
+    print(matches)
     merged_df = dedupe_instance.merge(records_df, matches=matches)
 
     result = dedupe_benchmark.compare_dedupe_id(

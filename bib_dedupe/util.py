@@ -7,7 +7,6 @@ import pprint
 from collections import defaultdict
 from itertools import combinations
 from pathlib import Path
-from typing import Dict
 from typing import List
 
 import matplotlib.pyplot as plt
@@ -37,7 +36,7 @@ class BibDedupeUtil:
         self,
         *,
         records_df: pd.DataFrame,
-        true_merged_origins: list,
+        true_merged_ids: list,
         benchmark_path: Path,
     ) -> None:
         """
@@ -49,26 +48,6 @@ class BibDedupeUtil:
         benchmark_path.mkdir(parents=True, exist_ok=True)
 
         records_df = records_df.copy()
-        merged_origins = true_merged_origins
-
-        all_origins = records_df[Fields.ORIGIN].tolist()
-        all_origins_dict = {x: "" for n in all_origins for x in n}
-
-        # anonymize origins
-        source_dict: Dict[str, str] = {}
-        for i, key in enumerate(all_origins_dict.keys()):
-            source = key.split("/")[0]
-            if source not in source_dict:
-                source_dict[source] = f"source_{len(source_dict)}.bib"
-            new_key = f"{source_dict[source]}/{str(i).zfill(10)}"
-            all_origins_dict[key] = new_key
-        records_df[Fields.ORIGIN] = records_df[Fields.ORIGIN].apply(
-            lambda x: [all_origins_dict.get(i, i) for i in x]
-        )
-        merged_origins = [
-            [all_origins_dict.get(sub_origin, sub_origin) for sub_origin in origin]
-            for origin in merged_origins
-        ]
 
         records_df = records_df[
             records_df.columns.intersection(
@@ -77,7 +56,6 @@ class BibDedupeUtil:
                     + [
                         Fields.ID,
                         Fields.ENTRYTYPE,
-                        Fields.ORIGIN,
                         Fields.STATUS,
                         Fields.DOI,
                         Fields.ISBN,
@@ -91,9 +69,9 @@ class BibDedupeUtil:
             str(benchmark_path / Path("records_pre_merged.csv")), index=False
         )
 
-        merged_record_origins_df = pd.DataFrame({"merged_origins": merged_origins})
-        merged_record_origins_df.to_csv(
-            str(benchmark_path / Path("merged_record_origins.csv")), index=False
+        merged_record_ids_df = pd.DataFrame({"case": true_merged_ids})
+        merged_record_ids_df.to_csv(
+            str(benchmark_path / Path("merged_record_ids.csv")), index=False
         )
 
     def add_external_evaluations(self, dataset_df: pd.DataFrame) -> pd.DataFrame:
@@ -474,7 +452,7 @@ class BibDedupeUtil:
                 dataset_df[dataset_df["dataset"] != "problem_cases"]
                 .drop_duplicates(subset=["package", "dataset"], keep="first")
                 .groupby(["package"])
-                .sum()
+                .sum(numeric_only=True)
                 .reset_index()
             )
 
@@ -557,12 +535,12 @@ class BibDedupeUtil:
                 f.write("\n\n")
 
 
-def connected_components(origin_sets: list) -> list:
+def connected_components(id_sets: list) -> list:
     """
     Find the connected components in a graph.
 
     Args:
-        origin_sets (list): A list of origin sets.
+        id_sets (list): A list of id sets.
 
     Returns:
         list: A list of connected components.
@@ -577,8 +555,8 @@ def connected_components(origin_sets: list) -> list:
                 dfs(neighbor, graph, visited, component)
 
     # Create an adjacency list
-    for origin_set in origin_sets:
-        for combination in combinations(origin_set, 2):
+    for id_set in id_sets:
+        for combination in combinations(id_set, 2):
             graph[combination[0]].append(combination[1])
             graph[combination[1]].append(combination[0])
 
