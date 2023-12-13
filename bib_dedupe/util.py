@@ -9,7 +9,6 @@ from itertools import combinations
 from pathlib import Path
 from typing import List
 
-import matplotlib.pyplot as plt
 import pandas as pd
 
 from bib_dedupe.constants import Fields
@@ -326,6 +325,11 @@ class BibDedupeUtil:
         return dataset_df
 
     def create_plot(self, dataset_df: pd.DataFrame) -> None:
+        try:
+            import matplotlib.pyplot as plt
+        except ModuleNotFoundError:
+            return
+
         grouped_df = (
             dataset_df.groupby(["package"], group_keys=True)
             .apply(lambda x: x.sort_values("time").tail(1))
