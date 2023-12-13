@@ -5,11 +5,11 @@ import os
 import re
 import time
 import typing
+import unicodedata
 import urllib.parse
 from datetime import datetime
 from pathlib import Path
 
-import colrev.record
 import numpy as np
 import pandas as pd
 from number_parser import parse
@@ -184,6 +184,35 @@ def get_authors_split(authors: str) -> list:
     return [author.rstrip() for author in authors_list if author != ""]
 
 
+def remove_accents(*, input_str: str) -> str:
+    """Replace the accents in a string"""
+
+    def rmdiacritics(char: str) -> str:
+        """
+        Return the base character of char, by "removing" any
+        diacritics like accents or curls and strokes and the like.
+        """
+        try:
+            desc = unicodedata.name(char)
+            cutoff = desc.find(" WITH ")
+            if cutoff != -1:
+                desc = desc[:cutoff]
+                char = unicodedata.lookup(desc)
+        except (KeyError, ValueError):
+            pass  # removing "WITH ..." produced an invalid name
+        return char
+
+    try:
+        nfkd_form = unicodedata.normalize("NFKD", input_str)
+        wo_ac_list = [
+            rmdiacritics(c) for c in nfkd_form if not unicodedata.combining(c)
+        ]
+        wo_ac = "".join(wo_ac_list)
+    except ValueError:
+        wo_ac = input_str
+    return wo_ac
+
+
 def prep_authors(authors_array: np.array, *, debug: bool = False) -> np.array:
     def preprocess_author(authors: str, *, debug: bool) -> str:
         authors = str(authors)
@@ -193,7 +222,7 @@ def prep_authors(authors_array: np.array, *, debug: bool = False) -> np.array:
 
         # Many databases do not handle accents properly...
         authors = (
-            colrev.env.utils.remove_accents(input_str=authors)
+            remove_accents(input_str=authors)
             .replace("ue", "u")
             .replace("oe", "o")
             .replace("ae", "a")
@@ -979,15 +1008,15 @@ def get_records_for_dedupe(records_df: pd.DataFrame, *, cpu: int = -1) -> pd.Dat
     )
 
     if Fields.STATUS not in records_df:
-        records_df[Fields.STATUS] = colrev.record.RecordState.md_processed
+        records_df[Fields.STATUS] = "md_processed"
         print("setting missing status")
 
     records_df = records_df[
         ~(
             records_df[Fields.STATUS].isin(
                 [
-                    colrev.record.RecordState.md_imported,
-                    colrev.record.RecordState.md_needs_manual_preparation,
+                    "md_imported",
+                    "md_needs_manual_preparation",
                 ]
             )
         )

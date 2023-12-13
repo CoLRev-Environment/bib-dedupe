@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """Constants for bib-dedupe"""
 # pylint: disable=too-few-public-methods
-# pylint: disable=colrev-missed-constant-usage
 
 
 class ENTRYTYPES:

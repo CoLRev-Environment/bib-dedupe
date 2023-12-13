@@ -9,13 +9,13 @@ from itertools import combinations
 from pathlib import Path
 from typing import Optional
 
-import colrev.ops.dedupe
-import colrev.review_manager
 import pandas as pd
 from colrev.constants import Fields
 from tqdm import tqdm
 
+import bib_dedupe.cluster
 import bib_dedupe.util
+from bib_dedupe.bib_dedupe import BibDeduper
 
 
 class DedupeBenchmarker:
@@ -86,14 +86,14 @@ class DedupeBenchmarker:
             pd.DataFrame: Pre-processed records for dedupe
         """
 
-        prepared_records_df = colrev.ops.dedupe.Dedupe.get_records_for_dedupe(
-            records_df=self.records_df
-        )
-        return prepared_records_df
+        dedupe_instance = BibDeduper()
+        return dedupe_instance.get_records_for_dedupe(records_df=self.records_df)
 
     # pylint: disable=too-many-locals
     def __get_dedupe_benchmark(self) -> None:
         """Get benchmark for dedupe"""
+        import colrev.review_manager
+        import colrev.record
 
         def merged(record: dict) -> bool:
             return (

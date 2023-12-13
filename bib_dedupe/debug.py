@@ -29,7 +29,9 @@ def debug() -> None:
         benchmark_path=Path.cwd(),
         merge_updated_papers=True,
     )
+
     records_df = dedupe_benchmark.get_records_for_dedupe()
+
     p_printer = pprint.PrettyPrinter(indent=4, width=140, compact=False)
 
     while True:

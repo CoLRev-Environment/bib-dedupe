@@ -10,7 +10,6 @@ import bib_dedupe.util
 
 
 def get_connected_components(duplicates_df: pd.DataFrame) -> list:
-
     if duplicates_df.empty:
         return []
 

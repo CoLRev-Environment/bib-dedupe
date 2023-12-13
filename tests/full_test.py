@@ -16,6 +16,7 @@ def test_full() -> None:
     dedupe_benchmark = DedupeBenchmarker(
         benchmark_path=benchmark_path, merge_updated_papers=merge_updated_papers
     )
+
     records_df = dedupe_benchmark.get_records_for_dedupe()
 
     # Bib-dedupe
