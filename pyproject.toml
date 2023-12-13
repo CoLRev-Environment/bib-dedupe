@@ -17,6 +17,7 @@ pytest = {version = "^7.2.1", optional = true }
 coverage = {extras = ["toml"], version = "^7.3.2", optional = true }
 number-parser = "^0.3.2"
 numpy = "^1.19.5"
+pandas = "^1.3.4"
 
 [tool.poetry.extras]
 dev = ["pylint", "pytest", "coverage", "pytest-skip-slow"]
