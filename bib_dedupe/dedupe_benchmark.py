@@ -10,7 +10,6 @@ from pathlib import Path
 from typing import Optional
 
 import pandas as pd
-from colrev.constants import Fields
 from tqdm import tqdm
 
 import bib_dedupe.cluster
@@ -94,6 +93,7 @@ class DedupeBenchmarker:
         """Get benchmark for dedupe"""
         import colrev.review_manager
         import colrev.record
+        from colrev.constants import Fields
 
         def merged(record: dict) -> bool:
             return (
