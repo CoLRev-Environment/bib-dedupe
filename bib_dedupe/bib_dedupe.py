@@ -44,7 +44,7 @@ class BibDeduper:
     # pylint: disable=line-too-long
     def match(
         self, pairs_df: pd.DataFrame, *, merge_updated_papers: bool = True
-    ) -> dict:
+    ) -> pd.DataFrame:
         """
         Identifies the true matches from the given pairs.
 

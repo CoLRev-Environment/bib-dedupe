@@ -356,7 +356,6 @@ def test_prep_title(input_title: str, expected_output: str) -> None:
             "Supplement. Kongressband. Deutsche Gesellschaft fur Chirurgie. Kongress. 115",
             "115",
         ),
-        ("Shariqah (United Arab Emirates", ""),
         ("SUPPL", ""),
         ("(Jul)", ""),
     ],
@@ -373,6 +372,7 @@ def test_prep_volume(input_volume: str, expected_output: str) -> None:
         ("Suppl2", "2"),
         ("6 51-6", "6"),
         ("La Semaine des hopitaux", ""),
+        ("Shariqah (United Arab Emirates", ""),
     ],
 )
 def test_prep_number(input_number: str, expected_output: str) -> None:

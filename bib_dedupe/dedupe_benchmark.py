@@ -390,9 +390,7 @@ class DedupeBenchmarker:
         *,
         prepared_records_df: pd.DataFrame,
         blocked_df: pd.DataFrame,
-        # TODO : no longer working with matches, but with a matched_df!
         matched_df: pd.DataFrame,
-        # matches: dict,
     ) -> None:
         """Get the cases for results
 
@@ -403,7 +401,9 @@ class DedupeBenchmarker:
 
         maybe_cases_df = matched_df[matched_df["duplicate_label"] == "maybe"]
 
-        maybe_cases_df["case"] = maybe_cases_df["ID_1"] + ";" + maybe_cases_df["ID_2"]
+        maybe_cases_df.loc[:, "case"] = (
+            maybe_cases_df["ID_1"] + ";" + maybe_cases_df["ID_2"]
+        )
         maybe_df_copy = maybe_cases_df.copy()
         maybe_df_1 = pd.merge(
             maybe_df_copy,
@@ -434,19 +434,17 @@ class DedupeBenchmarker:
         results = self.compare(
             blocked_df=blocked_df,
             predicted=duplicate_id_sets,
-            # updated_paper_pairs=matches["updated_paper_pairs"],
         )
 
         for list_name in [
             "blocks_FN_list",
             "matches_FP_list",
             "matches_FN_list",
-            # "updated_paper_pairs",
         ]:
             id_pairs = results[list_name]
 
             id_pairs_cases_df = pd.DataFrame(id_pairs, columns=["ID_1", "ID_2"])
-            id_pairs_cases_df["case"] = (
+            id_pairs_cases_df.loc[:, "case"] = (
                 id_pairs_cases_df["ID_1"] + ";" + id_pairs_cases_df["ID_2"]
             )
 
@@ -469,20 +467,6 @@ class DedupeBenchmarker:
             cases_df = pd.concat([id_pairs_df_1, id_pairs_df_2])
             cases_df = cases_df.sort_values(by="case")
             cases_df = cases_df.drop(columns=["ID_1", "ID_2"])
-
-            # pair_dfs = []
-            # for pair in id_pairs:
-            #     if pair and any(prepared_records_df[Fields.ID].isin(pair)):
-            #         pair_df = prepared_records_df[
-            #             prepared_records_df[Fields.ID].isin(pair)
-            #         ].copy()
-            #         pair_df.loc[:, "case"] = ";".join(pair)
-            #         pair_dfs.append(pair_df)
-
-            # if pair_dfs:
-            #     cases_df = pd.concat(pair_dfs)
-            # else:
-            #     cases_df = pd.DataFrame()
 
             if not cases_df.empty:
                 cases_df = cases_df[

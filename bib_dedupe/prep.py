@@ -72,6 +72,7 @@ JOURNAL_TRANSLATIONS_DICT[
     "Nihon Jibiinkoka Gakkai Kaiho"
 ] = "Journal of Otolaryngology of Japan"
 JOURNAL_TRANSLATIONS_DICT["Aizheng"] = "Chinese Journal of Cancer"
+JOURNAL_TRANSLATIONS_DICT["Rinsho Shinkeigaku"] = "Clinical neurology"
 
 JOURNAL_TRANSLATIONS_DICT = {
     k.lower(): v.lower() for k, v in JOURNAL_TRANSLATIONS_DICT.items()
@@ -727,7 +728,12 @@ def prep_number(number_array: np.array) -> np.array:
         ]
     )
 
-    number_array = np.array([number.replace(" ", "") for number in number_array])
+    number_array = np.array(
+        [
+            number.replace(" ", "").replace("(", "").replace(")", "")
+            for number in number_array
+        ]
+    )
 
     return np.array(
         ["" if number in ["nan", "var.pagings"] else number for number in number_array]

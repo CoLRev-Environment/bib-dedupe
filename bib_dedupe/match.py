@@ -32,7 +32,7 @@ def match(
     merge_updated_papers: bool,
     include_metadata: bool = False,
     debug: bool = False,
-) -> dict:
+) -> pd.DataFrame:
     p_printer = pprint.PrettyPrinter(indent=4, width=140, compact=False)
     pairs = bib_dedupe.sim.calculate_similarities(pairs)
 
@@ -195,6 +195,6 @@ def match(
     updated_paper_pairs = updated_paper_pairs[["ID_1", "ID_2", "duplicate_label"]]
 
     # Concatenate the dataframes
-    result = pd.concat([true_pairs, maybe_pairs, updated_paper_pairs])
+    result_df = pd.concat([true_pairs, maybe_pairs, updated_paper_pairs])
 
-    return result
+    return result_df
