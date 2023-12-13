@@ -70,13 +70,6 @@ def match(
 
     updated_paper_pairs = pairs.query("(" + " | ".join(updated_pair_conditions) + ")")
 
-    updated_paper_pair_id_sets = [
-        list(row[["ID_1", "ID_2"]]) for _, row in updated_paper_pairs.iterrows()
-    ]
-    updated_paper_pairs_id_sets = bib_dedupe.util.connected_components(
-        id_sets=updated_paper_pair_id_sets
-    )
-
     duplicate_conditions = bib_dedupe.conditions.duplicate_conditions
     if debug:
         if pairs.shape[0] != 0:
@@ -186,17 +179,22 @@ def match(
             list(row[["ID_1", "ID_2"]]) for _, row in updated_paper_pairs.iterrows()
         ]
 
-    duplicate_id_sets = bib_dedupe.util.connected_components(id_sets=id_sets)
-
     end_time = time.time()
     print(f"Match completed after: {end_time - start_time:.2f} seconds")
 
-    # TODO : return one df with a "duplicate_label" column
     # TODO : drop metadata if include_metadata False
 
-    return {
-        "duplicate_id_sets": duplicate_id_sets,
-        "true_pairs": true_pairs,
-        "maybe_pairs": maybe_pairs,
-        "updated_paper_pairs": updated_paper_pairs_id_sets,
-    }
+    # Add a label column to each dataframe
+    true_pairs["duplicate_label"] = "duplicate"
+    maybe_pairs["duplicate_label"] = "maybe"
+    updated_paper_pairs["duplicate_label"] = "updated_version"
+
+    # Select the ID_1 and ID_2 fields and the new label column
+    true_pairs = true_pairs[["ID_1", "ID_2", "duplicate_label"]]
+    maybe_pairs = maybe_pairs[["ID_1", "ID_2", "duplicate_label"]]
+    updated_paper_pairs = updated_paper_pairs[["ID_1", "ID_2", "duplicate_label"]]
+
+    # Concatenate the dataframes
+    result = pd.concat([true_pairs, maybe_pairs, updated_paper_pairs])
+
+    return result

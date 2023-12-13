@@ -220,7 +220,7 @@ class DedupeBenchmarker:
         *,
         blocked_df: pd.DataFrame,
         predicted: list,
-        updated_paper_pairs: list,
+        # updated_paper_pairs: list,
     ) -> dict:
         """Compare the predicted matches and blocked pairs to the ground truth."""
 
@@ -285,7 +285,7 @@ class DedupeBenchmarker:
             "matches_FP_list": matches_fp_list,
             "matches_FN_list": matches_fn_list,
             "blocks": blocks,
-            "updated_paper_pairs": updated_paper_pairs,
+            # "updated_paper_pairs": updated_paper_pairs,
         }
 
     def get_runtime(self, timestamp: datetime) -> str:
@@ -390,46 +390,99 @@ class DedupeBenchmarker:
         *,
         prepared_records_df: pd.DataFrame,
         blocked_df: pd.DataFrame,
-        matches: dict,
-    ) -> pd.DataFrame:
+        # TODO : no longer working with matches, but with a matched_df!
+        matched_df: pd.DataFrame,
+        # matches: dict,
+    ) -> None:
         """Get the cases for results
 
         records_df = [ID, title, author, ...]
+        blocked_df = ...
         results = {"blocks_FN_list", "matches_FP_list", "matches_FN_list", "updated_paper_pairs"}
         """
 
-        matches["maybe_pairs"].to_csv(
-            self.benchmark_path / "maybe_pairs.csv", index=False
+        maybe_cases_df = matched_df[matched_df["duplicate_label"] == "maybe"]
+
+        maybe_cases_df["case"] = maybe_cases_df["ID_1"] + ";" + maybe_cases_df["ID_2"]
+        maybe_df_copy = maybe_cases_df.copy()
+        maybe_df_1 = pd.merge(
+            maybe_df_copy,
+            prepared_records_df,
+            left_on="ID_2",
+            right_on="ID",
+            how="inner",
         )
+        maybe_df_2 = pd.merge(
+            maybe_cases_df,
+            prepared_records_df,
+            left_on="ID_1",
+            right_on="ID",
+            how="inner",
+        )
+
+        maybe_df = pd.concat([maybe_df_1, maybe_df_2])
+        maybe_df = maybe_df.sort_values(by="case")
+        maybe_df = maybe_df.drop(columns=["ID_1", "ID_2", "duplicate_label"])
+
+        maybe_df.to_csv(self.benchmark_path / "maybe_pairs.csv", index=False)
 
         print("Export started at", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         start_time = time.time()
 
+        duplicate_id_sets = bib_dedupe.cluster.get_connected_components(matched_df)
+
         results = self.compare(
             blocked_df=blocked_df,
-            predicted=matches["duplicate_id_sets"],
-            updated_paper_pairs=matches["updated_paper_pairs"],
+            predicted=duplicate_id_sets,
+            # updated_paper_pairs=matches["updated_paper_pairs"],
         )
 
         for list_name in [
             "blocks_FN_list",
             "matches_FP_list",
             "matches_FN_list",
-            "updated_paper_pairs",
+            # "updated_paper_pairs",
         ]:
             id_pairs = results[list_name]
-            pair_dfs = []
-            for pair in id_pairs:
-                if pair and any(prepared_records_df[Fields.ID].isin(pair)):
-                    pair_df = prepared_records_df[
-                        prepared_records_df[Fields.ID].isin(pair)
-                    ].copy()
-                    pair_df.loc[:, "case"] = ";".join(pair)
-                    pair_dfs.append(pair_df)
-            if pair_dfs:
-                cases_df = pd.concat(pair_dfs)
-            else:
-                cases_df = pd.DataFrame()
+
+            id_pairs_cases_df = pd.DataFrame(id_pairs, columns=["ID_1", "ID_2"])
+            id_pairs_cases_df["case"] = (
+                id_pairs_cases_df["ID_1"] + ";" + id_pairs_cases_df["ID_2"]
+            )
+
+            id_pairs_cases_df_copy = id_pairs_cases_df.copy()
+            id_pairs_df_1 = pd.merge(
+                id_pairs_cases_df_copy,
+                prepared_records_df,
+                left_on="ID_2",
+                right_on="ID",
+                how="inner",
+            )
+            id_pairs_df_2 = pd.merge(
+                id_pairs_cases_df,
+                prepared_records_df,
+                left_on="ID_1",
+                right_on="ID",
+                how="inner",
+            )
+
+            cases_df = pd.concat([id_pairs_df_1, id_pairs_df_2])
+            cases_df = cases_df.sort_values(by="case")
+            cases_df = cases_df.drop(columns=["ID_1", "ID_2"])
+
+            # pair_dfs = []
+            # for pair in id_pairs:
+            #     if pair and any(prepared_records_df[Fields.ID].isin(pair)):
+            #         pair_df = prepared_records_df[
+            #             prepared_records_df[Fields.ID].isin(pair)
+            #         ].copy()
+            #         pair_df.loc[:, "case"] = ";".join(pair)
+            #         pair_dfs.append(pair_df)
+
+            # if pair_dfs:
+            #     cases_df = pd.concat(pair_dfs)
+            # else:
+            #     cases_df = pd.DataFrame()
 
             if not cases_df.empty:
                 cases_df = cases_df[
@@ -457,5 +510,3 @@ class DedupeBenchmarker:
 
         end_time = time.time()
         print(f"Export completed after: {end_time - start_time:.2f} seconds")
-
-        return cases_df

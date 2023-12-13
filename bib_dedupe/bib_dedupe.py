@@ -66,7 +66,10 @@ class BibDeduper:
         )
 
     def merge(
-        self, records_df: pd.DataFrame, *, matches: typing.Optional[dict] = None
+        self,
+        records_df: pd.DataFrame,
+        *,
+        duplicate_id_sets: typing.Optional[list] = None,
     ) -> pd.DataFrame:
         """
         This function returns a DataFrame after merging the records.
@@ -79,22 +82,29 @@ class BibDeduper:
             pd.DataFrame: The merged DataFrame.
         """
 
-        if not matches:
-            actual_blocked_df = self.block(records_df=records_df)
-            matches = self.match(actual_blocked_df)
+        if not duplicate_id_sets:
+            blocked_df = self.block(records_df=records_df)
+            matched_df = self.match(blocked_df)
+            duplicate_id_sets = bib_dedupe.cluster.get_connected_components(matched_df)
 
-        return bib_dedupe.merge.merge(records_df, matches=matches)
+        return bib_dedupe.merge.merge(records_df, duplicate_id_sets=duplicate_id_sets)
 
 
 def merge(
-    records_df: pd.DataFrame, *, matches: typing.Optional[dict] = None
+    records_df: pd.DataFrame,
+    *,
+    matches: typing.Optional[dict] = None,
+    merge_updated_papers: bool = True,
 ) -> pd.DataFrame:
     deduper = BibDeduper()
     # Block records
     blocked_df = deduper.block(records_df=records_df)
     # Identify matches
-    matches = deduper.match(blocked_df)
+    matched_df = bib_dedupe.match.match(
+        blocked_df, merge_updated_papers=merge_updated_papers
+    )
+    duplicate_id_sets = bib_dedupe.cluster.get_connected_components(matched_df)
 
     # Merge
-    merged_df = deduper.merge(records_df, matches=matches)
+    merged_df = deduper.merge(records_df, duplicate_id_sets=duplicate_id_sets)
     return merged_df

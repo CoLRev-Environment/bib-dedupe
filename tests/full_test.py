@@ -1,6 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 
+import bib_dedupe.cluster
 from bib_dedupe.bib_dedupe import BibDeduper
 from bib_dedupe.dedupe_benchmark import DedupeBenchmarker
 
@@ -21,11 +22,12 @@ def test_full() -> None:
     dedupe_instance = BibDeduper()
     timestamp = datetime.now()
     actual_blocked_df = dedupe_instance.block(records_df=records_df)
-    matches = dedupe_instance.match(
+    matched_df = dedupe_instance.match(
         actual_blocked_df, merge_updated_papers=merge_updated_papers
     )
-    print(matches)
-    merged_df = dedupe_instance.merge(records_df, matches=matches)
+    duplicate_id_sets = bib_dedupe.cluster.get_connected_components(matched_df)
+    print(duplicate_id_sets)
+    merged_df = dedupe_instance.merge(records_df, duplicate_id_sets=duplicate_id_sets)
 
     result = dedupe_benchmark.compare_dedupe_id(
         records_df=records_df, merged_df=merged_df, timestamp=timestamp
