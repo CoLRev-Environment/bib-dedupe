@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bib-dedupe"
-version = "0.3.0"
+version = "0.4.0"
 description = "Identify and merge duplicates in bibliographic records"
 authors = ["Gerit Wagner <gerit.wagner@uni-bamberg.de>"]
 license = "MIT"
