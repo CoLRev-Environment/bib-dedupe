@@ -10,6 +10,10 @@ import bib_dedupe.util
 
 
 def get_connected_components(duplicates_df: pd.DataFrame) -> list:
+
+    if duplicates_df.empty:
+        return []
+
     duplicates_df = duplicates_df[duplicates_df["duplicate_label"] == "duplicate"]
     id_sets = duplicates_df[["ID_1", "ID_2"]].values.tolist()
 
