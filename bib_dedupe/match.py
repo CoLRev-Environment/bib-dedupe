@@ -43,12 +43,7 @@ def match(
         end_time = time.time()
         print(f"Match completed after: {end_time - start_time:.2f} seconds")
 
-        return {
-            "duplicate_id_sets": list(),
-            "true_pairs": pd.DataFrame(),
-            "maybe_pairs": pd.DataFrame(),
-            "updated_paper_pairs": pd.DataFrame(),
-        }
+        return pd.DataFrame(columns=["ID_1", "ID_2", "duplicate_label"])
 
     for field in SIM_FIELDS:
         pairs[field] = pairs[field].astype(float)
