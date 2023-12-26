@@ -14,7 +14,7 @@ from tqdm import tqdm
 
 import bib_dedupe.cluster
 import bib_dedupe.util
-from bib_dedupe.bib_dedupe import BibDeduper
+from bib_dedupe.constants import Fields
 
 
 class DedupeBenchmarker:
@@ -28,7 +28,6 @@ class DedupeBenchmarker:
     def __init__(
         self,
         *,
-        merge_updated_papers: bool,
         benchmark_path: Optional[Path] = None,
         regenerate_benchmark_from_history: bool = False,
         colrev_project_path: Optional[Path] = None,
@@ -48,7 +47,6 @@ class DedupeBenchmarker:
         self.updated_papers_ids_path = Path(
             self.benchmark_path, "updated_papers_ids.csv"
         )
-        self.merge_updated_papers = merge_updated_papers
         if regenerate_benchmark_from_history:
             self.__get_dedupe_benchmark()
         else:
@@ -58,21 +56,19 @@ class DedupeBenchmarker:
         true_merged_ids_df = pd.read_csv(str(self.merged_record_ids_path))
         self.true_merged_ids = true_merged_ids_df["merged_ids"].str.split(";").tolist()
 
-        if self.merge_updated_papers:
-            if self.updated_papers_ids_path.is_file():
-                true_updated_papers_ids_df = pd.read_csv(
-                    str(self.updated_papers_ids_path)
-                )
-            else:
-                true_updated_papers_ids_df = pd.DataFrame(columns=["ids"])
+        # Updated paper versions are considered duplicates.
+        if self.updated_papers_ids_path.is_file():
+            true_updated_papers_ids_df = pd.read_csv(str(self.updated_papers_ids_path))
+        else:
+            true_updated_papers_ids_df = pd.DataFrame(columns=["ids"])
 
-            # print("before", self.true_merged_ids)
-            self.true_merged_ids = bib_dedupe.util.connected_components(
-                self.true_merged_ids
-                + true_updated_papers_ids_df["ids"].str.split(";").tolist()
-            )
+        # print("before", self.true_merged_ids)
+        self.true_merged_ids = bib_dedupe.util.connected_components(
+            self.true_merged_ids
+            + true_updated_papers_ids_df["ids"].str.split(";").tolist()
+        )
 
-            # print("after", self.true_merged_ids)
+        # print("after", self.true_merged_ids)
 
         records_df = pd.read_csv(str(self.records_pre_merged_path))
         self.records_df = records_df
@@ -85,8 +81,7 @@ class DedupeBenchmarker:
             pd.DataFrame: Pre-processed records for dedupe
         """
 
-        dedupe_instance = BibDeduper()
-        return dedupe_instance.get_records_for_dedupe(records_df=self.records_df)
+        return self.records_df
 
     # pylint: disable=too-many-locals
     def __get_dedupe_benchmark(self) -> None:
@@ -373,13 +368,16 @@ class DedupeBenchmarker:
 
         results["specificity"] = specificity
         results["sensitivity"] = sensitivity
-        results["precision"] = results["TP"] / (results["TP"] + results["FP"])
-
-        results["f1"] = (
-            2
-            * (results["precision"] * results["sensitivity"])
-            / (results["precision"] + results["sensitivity"])
-        )
+        if (results["TP"] + results["FP"]) > 0:
+            results["precision"] = results["TP"] / (results["TP"] + results["FP"])
+            results["f1"] = (
+                2
+                * (results["precision"] * results["sensitivity"])
+                / (results["precision"] + results["sensitivity"])
+            )
+        else:
+            results["precision"] = 0.0
+            results["f1"] = 0.0
 
         results["dataset"] = Path(self.benchmark_path).name
 
@@ -400,6 +398,14 @@ class DedupeBenchmarker:
         """
 
         maybe_cases_df = matched_df[matched_df["duplicate_label"] == "maybe"]
+
+        prepared_records_df = prepared_records_df.drop(
+            columns=[
+                Fields.TITLE_SHORT,
+                Fields.AUTHOR_FIRST,
+                Fields.CONTAINER_TITLE_SHORT,
+            ]
+        )
 
         maybe_cases_df.loc[:, "case"] = (
             maybe_cases_df["ID_1"] + ";" + maybe_cases_df["ID_2"]

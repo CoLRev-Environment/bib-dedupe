@@ -29,7 +29,6 @@ SIM_FIELDS = [
 def match(
     pairs: pd.DataFrame,
     *,
-    merge_updated_papers: bool,
     include_metadata: bool = False,
     debug: bool = False,
 ) -> pd.DataFrame:
@@ -78,8 +77,14 @@ def match(
                 Fields.ABSTRACT,
                 Fields.YEAR,
                 Fields.DOI,
+                Fields.PAGE_RANGES_ADJACENT,
             ]:
                 similarity = pairs.loc[0, item]
+                if item == Fields.PAGE_RANGES_ADJACENT:
+                    print(
+                        f"{Colors.RED}{Fields.PAGE_RANGES_ADJACENT}: {similarity}{Colors.END}"
+                    )
+                    continue
                 if similarity > 0.9:
                     print(
                         f"{Colors.GREEN}Similarity {item:<20}: {similarity:.2f}{Colors.END}"
@@ -105,6 +110,7 @@ def match(
     non_duplicate_conditions = bib_dedupe.conditions.non_duplicate_conditions
     if debug:
         print()
+        print(pairs)
         print("Exclude conditions:")
         for non_duplicate_condition in non_duplicate_conditions:
             if pairs.query(non_duplicate_condition).shape[0] != 0:
@@ -114,14 +120,8 @@ def match(
 
     true_pairs = true_pairs.query("~(" + " | ".join(non_duplicate_conditions) + ")")
 
-    if merge_updated_papers:
-        # add updated pairs to true pairs
-        # input(updated_paper_pairs)
-        true_pairs = pd.concat([true_pairs, updated_paper_pairs])
-
-    else:
-        # remove updated_pairs from true_pairs (based on their conditions)
-        true_pairs = true_pairs.query("~(" + " | ".join(updated_pair_conditions) + ")")
+    # add updated pairs to true pairs
+    true_pairs = pd.concat([true_pairs, updated_paper_pairs])
 
     true_pairs = true_pairs.drop_duplicates()
 
@@ -166,13 +166,12 @@ def match(
     # important_mismatch = true_pairs_mismatch_doi
     # maybe_pairs = pd.concat([maybe_pairs, important_mismatch])
     maybe_pairs = maybe_pairs.drop_duplicates()
-
-    id_sets = [list(row[["ID_1", "ID_2"]]) for _, row in true_pairs.iterrows()]
-
-    if merge_updated_papers:
-        id_sets += [
-            list(row[["ID_1", "ID_2"]]) for _, row in updated_paper_pairs.iterrows()
-        ]
+    # Drop from maybe_pairs where ID_1 ID_2 combinations are in true_pairs
+    maybe_pairs = maybe_pairs[
+        ~maybe_pairs.set_index(["ID_1", "ID_2"]).index.isin(
+            true_pairs.set_index(["ID_1", "ID_2"]).index
+        )
+    ]
 
     end_time = time.time()
     print(f"Match completed after: {end_time - start_time:.2f} seconds")

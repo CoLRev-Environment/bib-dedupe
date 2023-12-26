@@ -4,6 +4,8 @@ import pprint
 
 import pandas as pd
 
+from bib_dedupe.bib_dedupe import prep
+
 
 def debug() -> None:
     try:
@@ -22,23 +24,18 @@ def debug() -> None:
         df_matches_fp = pd.DataFrame()
 
     from bib_dedupe.dedupe_benchmark import DedupeBenchmarker
-    from bib_dedupe.bib_dedupe import BibDeduper
+    from bib_dedupe.bib_dedupe import block, match
     from pathlib import Path
 
-    dedupe_benchmark = DedupeBenchmarker(
-        benchmark_path=Path.cwd(),
-        merge_updated_papers=True,
-    )
+    dedupe_benchmark = DedupeBenchmarker(benchmark_path=Path.cwd())
 
     records_df = dedupe_benchmark.get_records_for_dedupe()
+    records_df = prep(records_df)
 
     p_printer = pprint.PrettyPrinter(indent=4, width=140, compact=False)
 
     while True:
         id_pair = input("id_pair:")
-
-        dedupe_instance = BibDeduper()
-        dedupe_instance.debug = True  # to print details
 
         try:
             if "case" in df_blocks.columns and id_pair in df_blocks["case"].values:
@@ -60,10 +57,8 @@ def debug() -> None:
                 print("selected_prepared_records_df is empty. Continuing...")
                 continue
 
-            actual_blocked_df = dedupe_instance.block(
-                records_df=selected_prepared_records_df
-            )
-            matches = dedupe_instance.match(actual_blocked_df)
+            actual_blocked_df = block(records_df=selected_prepared_records_df)
+            matches = match(actual_blocked_df, debug=True)
             p_printer.pprint(matches)
         except ValueError as exc:
             print(exc)

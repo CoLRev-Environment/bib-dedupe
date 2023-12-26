@@ -190,6 +190,30 @@ def test_prep_authors(input_author: str, expected_output: str) -> None:
         ("Genetika", "russ j gene"),
         ("Zhong.Nan.Da.Xue.Xue.Bao.Yi.Xue.Ban.", "j cent sout univ"),
         (
+            "International journal of cancer. Journal international du cancer",
+            "int j canc",
+        ),
+        ("Chung-Hua Chung Liu Tsa Chih [Chinese Journal of Oncology]", "chin j onco"),
+        (
+            "Zhonghua jie he he hu xi za zhi = Zhonghua jiehe he huxi zazhi = Chinese journal of tuberculosis and respiratory diseases",
+            "chin j tube resp dise",
+        ),
+        (
+            "Chung-Hua Chieh Ho Ho Hu Hsi Tsa Chih Chinese Journal of Tuberculosis & Respiratory Diseases",
+            "chin j tube resp dise",
+        ),
+        (
+            "Zhongguo Zhong xi yi jie he za zhi Zhongguo Zhongxiyi jiehe zazhi = Chinese journal of integrated traditional and Western medicine / Zhongguo Zhong xi yi jie he xue hui, Zhongguo Zhong yi yan jiu yuan zhu ban",
+            "chin j int trad west med",
+        ),
+        (
+            "Yaoxue Xuebao.49 (2) ()(pp 209-216) 2014.Date of Publication: 12 Feb 2014.",
+            "acta phar sini",
+        ),
+        ("Sichuan.Da.Xue.Xue.Bao.Yi.Xue.Ban.", "j sich univ"),
+        ("Zhongguo Yi.Xue.Ke.Xue.Yuan Xue.Bao.", "acta acad med sini"),
+        ("Zhen.Ci.Yan.Jiu.", "acup res"),
+        (
             "50Th Annual Hawaii International Conference On System Sciences",
             "hawa int conf syst sci",
         ),
@@ -199,6 +223,7 @@ def test_prep_authors(input_author: str, expected_output: str) -> None:
         ),
         ("Ann.N.Y.Acad.Sci.", "ann n y acad sci"),
         ("J Mol Med (Berl)", "j mol med"),
+        ("PLoS ONE [Electronic Resource]", "plos one"),
         ("PLoS One", "plos one"),
         (
             "Cochrane Database of Systematic Reviews",
@@ -261,7 +286,7 @@ def test_prep_container_title(input_container_title: str, expected_output: str) 
         ),
         (
             "Protein kinase C and G(i/o) proteins are involved in adenosine- and ischemic preconditioning-mediated renal protection",
-            "protein kinase c g i o proteins involved adenosine ischemic preconditioning mediated renal protection",
+            "protein kinase c g 1 o proteins involved adenosine ischemic preconditioning mediated renal protection",
         ),
         (
             "Crowdwork Platforms - Juxtaposing Centralized and Decentralized Governance",
@@ -312,7 +337,7 @@ De la reperfusion al post-acondicionamiento del miocardio con isquemia prolongad
         (
             "TAN-67 a 1-opioid receptor agonist reduces infarct size via activation of G(i/o) proteins and K(ATP) channels",
             # TODO : ideally, 67 and 1 should not be joined...
-            "tan 671 opioid receptor agonist reduces infarct size via activation g i o proteins k atp channels",
+            "tan 671 opioid receptor agonist reduces infarct size via activation g 1 o proteins k atp channels",
         ),
         (
             "BRAIN BENZODIAZEPINE RECEPTORS IN HUMANS AND RATS WITH ALCOHOL ADDICTION. RUSSIAN",
@@ -329,6 +354,10 @@ De la reperfusion al post-acondicionamiento del miocardio con isquemia prolongad
         (
             "REPRINT OF: FMRI STUDIES OF SUCCESSFUL EMOTIONAL MEMORY ENCODING: A QUANTITATIVE META-ANALYSIS",
             "fmri studies successful emotional memory encoding quantitative meta analysis",
+        ),
+        (
+            "Mode of action of alkylating agents using a ciliate protozoan as a model system: Part III--Effects of metepa on cell division & DNA synthesis in the ciliate Belpharisma intermedium",
+            "mode action alkylating agents using ciliate protozoan model system part 3 effects metepa cell division dna synthesis ciliate belpharisma intermedium",
         ),
         # (
         #     "Behavioral effects of acute sublethal exposure to dimethoate on wood mice Apodemus sylvaticus: II--Field studies on radio-tagged mice in a cereal ecosystem",

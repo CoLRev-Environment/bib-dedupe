@@ -5,58 +5,44 @@ import time
 from datetime import datetime
 from itertools import combinations
 
-import numpy as np
 import pandas as pd
 
 from bib_dedupe.constants import Fields
 
-
-# container_title instead of journal
 block_fields_list = [
-    # Redundant with [Fields.AUTHOR, Fields.YEAR]:
-    # [Fields.AUTHOR, Fields.YEAR, Fields.PAGES],
-    # Note: the original "ISBN" blocking rule was very inefficient
-    {Fields.DOI},
-    {"first_author", Fields.YEAR},
-    {"short_title", Fields.PAGES},
-    {"short_title", "first_author"},
-    # TODO : remove short_title (just abstract should be sufficient)
-    {"short_title", Fields.ABSTRACT},
-    {"short_title", Fields.VOLUME},
-    {"short_title", "short_container_title"},
-    {"first_author", "short_container_title"},
-    {"short_title", Fields.YEAR},
-    {Fields.YEAR, Fields.VOLUME, Fields.NUMBER},
-    {Fields.YEAR, Fields.VOLUME, Fields.PAGES},
-    {Fields.YEAR, Fields.NUMBER, Fields.PAGES},
+    {Fields.AUTHOR_FIRST, Fields.YEAR},
+    {Fields.AUTHOR_FIRST, Fields.CONTAINER_TITLE_SHORT},
+    {Fields.TITLE_SHORT, Fields.PAGES},
+    {Fields.TITLE_SHORT, Fields.AUTHOR_FIRST},
+    {Fields.TITLE_SHORT, Fields.VOLUME},
+    {Fields.TITLE_SHORT, Fields.CONTAINER_TITLE_SHORT},
+    {Fields.TITLE_SHORT, Fields.YEAR},
     {
-        "short_container_title",
+        Fields.CONTAINER_TITLE_SHORT,
         Fields.VOLUME,
         Fields.NUMBER,
     },
     {
-        "short_container_title",
+        Fields.CONTAINER_TITLE_SHORT,
         Fields.VOLUME,
         Fields.YEAR,
     },
     {
-        "short_container_title",
+        Fields.CONTAINER_TITLE_SHORT,
         Fields.VOLUME,
         Fields.PAGES,
     },
     {
-        "short_container_title",
+        Fields.CONTAINER_TITLE_SHORT,
         Fields.YEAR,
         Fields.PAGES,
     },
-    # TODO : conferences, books, ...
+    {Fields.YEAR, Fields.VOLUME, Fields.NUMBER},
+    {Fields.YEAR, Fields.VOLUME, Fields.PAGES},
+    {Fields.YEAR, Fields.NUMBER, Fields.PAGES},
+    {Fields.DOI},
+    {Fields.ABSTRACT},
 ]
-
-
-def get_short_container_title(ct_array: np.array) -> np.array:
-    return np.array(
-        ["".join(item[0] for item in ct.split() if item.isalpha()) for ct in ct_array]
-    )
 
 
 def create_pairs_for_block_fields(
@@ -91,7 +77,7 @@ def create_pairs_for_block_fields(
     )
     pairs["block_rule"] = "-".join(block_fields)
 
-    if not set(block_fields).intersection({"short_title", Fields.DOI}):
+    if not set(block_fields).intersection({Fields.TITLE_SHORT, Fields.DOI}):
         pairs["require_title_overlap"] = True
     else:
         pairs["require_title_overlap"] = False
@@ -120,18 +106,20 @@ def calculate_pairs(records_df: pd.DataFrame, block_fields: list) -> pd.DataFram
 
 
 def block(records_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    This function performs blocking operation on the given dataframe.
+
+    Parameters:
+    records_df (pd.DataFrame): The dataframe containing the records.
+
+    Returns:
+    pd.DataFrame: The dataframe after blocking operation.
+    """
+
     print("Block started at", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     start_time = time.time()
 
     pairs_df = pd.DataFrame(columns=["ID1", "ID2"])
-    # For blocking:
-    records_df = records_df.assign(
-        first_author=records_df[Fields.AUTHOR].str.split().str[0],
-        short_title=records_df[Fields.TITLE].apply(lambda x: " ".join(x.split()[:10])),
-        short_container_title=get_short_container_title(
-            records_df[Fields.CONTAINER_TITLE].values
-        ),
-    )
 
     pool = multiprocessing.Pool()
     results = pool.starmap(
@@ -144,7 +132,6 @@ def block(records_df: pd.DataFrame) -> pd.DataFrame:
         subset=["ID1", "ID2"]
     )
 
-    # Obtain metadata for matching pairs
     pairs_df = pd.merge(
         pairs_df,
         records_df.add_suffix("_1"),
@@ -163,7 +150,8 @@ def block(records_df: pd.DataFrame) -> pd.DataFrame:
         suffixes=("", "_2"),
     )
 
-    print(pairs_df.shape[0])
+    # TODO : if debug:
+    print(f"Blocked {pairs_df.shape[0]} pairs")
 
     # Don't require title_overlap (words) for identical titles
     # and titles not containing a space
@@ -200,7 +188,7 @@ def block(records_df: pd.DataFrame) -> pd.DataFrame:
         )
     ]
 
-    print(f"Blocked {pairs_df.shape[0]} pairs")
+    print(f"Blocked pairs reduced to {pairs_df.shape[0]} pairs")
 
     end_time = time.time()
     print(f"Block completed after: {end_time - start_time:.2f} seconds")

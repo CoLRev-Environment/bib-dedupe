@@ -56,8 +56,14 @@ au10_ti10_ct08 = (
     f" {match(Fields.TITLE, Fields.AUTHOR)} & {Fields.CONTAINER_TITLE} > 0.8 "
 )
 
-au10_ti090_ct10 = (
+au10_ti09_ct10 = (
     f" {match(Fields.CONTAINER_TITLE, Fields.AUTHOR)} & {Fields.TITLE} > 0.9 "
+)
+
+au095_ti09_ct075 = f" ({Fields.AUTHOR} > 0.95 & {Fields.TITLE} > 0.9 &  {Fields.CONTAINER_TITLE} > 0.75) "
+
+au10_ti08_ct10 = (
+    f" ({match(Fields.AUTHOR, Fields.CONTAINER_TITLE)} & {Fields.TITLE} > 0.8 ) "
 )
 
 
@@ -72,101 +78,87 @@ au10_ti090_ct10 = (
 #   https://jakevdp.github.io/PythonDataScienceHandbook/03.12-performance-eval-and-query.html
 
 duplicate_conditions = [
-    f"({au10_ti10_ct10} & {match(Fields.PAGES, Fields.ABSTRACT, Fields.YEAR)} & {non_contradicting(Fields.VOLUME, Fields.DOI)})",  # number can differ
-    f"({au10_ti10_ct10} & {match(Fields.YEAR, Fields.NUMBER, Fields.ABSTRACT)} & {non_contradicting(Fields.VOLUME, Fields.DOI)})",
+    # TODO : default should be non-contradicting. explicitly state what may differ, how much should match
+    # The first condition allows all non_contradicting fields to have one or both values missing.
+    f"({au10_ti10_ct10} & {match(Fields.PAGES, Fields.YEAR)} & {non_contradicting(Fields.VOLUME, Fields.DOI)})",  # number can differ
     f"({au10_ti10_ct10} & {match(Fields.VOLUME, Fields.NUMBER, Fields.YEAR)} & {Fields.PAGES} > 0.75 & {non_contradicting(Fields.ABSTRACT, Fields.DOI)})",
-    f"({au10_ti10_ct10} & {match(Fields.YEAR, Fields.NUMBER, Fields.VOLUME)} & {non_contradicting(Fields.ABSTRACT, Fields.DOI)})",
-    f"({au10_ti10_ct10} & {match(Fields.YEAR, Fields.NUMBER)} & {non_contradicting(Fields.VOLUME, Fields.ABSTRACT, Fields.DOI)})",
-    f"({au10_ti10_ct10} & {match(Fields.NUMBER, Fields.ABSTRACT)} & {non_contradicting(Fields.VOLUME, Fields.PAGES, Fields.DOI)} & {Fields.YEAR} > 0.95)",
-    f"({au10_ti10_ct10} & {cross_match(Fields.VOLUME, Fields.NUMBER)} & {match(Fields.PAGES, Fields.ABSTRACT, Fields.YEAR)} & {non_contradicting(Fields.DOI)})",
-    f"({au10_ti10_ct10} & {Fields.PAGES} == 1 & {Fields.ABSTRACT} > 0.95 & {Fields.YEAR} > 0.9 & {non_contradicting(Fields.VOLUME, Fields.NUMBER, Fields.DOI)})",
-    f"({au10_ti10_ct10} & {match(Fields.VOLUME, Fields.NUMBER, Fields.YEAR)} & {non_contradicting(Fields.DOI, Fields.ABSTRACT)})",
-    f"({au10_ti10_ct10} & {match(Fields.VOLUME, Fields.NUMBER, Fields.YEAR)} & {non_contradicting(Fields.DOI, Fields.PAGES)})",
-    f"({au10_ti10_ct10} & {match(Fields.PAGES, Fields.NUMBER, Fields.ABSTRACT)} & {non_contradicting(Fields.DOI, Fields.VOLUME, Fields.YEAR)})",
-    f"({au10_ti10_ct10} & {match(Fields.YEAR, Fields.ABSTRACT)} & {non_contradicting(Fields.DOI, Fields.VOLUME, Fields.NUMBER)} & {pages_forthcoming()})",
-    f"({au10_ti10_ct10} & {match(Fields.NUMBER, Fields.YEAR, Fields.ABSTRACT)} & {non_contradicting(Fields.DOI, Fields.VOLUME)})",
-    f"({au10_ti10_ctNC} & {match(Fields.VOLUME, Fields.PAGES, Fields.YEAR)} & {non_contradicting(Fields.NUMBER, Fields.ABSTRACT, Fields.DOI)})",
-    f"({au10_ti10_ctNC} & {match(Fields.VOLUME, Fields.YEAR, Fields.DOI)} & {non_contradicting(Fields.NUMBER, Fields.PAGES, Fields.ABSTRACT)})",
-    f"({au10_ti10_ctNC} & {match(Fields.PAGES, Fields.ABSTRACT, Fields.YEAR, Fields.DOI)} & {non_contradicting(Fields.VOLUME, Fields.NUMBER)})",
-    f"({au10_ti10_ctNC} & {match(Fields.PAGES, Fields.ABSTRACT, Fields.YEAR)} & {non_contradicting(Fields.VOLUME, Fields.NUMBER, Fields.DOI)})",
-    f"({auNC_ti10_ct10} & {match(Fields.VOLUME, Fields.YEAR, Fields.DOI)} & {non_contradicting(Fields.NUMBER, Fields.PAGES, Fields.ABSTRACT)})",
-    f"({auNC_ti10_ct10} & {match(Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.ABSTRACT, Fields.YEAR,Fields.DOI)})",
-    f"({au10_ti10_ct08} & {match(Fields.PAGES, Fields.ABSTRACT, Fields.YEAR)} & {non_contradicting(Fields.VOLUME, Fields.NUMBER, Fields.DOI)})",
-    f"({au10_ti10_ct08} & {match(Fields.PAGES, Fields.ABSTRACT, Fields.YEAR)} & {non_contradicting(Fields.VOLUME, Fields.NUMBER, Fields.DOI)})",
-    f"({au10_ti10_ct08} & {match(Fields.VOLUME, Fields.NUMBER, Fields.YEAR)} & {non_contradicting(Fields.PAGES, Fields.ABSTRACT, Fields.DOI)})",
-    f"({au10_ti10_ct08} & {match(Fields.PAGES, Fields.YEAR)} & {non_contradicting(Fields.VOLUME, Fields.NUMBER, Fields.ABSTRACT, Fields.DOI)})",
-    f"({au07_ti10_ct10} & {match(Fields.VOLUME, Fields.NUMBER, Fields.YEAR, Fields.DOI)})",
-    f"({au07_ti10_ct10} & {match(Fields.VOLUME, Fields.NUMBER, Fields.YEAR, Fields.ABSTRACT)})",
-    f"({au07_ti10_ct10} & {match(Fields.VOLUME, Fields.PAGES, Fields.YEAR, Fields.DOI)} & {non_contradicting(Fields.NUMBER, Fields.ABSTRACT)})",
-    f"({au07_ti10_ct10} & {match(Fields.VOLUME, Fields.YEAR, Fields.DOI)} & {non_contradicting(Fields.PAGES, Fields.NUMBER, Fields.ABSTRACT)})",
-    f"({au08_ti10_ct10} & {match(Fields.NUMBER, Fields.PAGES, Fields.YEAR)} & {non_contradicting(Fields.VOLUME, Fields.ABSTRACT, Fields.DOI)})",
+    f"({au10_ti10_ct10} & {match(Fields.NUMBER)} & {non_contradicting(Fields.VOLUME, Fields.PAGES, Fields.DOI)} & {Fields.YEAR} > 0.95)",
+    # TODO : unit-test cross-match
+    f"({au10_ti10_ct10} & {cross_match(Fields.VOLUME, Fields.NUMBER)} & {match(Fields.PAGES, Fields.YEAR)} & {non_contradicting(Fields.DOI, Fields.ABSTRACT)})",
+    f"({au10_ti10_ct10} & {Fields.PAGES} == 1  & {Fields.YEAR} > 0.9 & {non_contradicting(Fields.VOLUME, Fields.NUMBER, Fields.DOI)} & {Fields.ABSTRACT} > 0.95)",
+    f"({au10_ti10_ct10} & {non_contradicting(Fields.VOLUME, Fields.NUMBER)} & {Fields.YEAR} > 0.9 & {pages_forthcoming()})",
+    f"({au10_ti10_ct10} & {match(Fields.NUMBER, Fields.YEAR)} & {non_contradicting(Fields.DOI, Fields.VOLUME, Fields.ABSTRACT)})",
+    f"({au10_ti10_ct08} & {non_contradicting(Fields.YEAR, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.DOI)})",
+    f"({au07_ti10_ct10} & {non_contradicting(Fields.YEAR, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.DOI)})",
+    f"({au08_ti10_ct10} & {non_contradicting(Fields.YEAR, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.DOI)})",
     f"({au08_ti10_ct10} & {match(Fields.VOLUME, Fields.PAGES)})",
     f"({au08_ti10_ct10} & {match(Fields.DOI)})",
-    f"({au08_ti10_ct10} & {match(Fields.NUMBER, Fields.PAGES, Fields.ABSTRACT, Fields.YEAR)} & {non_contradicting(Fields.VOLUME, Fields.DOI)})",
-    f"({au08_ti10_ct10} & {Fields.ABSTRACT} > 0.98 & {non_contradicting(Fields.YEAR, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.DOI)})",
-    f"({au10_ti090_ct10} & {match(Fields.YEAR, Fields.DOI)} & {non_contradicting(Fields.NUMBER, Fields.PAGES)})",
-    f"({au10_ti090_ct10} & {match(Fields.YEAR, Fields.PAGES)} & {non_contradicting(Fields.NUMBER, Fields.VOLUME, Fields.DOI, Fields.ABSTRACT)})",
-    f"({au10_ti090_ct10} & {match(Fields.VOLUME, Fields.NUMBER, Fields.YEAR, Fields.DOI)} & {non_contradicting(Fields.ABSTRACT)})",
-    f"({Fields.TITLE} > 0.7 & {match(Fields.AUTHOR, Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.YEAR)} & {non_contradicting(Fields.ABSTRACT, Fields.DOI)})",
-    f"({Fields.TITLE} > 0.7 & {match(Fields.AUTHOR, Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.PAGES, Fields.YEAR, Fields.DOI)} & {non_contradicting(Fields.ABSTRACT, Fields.NUMBER)})",
-    f"({Fields.TITLE} > 0.85 & {match(Fields.AUTHOR, Fields.CONTAINER_TITLE, Fields.YEAR, Fields.DOI)} & {non_contradicting(Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.ABSTRACT)})",
-    f"({Fields.TITLE} > 0.5 & {match(Fields.AUTHOR, Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.ABSTRACT, Fields.YEAR, Fields.DOI)})",
-    f"({Fields.TITLE} > 0.8 & {Fields.ABSTRACT} > 0.96 & {match(Fields.AUTHOR, Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.YEAR, Fields.DOI)})",
-    f"({Fields.AUTHOR} > 0.95 & {Fields.TITLE} > 0.9 &  {Fields.CONTAINER_TITLE} > 0.6 &  {match(Fields.NUMBER, Fields.PAGES)} &  {Fields.ABSTRACT} > 0.9)",
-    f"({Fields.AUTHOR} > 0.95 & {Fields.TITLE} > 0.9 &  {Fields.CONTAINER_TITLE} > 0.6 &  {match(Fields.VOLUME, Fields.NUMBER)} & {Fields.ABSTRACT} > 0.9)",
-    f"({Fields.AUTHOR} > 0.95 & {Fields.TITLE} > 0.9 &  {Fields.CONTAINER_TITLE} > 0.6 &  {match(Fields.VOLUME, Fields.PAGES)})",
-    f"({Fields.AUTHOR} > 0.95 & {Fields.TITLE} > 0.9 &  {Fields.CONTAINER_TITLE} > 0.75 & {match(Fields.VOLUME, Fields.PAGES)} &  {Fields.ABSTRACT} > 0.8)",
-    f"({Fields.AUTHOR} > 0.95 & {Fields.TITLE} > 0.9 &  {Fields.CONTAINER_TITLE} > 0.75 & {match(Fields.NUMBER, Fields.PAGES)} &  {Fields.ABSTRACT} > 0.8)",
-    f"({Fields.AUTHOR} > 0.95 & {Fields.TITLE} > 0.9 &  {Fields.CONTAINER_TITLE} > 0.75 & {match(Fields.VOLUME, Fields.NUMBER)} & {Fields.ABSTRACT} > 0.8)",
-    f"({Fields.AUTHOR} > 0.95 & {Fields.TITLE} > 0.9 &  {Fields.CONTAINER_TITLE} > 0.8 &  {match(Fields.VOLUME)} & {Fields.ABSTRACT} > 0.95)",
-    f"({Fields.AUTHOR} > 0.95 & {Fields.TITLE} > 0.9 &  {Fields.CONTAINER_TITLE} > 0.8 &  {match(Fields.ABSTRACT)})",
-    f"({Fields.AUTHOR} > 0.95 & {Fields.TITLE} > 0.9 &  {Fields.CONTAINER_TITLE} > 0.7 &  {match(Fields.NUMBER, Fields.PAGES)})",
-    f"({Fields.AUTHOR} > 0.95 & {Fields.TITLE} > 0.9 &  {Fields.CONTAINER_TITLE} > 0.9 &  {match(Fields.VOLUME, Fields.PAGES)})",
-    f"({Fields.AUTHOR} > 0.95 & {Fields.TITLE} > 0.9 &  {match(Fields.VOLUME, Fields.PAGES, Fields.ISBN)})",
-    f"({Fields.AUTHOR} > 0.9 &  {Fields.TITLE} > 0.95 & {Fields.CONTAINER_TITLE} > 0.95 & {non_contradicting(Fields.YEAR, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.DOI)})",
-    f"({Fields.AUTHOR} > 0.9 & {Fields.TITLE} > 1.0 & {Fields.CONTAINER_TITLE} > 0.8 & {match(Fields.NUMBER, Fields.PAGES, Fields.ABSTRACT, Fields.YEAR)} & {non_contradicting(Fields.VOLUME, Fields.DOI)})",
-    f"({Fields.AUTHOR} > 0.7 &  {Fields.TITLE} > 0.85 & {match(Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.NUMBER, Fields.PAGES)})",
-    f"({Fields.AUTHOR} > 0.85 &  {Fields.TITLE} > 0.95 & {match(Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.PAGES, Fields.YEAR, Fields.DOI)} & {non_contradicting(Fields.YEAR, Fields.ABSTRACT)})",
-    f"({Fields.AUTHOR} > 0.6 & {match(Fields.TITLE, Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.ABSTRACT, Fields.YEAR, Fields.DOI)})",
-    f"({Fields.AUTHOR} > 0.7 & {Fields.TITLE} > 0.7 & {match(Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.ABSTRACT, Fields.DOI)})",
+    f"({au08_ti10_ct10} & {non_contradicting(Fields.YEAR, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.DOI)})",
+    f"({au10_ti09_ct10} & {non_contradicting(Fields.YEAR, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.DOI)})",
+    f"({au10_ti09_ct10} & {match(Fields.YEAR)} & {non_contradicting(Fields.NUMBER, Fields.PAGES, Fields.DOI)})",
+    f"({au10_ti08_ct10} & {match(Fields.VOLUME, Fields.YEAR)} & {non_contradicting(Fields.NUMBER, Fields.PAGES, Fields.DOI, Fields.ABSTRACT)})",
+    f"({au10_ti08_ct10} & {match(Fields.YEAR)} & {non_contradicting(Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.DOI, Fields.ABSTRACT)})",
+    f"({au10_ti08_ct10} & {match(Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.YEAR)} & {non_contradicting(Fields.DOI)} & {Fields.ABSTRACT} > 0.96)",
+    f"({au095_ti09_ct075} & {non_contradicting(Fields.YEAR, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.DOI)})",
+    f"({au095_ti09_ct075} & {match(Fields.NUMBER, Fields.PAGES)})",
+    f"({au095_ti09_ct075} & {match(Fields.VOLUME, Fields.NUMBER)})",
+    f"({au095_ti09_ct075} & {match(Fields.VOLUME, Fields.PAGES)})",
+    f"({au095_ti09_ct075} & {match(Fields.VOLUME)} & {Fields.ABSTRACT} > 0.9)",
+    f"({au095_ti09_ct075} & {match(Fields.ABSTRACT)})",
+    #
+    f"({Fields.AUTHOR} > 0.8 & {Fields.TITLE} > 0.9 & {match(Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.NUMBER, Fields.PAGES)})",
+    f"({Fields.AUTHOR} > 0.8 & {Fields.TITLE} > 0.9 & {match(Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.PAGES, Fields.YEAR)} & {non_contradicting(Fields.YEAR, Fields.DOI, Fields.ABSTRACT)})",
+    f"({Fields.AUTHOR} > 0.8 & {Fields.TITLE} > 0.9 & {match(Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.NUMBER, Fields.PAGES)} & {non_contradicting(Fields.DOI)})",
+    f"({Fields.AUTHOR} > 0.8 & {Fields.TITLE} > 0.9 & {Fields.CONTAINER_TITLE} > 0.9 & {non_contradicting(Fields.YEAR, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.DOI)})",
+    f"({Fields.AUTHOR} > 0.8 & {Fields.TITLE} > 0.9 & {Fields.CONTAINER_TITLE} > 0.9 & {match(Fields.NUMBER, Fields.PAGES, Fields.YEAR)} & {non_contradicting(Fields.VOLUME, Fields.DOI)})",
     # no AUTHOR
-    f"({non_contradicting(Fields.AUTHOR)} & {match(Fields.TITLE, Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.YEAR, Fields.DOI)})",
-    f"({non_contradicting(Fields.AUTHOR)} & {match(Fields.TITLE, Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.YEAR, Fields.DOI)} & {non_contradicting(Fields.NUMBER, Fields.PAGES, Fields.ABSTRACT)})",
-    f"({empty(Fields.AUTHOR)} & {match(Fields.TITLE, Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.DOI, Fields.YEAR)})",
-    f"({empty(Fields.AUTHOR)} & {match(Fields.TITLE, Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.ABSTRACT, Fields.YEAR)})",
-    f"({Fields.AUTHOR} > 0.5 & {match(Fields.TITLE, Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.ABSTRACT, Fields.YEAR, Fields.DOI)})",
-    f"({non_contradicting(Fields.AUTHOR)} & {match(Fields.TITLE, Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.ABSTRACT, Fields.YEAR)} & {non_contradicting(Fields.DOI)})",
+    f"({auNC_ti10_ct10} & {match(Fields.VOLUME, Fields.YEAR)} & {non_contradicting(Fields.NUMBER, Fields.PAGES, Fields.DOI)})",
+    f"({auNC_ti10_ct10} & {match(Fields.VOLUME, Fields.YEAR)} & {non_contradicting(Fields.NUMBER, Fields.PAGES, Fields.DOI)})",
+    f"({auNC_ti10_ct10} & {match(Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.YEAR)} & {non_contradicting(Fields.DOI)})",
+    f"({non_contradicting(Fields.AUTHOR)} & {match(Fields.TITLE, Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.YEAR)} & {non_contradicting(Fields.DOI, Fields.ABSTRACT, Fields.NUMBER, Fields.PAGES)})",
     f"({empty(Fields.AUTHOR)} & {match(Fields.TITLE, Fields.CONTAINER_TITLE, Fields.PAGES, Fields.YEAR)} & {non_contradicting(Fields.VOLUME, Fields.NUMBER, Fields.ABSTRACT, Fields.DOI)})",
-    f"({match(Fields.TITLE, Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.ABSTRACT, Fields.YEAR, Fields.DOI)})",
+    f"({empty(Fields.AUTHOR)} & {match(Fields.TITLE, Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.YEAR)} & {non_contradicting(Fields.DOI)})",
+    f"({empty(Fields.AUTHOR)} & {match(Fields.TITLE, Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.YEAR)})",
+    f"({Fields.AUTHOR} > 0.5 & {match(Fields.TITLE, Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.YEAR)}  & {non_contradicting(Fields.DOI, Fields.ABSTRACT)})",
+    f"({match(Fields.TITLE, Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.YEAR)}  & {non_contradicting(Fields.DOI, Fields.ABSTRACT)})",
     # no CONTAINER_TITLE
+    f"({au10_ti10_ctNC} & {match(Fields.VOLUME, Fields.PAGES, Fields.YEAR)} & {non_contradicting(Fields.NUMBER, Fields.ABSTRACT, Fields.DOI)})",
+    f"({au10_ti10_ctNC} & {match(Fields.VOLUME, Fields.YEAR)} & {non_contradicting(Fields.NUMBER, Fields.PAGES, Fields.ABSTRACT, Fields.DOI)})",
+    f"({au10_ti10_ctNC} & {match(Fields.PAGES, Fields.YEAR)} & {non_contradicting(Fields.VOLUME, Fields.NUMBER, Fields.DOI)})",
+    f"({au10_ti10_ctNC} & {match(Fields.PAGES, Fields.YEAR)} & {non_contradicting(Fields.VOLUME, Fields.NUMBER, Fields.DOI)})",
+    f"({Fields.AUTHOR} > 0.95 & {Fields.TITLE} > 0.9 & {match(Fields.VOLUME, Fields.PAGES, Fields.ISBN)})",
     f"({Fields.AUTHOR} > 0.95 & {Fields.TITLE} > 0.9 & {match(Fields.VOLUME, Fields.PAGES)} & {Fields.ABSTRACT} > 0.9)",
     f"({match(Fields.AUTHOR, Fields.TITLE)} & {match(Fields.VOLUME, Fields.PAGES, Fields.YEAR)} & {non_contradicting(Fields.NUMBER, Fields.ABSTRACT, Fields.DOI)})",
-    f"({match(Fields.AUTHOR, Fields.TITLE)} & {match(Fields.VOLUME, Fields.NUMBER, Fields.YEAR, Fields.DOI)} & {non_contradicting(Fields.PAGES, Fields.ABSTRACT)})",
-    f"({match(Fields.AUTHOR, Fields.TITLE)} & {match(Fields.NUMBER, Fields.PAGES, Fields.YEAR, Fields.ABSTRACT, Fields.DOI)} & {non_contradicting(Fields.VOLUME)})",
-    f"({match(Fields.AUTHOR, Fields.TITLE)} & {match(Fields.NUMBER, Fields.PAGES, Fields.YEAR, Fields.ABSTRACT)} & {non_contradicting(Fields.VOLUME, Fields.DOI)})",
-    f"({match(Fields.AUTHOR, Fields.TITLE)} & {match(Fields.VOLUME, Fields.NUMBER, Fields.YEAR, Fields.ABSTRACT)} & {non_contradicting(Fields.PAGES, Fields.DOI)})",
-    f"({empty(Fields.CONTAINER_TITLE)} & {match(Fields.TITLE, Fields.AUTHOR, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.DOI)})",
+    f"({match(Fields.AUTHOR, Fields.TITLE)} & {match(Fields.VOLUME, Fields.NUMBER, Fields.YEAR)} & {non_contradicting(Fields.PAGES, Fields.DOI, Fields.ABSTRACT)})",
+    f"({match(Fields.AUTHOR, Fields.TITLE)} & {match(Fields.NUMBER, Fields.PAGES, Fields.YEAR)} & {non_contradicting(Fields.VOLUME, Fields.DOI, Fields.ABSTRACT)})",
+    f"({match(Fields.AUTHOR, Fields.TITLE)} & {match(Fields.NUMBER, Fields.PAGES, Fields.YEAR)} & {non_contradicting(Fields.VOLUME, Fields.DOI, Fields.ABSTRACT)})",
+    f"({match(Fields.AUTHOR, Fields.TITLE)} & {match(Fields.VOLUME, Fields.NUMBER, Fields.YEAR)} & {non_contradicting(Fields.PAGES, Fields.DOI, Fields.ABSTRACT)})",
+    f"({empty(Fields.CONTAINER_TITLE)} & {match(Fields.TITLE, Fields.AUTHOR, Fields.VOLUME, Fields.NUMBER, Fields.PAGES)} & {non_contradicting(Fields.DOI)})",
     # no TITLE
-    f"({Fields.TITLE} == 0.0 & {match(Fields.AUTHOR, Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.YEAR, Fields.DOI)} & {Fields.ABSTRACT} > 0.95)",  # typically for number-mismatches in title
+    f"({Fields.TITLE} == 0.0 & {match(Fields.AUTHOR, Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.YEAR)} & {non_contradicting(Fields.DOI)} & {Fields.ABSTRACT} > 0.95)",  # typically for number-mismatches in title
+    f"({Fields.TITLE} == 0.0 & {match(Fields.AUTHOR, Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.YEAR, Fields.ABSTRACT)} & {non_contradicting(Fields.DOI)})",  # typically for number-mismatches in title
+    f"({Fields.TITLE} > 0.5 & {match(Fields.AUTHOR, Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.NUMBER, Fields.PAGES, Fields.YEAR)} & {non_contradicting(Fields.DOI, Fields.ABSTRACT)})",
     # Special cases
     f'({both_entrytypes("inproceedings")} & {Fields.CONTAINER_TITLE} > 0.6 & {Fields.TITLE} > 0.9 & {Fields.AUTHOR} > 0.8 & {Fields.YEAR} > 0.9)',
 ]
 
 non_duplicate_conditions = [
+    f'({mismatch(Fields.TITLE)} & ({Fields.PAGE_RANGES_ADJACENT} == "adjacent" | {Fields.PAGE_RANGES_ADJACENT} == "non_overlapping"))',
     f"({mismatch(Fields.DOI)} & ~({non_contradicting(Fields.AUTHOR, Fields.TITLE, Fields.YEAR, Fields.CONTAINER_TITLE, Fields.VOLUME, Fields.NUMBER, Fields.PAGES)}))",
     f"({mismatch(Fields.DOI, Fields.VOLUME, Fields.NUMBER)})",
     f"({mismatch(Fields.DOI, Fields.VOLUME, Fields.PAGES)})",
     f"({mismatch(Fields.VOLUME, Fields.NUMBER, Fields.PAGES)})",
     f"({mismatch(Fields.VOLUME, Fields.NUMBER, Fields.YEAR)})",
+    f"({mismatch(Fields.YEAR, Fields.CONTAINER_TITLE)} & ~({match(Fields.NUMBER)} | {match(Fields.PAGES)} | {match(Fields.VOLUME)} | {match(Fields.DOI)}))",
     f"({mismatch(Fields.YEAR, Fields.CONTAINER_TITLE, Fields.PAGES)})",
     f"({Fields.YEAR} == 0 & ({mismatch(Fields.VOLUME)} | {mismatch(Fields.PAGES)}))",
     f"({mismatch(Fields.YEAR, Fields.DOI, Fields.PAGES)})",
     f"({mismatch(Fields.YEAR, Fields.PAGES)} & {empty(Fields.AUTHOR, Fields.DOI, Fields.VOLUME, Fields.NUMBER, Fields.ABSTRACT)})",
     f"({mismatch(Fields.PAGES, Fields.ABSTRACT, Fields.YEAR)} & {empty(Fields.DOI)})",
-    f"({Fields.ABSTRACT} < 0.98 & {Fields.ABSTRACT} > 0.6 & {Fields.YEAR} < 0.99 & {mismatch(Fields.VOLUME)})",
-    f"({Fields.CONTAINER_TITLE} < 0.7 & {empty(Fields.NUMBER, Fields.VOLUME)} & {mismatch(Fields.PAGES)} )",
     f"({Fields.YEAR} < 0.97 & {Fields.TITLE} < 0.99 & {empty(Fields.NUMBER, Fields.VOLUME)} & {mismatch(Fields.PAGES)} )",
     f"({Fields.YEAR} < 0.97 & {mismatch(Fields.VOLUME, Fields.PAGES)} & {empty(Fields.NUMBER)} )",
+    f"({Fields.ABSTRACT} < 0.98 & {Fields.ABSTRACT} > 0.6 & {Fields.YEAR} < 0.99 & {mismatch(Fields.VOLUME)})",
+    f"({Fields.CONTAINER_TITLE} < 0.7 & {empty(Fields.NUMBER, Fields.VOLUME)} & {mismatch(Fields.PAGES)} )",
     f'(title_1.str.contains("editor") & ~{non_contradicting(Fields.NUMBER)} & {Fields.ENTRYTYPE}_1 != "inproceedings" & title_1.str.len() < 60)',
     f'(title_1.str.contains("editor") & {mismatch(Fields.VOLUME)} & {Fields.ENTRYTYPE}_1 != "inproceedings" & title_1.str.len() < 60)',
     f'(title_1.str.contains("editor") & {mismatch(Fields.YEAR)} & {Fields.ENTRYTYPE}_1 != "inproceedings" & title_1.str.len() < 60)',

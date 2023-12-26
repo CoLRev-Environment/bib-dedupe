@@ -79,6 +79,9 @@ def sim_page(pages_string_1: str, pages_string_2: str) -> float:
     pages_string_1 = re.sub(r"[a-zA-Z]", "", pages_string_1)
     pages_string_2 = re.sub(r"[a-zA-Z]", "", pages_string_2)
 
+    if pages_string_1 == "" and pages_string_2 == "":
+        return 0.0
+
     if (
         (
             (pages_string_1.endswith(pages_string_2) and pages_string_2.isdigit())
@@ -121,6 +124,21 @@ def sim_title(title_1: str, title_2: str, debug: bool = False) -> float:
     if t1.replace(" ", "") == t2.replace(" ", "") and t1.replace(" ", "") != "":
         return 1.0
 
+    # comment/reply etc.
+    if any(
+        [
+            ((term in t1 and term not in t2) or (term in t2 and term not in t1))
+            for term in [
+                "comment",
+                "response",
+                "reply",
+                "author",
+                "correction",
+            ]
+        ]
+    ):
+        return 0
+
     # In long titles, secondary titles may not be added in all cases
     if len(t1) > 60 and len(t2) > 60 and t1.startswith(t2) or t2.startswith(t1):
         return 1.0
@@ -149,12 +167,8 @@ def sim_title(title_1: str, title_2: str, debug: bool = False) -> float:
             ((term in t1 and term not in t2) or (term in t2 and term not in t1))
             for term in [
                 "women",
-                "comment",
-                "response",
-                "author",
                 "erratum",
                 "protocol",
-                "correction",
             ]
         ]
     ):
@@ -283,6 +297,22 @@ def sim_number(n1_str: str, n2_str: str) -> float:
         return fuzz.token_sort_ratio(str(n1), str(n2)) / 100
 
 
+def sim_volume(v1_str: str, v2_str: str) -> float:
+    """
+    Calculate the similarity between two volumes.
+    """
+
+    if v1_str == "" or v2_str == "":
+        return 0
+
+    v1 = int(v1_str) if str(v1_str).isdigit() else 0
+    v2 = int(v2_str) if str(v2_str).isdigit() else 0
+
+    if v1 == v2:
+        return 1.0
+    return 0.0
+
+
 def sim_abstract(abstract_1: str, abstract_2: str) -> float:
     abstract_1 = str(abstract_1)
     abstract_2 = str(abstract_2)
@@ -353,13 +383,46 @@ def sim_container_title(container_1: str, container_2: str) -> float:
     return max(overall, abbreviation_match, word_match)
 
 
+def page_ranges_adjacent(row: pd.Series) -> str:
+    """
+    This function checks if the page ranges of two articles are adjacent.
+
+    Parameters:
+    row (pd.Series): A row of a DataFrame containing the page ranges of two articles.
+
+    Returns:
+    float: Returns 1.0 if the page ranges are adjacent, 0.0 otherwise.
+    """
+    if row["pages_1"] == row["pages_2"]:
+        return ""
+    if not re.match(r"\d{1,}-\d{1,}", row["pages_1"]) or not re.match(
+        r"\d{1,}-\d{1,}", row["pages_2"]
+    ):
+        return ""
+
+    pages_1 = row["pages_1"].split("-")
+    pages_2 = row["pages_2"].split("-")
+    if len(pages_1) == 2 and len(pages_2) == 2:
+        pages_1_start, pages_1_end = map(int, pages_1)
+
+        pages_2_start, pages_2_end = map(int, pages_2)
+
+        if pages_1_end + 1 == pages_2_start or pages_2_end + 1 == pages_1_start:
+            return "adjacent"
+
+        if pages_1_end < pages_2_start or pages_2_end < pages_1_start:
+            return "non_overlapping"
+
+    return ""
+
+
 similarity_functions = {
     Fields.PAGES: sim_page,
     Fields.TITLE: sim_title,
     Fields.YEAR: sim_year,
     Fields.NUMBER: sim_number,
     Fields.CONTAINER_TITLE: sim_container_title,
-    Fields.VOLUME: sim_token_sort_ratio,
+    Fields.VOLUME: sim_volume,
     Fields.ABSTRACT: sim_abstract,
     Fields.ISBN: sim_token_sort_ratio,
     Fields.DOI: sim_doi,
@@ -380,54 +443,67 @@ def process_df_split(split_df: pd.DataFrame) -> pd.DataFrame:
                 str(row[f"{field}_1"]), str(row[f"{field}_2"])
             )
 
+        split_df.loc[index, Fields.PAGE_RANGES_ADJACENT] = page_ranges_adjacent(row)
+
+    # TODO / TBD: fix misassignments in sim or match-conditions?
+    # TODO : the cross-match should be in conditions
+    # because the NUMBER/VOLUME/PAGES similarities are only used in match() / not in non_contradicting.
     # Fix similarities for misassigned fields
     conditions = [
         (
             (split_df["pages_1"] == "")
             & (split_df["number_1"] == split_df["pages_2"])
-            & (split_df["number_2"] == ""),
+            & (split_df["number_2"] == "")
+            & (split_df["pages_2"] != ""),
             Fields.PAGES,
         ),
         (
             (split_df["pages_1"] == "")
             & (split_df["number_1"] == split_df["pages_2"])
-            & (split_df["number_2"] == ""),
+            & (split_df["number_2"] == "")
+            & (split_df["pages_2"] != ""),
             Fields.NUMBER,
         ),
         (
             (split_df["pages_2"] == "")
             & (split_df["number_2"] == split_df["pages_1"])
-            & (split_df["number_1"] == ""),
+            & (split_df["number_1"] == "")
+            & (split_df["pages_1"] != ""),
             Fields.PAGES,
         ),
         (
             (split_df["pages_2"] == "")
             & (split_df["number_2"] == split_df["pages_1"])
-            & (split_df["number_1"] == ""),
+            & (split_df["number_1"] == "")
+            & (split_df["pages_1"] != ""),
             Fields.NUMBER,
         ),
         (
             (split_df["volume_1"] == "")
             & (split_df["number_1"] == split_df["volume_2"])
-            & (split_df["number_2"] == ""),
+            & (split_df["number_2"] == "")
+            & (split_df["volume_2"] != ""),
             Fields.VOLUME,
         ),
         (
             (split_df["volume_1"] == "")
             & (split_df["number_1"] == split_df["volume_2"])
-            & (split_df["number_2"] == ""),
+            & (split_df["number_2"] == "")
+            & (split_df["volume_2"] != ""),
             Fields.NUMBER,
         ),
         (
             (split_df["volume_2"] == "")
             & (split_df["number_2"] == split_df["volume_1"])
-            & (split_df["number_1"] == ""),
+            & (split_df["number_1"] == "")
+            & (split_df["volume_1"] != ""),
             Fields.VOLUME,
         ),
         (
             (split_df["volume_2"] == "")
             & (split_df["number_2"] == split_df["volume_1"])
-            & (split_df["number_1"] == ""),
+            & (split_df["number_1"] == "")
+            & (split_df["volume_1"] != ""),
             Fields.NUMBER,
         ),
     ]

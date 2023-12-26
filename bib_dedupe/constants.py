@@ -65,6 +65,14 @@ class Fields:
 
     CONTAINER_TITLE = "container_title"
 
+    # For blocking
+    AUTHOR_FIRST = "author_first"
+    TITLE_SHORT = "title_short"
+    CONTAINER_TITLE_SHORT = "container_title_short"
+
+    # For similarity
+    PAGE_RANGES_ADJACENT = "page_ranges_adjacent"
+
 
 class FieldSet:
     """Constant field sets"""

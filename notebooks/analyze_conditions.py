@@ -1,7 +1,8 @@
 import pandas as pd
 
 import bib_dedupe.conditions
-from bib_dedupe.bib_dedupe import BibDeduper
+from bib_dedupe.bib_dedupe import block
+from bib_dedupe.bib_dedupe import prep
 
 
 data_path = "/home/gerit/ownCloud/projects/CoLRev/bib-dedupe/data/depression"
@@ -28,10 +29,9 @@ selected_rows = pre_merged[
     )
 ]
 
-deduper = BibDeduper()
-records_for_dedupe = deduper.get_records_for_dedupe(records_df=selected_rows)
+records_for_dedupe = prep(records_df=selected_rows)
 
-actual_blocked_df = deduper.block(records_df=records_for_dedupe)
+actual_blocked_df = block(records_df=records_for_dedupe)
 
 q_stats = {
     duplicate_condition: {

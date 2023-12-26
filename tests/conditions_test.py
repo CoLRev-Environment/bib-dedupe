@@ -19,7 +19,7 @@ def test_conditions() -> None:
             Fields.DOI,
             Fields.YEAR,
             Fields.ENTRYTYPE,
-            "title_partial_ratio",
+            "page_ranges_adjacent",
             "container_title_1",
             "container_title_2",
             "doi_1",
@@ -44,8 +44,7 @@ def test_conditions() -> None:
     )
 
     for condition in (
-        bib_dedupe.conditions.updated_pair_conditions
-        + bib_dedupe.conditions.non_duplicate_conditions
+        bib_dedupe.conditions.non_duplicate_conditions
         + bib_dedupe.conditions.duplicate_conditions
     ):
         try:

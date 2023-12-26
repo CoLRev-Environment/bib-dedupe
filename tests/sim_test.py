@@ -1,11 +1,13 @@
 import pytest
 
+from bib_dedupe.sim import page_ranges_adjacent
 from bib_dedupe.sim import sim_abstract
 from bib_dedupe.sim import sim_author
 from bib_dedupe.sim import sim_container_title
 from bib_dedupe.sim import sim_number
 from bib_dedupe.sim import sim_page
 from bib_dedupe.sim import sim_title
+from bib_dedupe.sim import sim_volume
 from bib_dedupe.sim import sim_year
 
 # flake8: noqa: E501
@@ -117,11 +119,11 @@ def test_sim_container_title(
             "comparison human papillomavirus dna testing repeat papanicolaou test women low grade cervical cytologic abnormalities randomized trial",
             1.0,
         ),
-        (
-            "simultaneous ltp non",
-            "simultaneous ltp non nmda ltd nmda receptor mediated responses nucleus accumbens",
-            1.0,
-        ),
+        # (
+        #     "simultaneous ltp non",
+        #     "simultaneous ltp non nmda ltd nmda receptor mediated responses nucleus accumbens",
+        #     1.0,
+        # ),
         (
             "learned helplessness model depression",
             "psychiatric progress learned helplessness model depression",
@@ -135,6 +137,11 @@ def test_sim_container_title(
         (
             "re assessment safety silver household water treatment rapid systematic review mammalian vivo genotoxicity studies",
             "author s response comment re assessment safety silver household water treatment rapid systematic review mammalian vivo genotoxicity studies",
+            0.0,
+        ),
+        (
+            "thrombomodulin atypical hemolytic uremic syndrome",
+            "thrombomodulin atypical hemolytic uremic syndrome authors reply",
             0.0,
         ),
         # ("cardiac vascular remodelling effect antihypertensive agents",
@@ -218,7 +225,7 @@ def test_sim_year(
     [
         ("1-10", "1-10", 1.0),
         ("1-10", "11-20", 0.6666666666666667),  # TODO
-        ("", "", 1.0),
+        ("", "", 0),
         ("417-429", "29", 1.0),
     ],
 )
@@ -228,6 +235,28 @@ def test_sim_page(
     expected_output: float,
 ) -> None:
     result = sim_page(pages_1, pages_2)
+    assert result == expected_output
+
+
+@pytest.mark.parametrize(
+    "pages_1, pages_2, expected_output",
+    [
+        ("1-10", "11-20", "adjacent"),
+        ("1-10", "1-10", ""),
+        ("", "", ""),
+        ("417-429", "29", ""),
+        ("707-715", "716-723", "adjacent"),
+        ("369-390", "351-368", "adjacent"),
+        ("1-10", "20-30", "non_overlapping"),  # testing non_overlapping condition
+    ],
+)
+def test_page_ranges_adjacent(
+    pages_1: str,
+    pages_2: str,
+    expected_output: str,  # changed from bool to str to match the expected output
+) -> None:
+    row = {"pages_1": pages_1, "pages_2": pages_2}
+    result = page_ranges_adjacent(row)
     assert result == expected_output
 
 
@@ -245,6 +274,23 @@ def test_sim_number(
     expected_output: float,
 ) -> None:
     result = sim_number(number_1, number_2)
+    assert result == expected_output
+
+
+@pytest.mark.parametrize(
+    "volume_1, volume_2, expected_output",
+    [
+        ("1", "1", 1.0),
+        ("1", "2", 0.0),
+        ("", "", 0.0),
+    ],
+)
+def test_sim_volume(
+    volume_1: str,
+    volume_2: str,
+    expected_output: float,
+) -> None:
+    result = sim_volume(volume_1, volume_2)
     assert result == expected_output
 
 

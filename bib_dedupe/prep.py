@@ -17,67 +17,15 @@ from number_parser import parse
 from bib_dedupe.constants import ENTRYTYPES
 from bib_dedupe.constants import Fields
 
-# TODO : upworker https://en.wikipedia.org/wiki/Category:Multilingual_journals
-# Better: https://www.freecodecamp.org/news/scraping-wikipedia-articles-with-python/
-# replace in prep (to ensure blocking! - this would also be more robust when the container-prep changes.)
-
 current_dir = Path(__file__).parent
-journal_translations_path = current_dir / "wikipedia_journal_translations.csv"
-journal_translations = pd.read_csv(journal_translations_path)
+journal_variants_path = current_dir / "journal_variants.csv"
+journal_variants = pd.read_csv(journal_variants_path)
 JOURNAL_TRANSLATIONS_DICT = dict(
-    zip(journal_translations.iloc[:, 1], journal_translations.iloc[:, 0])
+    dict(zip(journal_variants["title_variant"], journal_variants["journal"]))
 )
-JOURNAL_TRANSLATIONS_DICT["Genetika"] = "Russian Journal of Genetics"
-JOURNAL_TRANSLATIONS_DICT[
-    "Zhejiang da xue xue bao. Yi xue ban"
-] = "Journal of Zhejiang University. Medical sciences"
-JOURNAL_TRANSLATIONS_DICT[
-    "Zhonghua yi xue za zhi"
-] = "National Medical Journal of China"
-JOURNAL_TRANSLATIONS_DICT[
-    "Zhong Nan Da Xue Xue Bao Yi Xue Ban"
-] = "Journal of Central South University"
-JOURNAL_TRANSLATIONS_DICT[
-    "Revista Brasileira de Fisioterapia"
-] = "Brazilian Journal of Physical Therapy"
-JOURNAL_TRANSLATIONS_DICT["Zhongguo fei ai za zhi"] = "Chinese journal of lung cancer"
-# https://portal.issn.org/resource/ISSN/1347-8397
-JOURNAL_TRANSLATIONS_DICT["Nihon Yakurigaku zasshi"] = "Folia pharmacologia Japonica"
-# https://www.journalguide.com/journals/nihon-shinkei-seishin-yakurigaku-zasshi-japanese-journal-of-psychopharmacology
-JOURNAL_TRANSLATIONS_DICT[
-    "Nihon Shinkei Seishin Yakurigaku Zasshi"
-] = "Japanese Journal of Psychopharmacology"
-# https://www.scimagojr.com/journalsearch.php?q=21427&tip=sid&clean=0
-JOURNAL_TRANSLATIONS_DICT[
-    "Zhejiang da xue xue bao. Yi xue ban"
-] = "Journal of Zhejiang University. Medical sciences"
-JOURNAL_TRANSLATIONS_DICT[
-    "Yakubutsu Seishin Kodo"
-] = "Japanese Journal of Psychopharmacology"
-JOURNAL_TRANSLATIONS_DICT["Folia pharmacologia Japonica"] = "Nihon Yakurigaku Zasshi"
-JOURNAL_TRANSLATIONS_DICT["Sheng li xue bao"] = "Acta physiologica Sinica"
-JOURNAL_TRANSLATIONS_DICT[
-    "Seishin Shinkeigaku Zasshi"
-] = "Psychiatria et Neurologia Japonica"
-JOURNAL_TRANSLATIONS_DICT[
-    "Guang Pu Xue Yu Guang Pu Fen Xi"
-] = "Spectroscopy and Spectral Analysis"
-JOURNAL_TRANSLATIONS_DICT[
-    "Revista Brasileira de Psiquiatria"
-] = "Brazilian Journal of Psychiatry"
-JOURNAL_TRANSLATIONS_DICT[
-    "Jinko Chino Gakkai Ronbunshi"
-] = "Transactions of the Japanese Society for Artificial Intelligence"
-JOURNAL_TRANSLATIONS_DICT[
-    "Nihon Jibiinkoka Gakkai Kaiho"
-] = "Journal of Otolaryngology of Japan"
-JOURNAL_TRANSLATIONS_DICT["Aizheng"] = "Chinese Journal of Cancer"
-JOURNAL_TRANSLATIONS_DICT["Rinsho Shinkeigaku"] = "Clinical neurology"
-
 JOURNAL_TRANSLATIONS_DICT = {
     k.lower(): v.lower() for k, v in JOURNAL_TRANSLATIONS_DICT.items()
 }
-
 
 # Note: for re.sub, "van der" must be checked before "van"
 NAME_PREFIXES_LOWER = [
@@ -111,6 +59,12 @@ def set_container_title(records_df: pd.DataFrame) -> None:
         records_df[Fields.ENTRYTYPE] == ENTRYTYPES.BOOK, Fields.CONTAINER_TITLE
     ] = records_df[Fields.TITLE]
     records_df[Fields.CONTAINER_TITLE].fillna("", inplace=True)
+
+
+def get_container_title_short(ct_array: np.array) -> np.array:
+    return np.array(
+        ["".join(item[0] for item in ct.split() if item.isalpha()) for ct in ct_array]
+    )
 
 
 def get_author_format_case(authors: typing.List[str], original_string: str) -> str:
@@ -451,19 +405,19 @@ def prep_title(title_array: np.array) -> np.array:
         ]
     )
 
-    # Replace roman numbers
+    # Replace roman numbers (title similarity is sensitive to numbers)
     title_array = np.array(
         [
             re.sub(
-                r" iv([ |-|.]|$)",
+                r"\biv\b",
                 " 4 ",
                 re.sub(
-                    r" iii([ |-|.]|$)",
+                    r"\biii\b",
                     " 3 ",
                     re.sub(
-                        r" ii([ |-|.]|$)",
+                        r"\bii\b",
                         " 2 ",
-                        re.sub(r" i([ |-|.]|$)", " 1 ", title, flags=re.IGNORECASE),
+                        re.sub(r"\bi\b", " 1 ", title, flags=re.IGNORECASE),
                         flags=re.IGNORECASE,
                     ),
                     flags=re.IGNORECASE,
@@ -642,6 +596,24 @@ def prep_container_title(ct_array: np.array) -> np.array:
         ]
     )
 
+    def replace_journal_names(value: str) -> str:
+        if (
+            not any(char in value for char in "=.[")
+            and len(value) < 70
+            and "journal" in value.lower()
+        ):
+            return value
+        else:
+            for key, val in JOURNAL_TRANSLATIONS_DICT.items():
+                if " " not in key:
+                    continue
+
+                if key in value.replace(".", " ").lower():
+                    return val
+            return value
+
+    ct_array = np.array([replace_journal_names(value) for value in ct_array])
+
     ct_array = np.array(
         [
             # |(\. )
@@ -650,6 +622,10 @@ def prep_container_title(ct_array: np.array) -> np.array:
             else value
             for value in ct_array
         ]
+    )
+
+    ct_array = np.array(
+        [re.sub(r"\s*\[Electronic Resource\]$", "", value) for value in ct_array]
     )
 
     # If spaces were accidentally removed, restore them (looking for capital letters)
@@ -990,10 +966,10 @@ def process_df_split(split_df: pd.DataFrame) -> pd.DataFrame:
     return split_df
 
 
-def get_records_for_dedupe(records_df: pd.DataFrame, *, cpu: int = -1) -> pd.DataFrame:
+def prep(records_df: pd.DataFrame, *, cpu: int = -1) -> pd.DataFrame:
     """Prepare records for dedupe"""
 
-    print(f"{records_df.shape[0]} records")
+    print(f"Loaded {records_df.shape[0]} records")
 
     print("Prep started at", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
@@ -1009,7 +985,7 @@ def get_records_for_dedupe(records_df: pd.DataFrame, *, cpu: int = -1) -> pd.Dat
 
     if Fields.STATUS not in records_df:
         records_df[Fields.STATUS] = "md_processed"
-        print("setting missing status")
+        print("Warning: setting missing status")
 
     records_df = records_df[
         ~(
@@ -1124,8 +1100,17 @@ def get_records_for_dedupe(records_df: pd.DataFrame, *, cpu: int = -1) -> pd.Dat
 
     records_df = pd.concat(list(results))
 
+    records_df = records_df.assign(
+        author_first=records_df[Fields.AUTHOR].str.split().str[0],
+        title_short=records_df[Fields.TITLE].apply(lambda x: " ".join(x.split()[:10])),
+        container_title_short=get_container_title_short(
+            records_df[Fields.CONTAINER_TITLE].values
+        ),
+    )
+
     records_df["ID"] = records_df["ID"].astype(str)
     records_df.loc[records_df["title"] == "nan", "title"] = ""
+    records_df.loc[records_df["abstract"] == "nan", "abstract"] = ""
     records_df.loc[records_df["year"] == "nan", "year"] = ""
     records_df.loc[records_df["author_full"] == "nan", "author_full"] = ""
     records_df.loc[records_df["container_title"] == "nan", "container_title"] = ""
