@@ -54,7 +54,11 @@ class BibDedupeUtil:
         Get the directory names in data
         """
         data_path = Path(__file__).parent.parent / "data"
-        return [dir.name for dir in data_path.iterdir() if dir.is_dir()]
+        return [
+            dir.name
+            for dir in data_path.iterdir()
+            if dir.is_dir() and dir.name != "__pycache__"
+        ]
 
     def export_for_pytest(
         self,

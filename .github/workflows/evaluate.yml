@@ -17,8 +17,9 @@ jobs:
         with:
           python-version: 3.9
 
-      - name: Install dependencies
+      - name: Install bib_dedupe package
         run: |
+          pip install .
           pip install -r notebooks/requirements.txt
 
       - name: Run Evaluation

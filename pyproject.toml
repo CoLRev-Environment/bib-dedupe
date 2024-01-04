@@ -5,7 +5,12 @@ description = "Identify and merge duplicates in bibliographic records"
 authors = ["Gerit Wagner <gerit.wagner@uni-bamberg.de>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "bib_dedupe"}]
+
+[[tool.poetry.packages]]
+include = "bib_dedupe"
+
+[[tool.poetry.packages]]
+include = "data"
 
 [tool.poetry.scripts]
 bib-dedupe = "bib_dedupe.cli:main"
