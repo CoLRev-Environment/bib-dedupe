@@ -2,23 +2,33 @@ import pandas as pd
 import pytest
 
 import bib_dedupe.conditions
-from bib_dedupe.constants import Fields
+from bib_dedupe.constants.fields import ABSTRACT
+from bib_dedupe.constants.fields import AUTHOR
+from bib_dedupe.constants.fields import CONTAINER_TITLE
+from bib_dedupe.constants.fields import DOI
+from bib_dedupe.constants.fields import ENTRYTYPE
+from bib_dedupe.constants.fields import ISBN
+from bib_dedupe.constants.fields import NUMBER
+from bib_dedupe.constants.fields import PAGES
+from bib_dedupe.constants.fields import TITLE
+from bib_dedupe.constants.fields import VOLUME
+from bib_dedupe.constants.fields import YEAR
 
 
 def test_conditions() -> None:
     df = pd.DataFrame(
         columns=[
-            Fields.AUTHOR,
-            Fields.TITLE,
-            Fields.VOLUME,
-            Fields.PAGES,
-            Fields.ABSTRACT,
-            Fields.ISBN,
-            Fields.CONTAINER_TITLE,
-            Fields.NUMBER,
-            Fields.DOI,
-            Fields.YEAR,
-            Fields.ENTRYTYPE,
+            AUTHOR,
+            TITLE,
+            VOLUME,
+            PAGES,
+            ABSTRACT,
+            ISBN,
+            CONTAINER_TITLE,
+            NUMBER,
+            DOI,
+            YEAR,
+            ENTRYTYPE,
             "page_ranges_adjacent",
             "container_title_1",
             "container_title_2",

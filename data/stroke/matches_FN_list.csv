@@ -1,5 +1,5 @@
-case,ID,title,year,author,pages,volume,number,ENTRYTYPE,colrev_status,abstract,isbn,doi,container_title,author_full
-id_0000009;id_0000010,id_0000009,intelligent rehabilitation system cognitive rehabilitation,2012,yip,1524,73,3-,article,md_processed,,,,diss abst int,"Yip, Chi Bun"
-id_0000009;id_0000010,id_0000010,intelligent rehabilitation system cognitive rehabilitation,2011,yip,215,,,article,md_processed,,,,,"Yip, Chi Bun"
-id_0000428;id_0000429,id_0000428,stroke aphasia overcoming challenges capacity evaluation,2010,carlingrowland black mcdonald kagan,42,37,3,article,md_processed,,,,can j neur sci,"Carling-Rowland, A. and Black, S. and McDonald, L. and Kagan, A."
-id_0000428;id_0000429,id_0000429,stroke aphasia overcoming challenges capacity evaluation,2010,carlingrowland black mcdonald kagan,505,41,7,article,md_processed,,,,stro,"Carling-Rowland, A. and Black, S. and McDonald, L. and Kagan, A."
+case,ID,title,year,author,pages,volume,number,ENTRYTYPE,status,abstract,isbn,doi,search_set,container_title,author_full
+id_0000009;id_0000010,id_0000009,intelligent rehabilitation system cognitive rehabilitation,2012,yip,1524,73,3-,article,md_processed,,,,,diss abst int,"Yip, Chi Bun"
+id_0000009;id_0000010,id_0000010,intelligent rehabilitation system cognitive rehabilitation,2011,yip,215,,,article,md_processed,,,,,,"Yip, Chi Bun"
+id_0000428;id_0000429,id_0000428,stroke aphasia overcoming challenges capacity evaluation,2010,carlingrowland black mcdonald kagan,42,37,3,article,md_processed,,,,,can j neur sci,"Carling-Rowland, A. and Black, S. and McDonald, L. and Kagan, A."
+id_0000428;id_0000429,id_0000429,stroke aphasia overcoming challenges capacity evaluation,2010,carlingrowland black mcdonald kagan,505,41,7,article,md_processed,,,,,stro,"Carling-Rowland, A. and Black, S. and McDonald, L. and Kagan, A."

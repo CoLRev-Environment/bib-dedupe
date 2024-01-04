@@ -15,12 +15,12 @@ def debug() -> None:
 
     try:
         df_matches = pd.read_csv("matches_FN_list.csv")
-    except pd.errors.EmptyDataError:
+    except (pd.errors.EmptyDataError, FileNotFoundError):
         df_matches = pd.DataFrame()
 
     try:
         df_matches_fp = pd.read_csv("matches_FP_list.csv")
-    except pd.errors.EmptyDataError:
+    except (pd.errors.EmptyDataError, FileNotFoundError):
         df_matches_fp = pd.DataFrame()
 
     from bib_dedupe.dedupe_benchmark import DedupeBenchmarker

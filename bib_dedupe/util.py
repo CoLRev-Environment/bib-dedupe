@@ -11,10 +11,35 @@ from typing import List
 
 import pandas as pd
 
-from bib_dedupe.constants import Fields
-from bib_dedupe.constants import FieldSet
+from bib_dedupe.constants.fields import ABSTRACT
+from bib_dedupe.constants.fields import AUTHOR
+from bib_dedupe.constants.fields import BOOKTITLE
+from bib_dedupe.constants.fields import CHAPTER
+from bib_dedupe.constants.fields import DOI
+from bib_dedupe.constants.fields import EDITOR
+from bib_dedupe.constants.fields import ENTRYTYPE
+from bib_dedupe.constants.fields import ID
+from bib_dedupe.constants.fields import INSTITUTION
+from bib_dedupe.constants.fields import ISBN
+from bib_dedupe.constants.fields import JOURNAL
+from bib_dedupe.constants.fields import NUMBER
+from bib_dedupe.constants.fields import PAGES
+from bib_dedupe.constants.fields import PUBLISHER
+from bib_dedupe.constants.fields import STATUS
+from bib_dedupe.constants.fields import TITLE
+from bib_dedupe.constants.fields import VOLUME
+from bib_dedupe.constants.fields import YEAR
 
 # pylint: disable=too-few-public-methods
+
+
+class VerbosePrint:
+    def __init__(self, verbosity_level: int):
+        self.verbosity_level = verbosity_level
+
+    def print(self, message: str, *, level: int = 1) -> None:
+        if level <= self.verbosity_level:
+            print(message)
 
 
 class BibDedupeUtil:
@@ -50,17 +75,26 @@ class BibDedupeUtil:
 
         records_df = records_df[
             records_df.columns.intersection(
-                set(
-                    FieldSet.IDENTIFYING_FIELD_KEYS
-                    + [
-                        Fields.ID,
-                        Fields.ENTRYTYPE,
-                        Fields.STATUS,
-                        Fields.DOI,
-                        Fields.ISBN,
-                        Fields.ABSTRACT,
-                    ]
-                )
+                [
+                    ID,
+                    ENTRYTYPE,
+                    STATUS,
+                    TITLE,
+                    AUTHOR,
+                    YEAR,
+                    JOURNAL,
+                    BOOKTITLE,
+                    CHAPTER,
+                    PUBLISHER,
+                    VOLUME,
+                    NUMBER,
+                    PAGES,
+                    EDITOR,
+                    INSTITUTION,
+                    DOI,
+                    ISBN,
+                    ABSTRACT,
+                ]
             )
         ]
 

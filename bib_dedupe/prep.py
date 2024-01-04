@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 """Preparation for dedupe"""
 import concurrent.futures
+import html
 import os
 import re
 import time
@@ -14,8 +15,29 @@ import numpy as np
 import pandas as pd
 from number_parser import parse
 
-from bib_dedupe.constants import ENTRYTYPES
-from bib_dedupe.constants import Fields
+from bib_dedupe.constants.entrytypes import ARTICLE
+from bib_dedupe.constants.entrytypes import BOOK
+from bib_dedupe.constants.entrytypes import INBOOK
+from bib_dedupe.constants.entrytypes import INPROCEEDINGS
+from bib_dedupe.constants.entrytypes import PROCEEDINGS
+from bib_dedupe.constants.fields import ABSTRACT
+from bib_dedupe.constants.fields import AUTHOR
+from bib_dedupe.constants.fields import BOOKTITLE
+from bib_dedupe.constants.fields import CONTAINER_TITLE
+from bib_dedupe.constants.fields import DOI
+from bib_dedupe.constants.fields import ENTRYTYPE
+from bib_dedupe.constants.fields import ID
+from bib_dedupe.constants.fields import ISBN
+from bib_dedupe.constants.fields import JOURNAL
+from bib_dedupe.constants.fields import NUMBER
+from bib_dedupe.constants.fields import PAGES
+from bib_dedupe.constants.fields import SEARCH_SET
+from bib_dedupe.constants.fields import SERIES
+from bib_dedupe.constants.fields import STATUS
+from bib_dedupe.constants.fields import TITLE
+from bib_dedupe.constants.fields import URL
+from bib_dedupe.constants.fields import VOLUME
+from bib_dedupe.constants.fields import YEAR
 
 current_dir = Path(__file__).parent
 journal_variants_path = current_dir / "journal_variants.csv"
@@ -46,24 +68,25 @@ NAME_PREFIXES_LOWER = [
 
 def set_container_title(records_df: pd.DataFrame) -> None:
     # Set container title
+    records_df.loc[records_df[ENTRYTYPE] == ARTICLE, CONTAINER_TITLE] = records_df[
+        JOURNAL
+    ]
     records_df.loc[
-        records_df[Fields.ENTRYTYPE] == ENTRYTYPES.ARTICLE, Fields.CONTAINER_TITLE
-    ] = records_df[Fields.JOURNAL]
-    records_df.loc[
-        records_df[Fields.ENTRYTYPE].isin(
-            [ENTRYTYPES.INPROCEEDINGS, ENTRYTYPES.PROCEEDINGS, ENTRYTYPES.INBOOK]
-        ),
-        Fields.CONTAINER_TITLE,
-    ] = records_df[Fields.BOOKTITLE]
-    records_df.loc[
-        records_df[Fields.ENTRYTYPE] == ENTRYTYPES.BOOK, Fields.CONTAINER_TITLE
-    ] = records_df[Fields.TITLE]
-    records_df[Fields.CONTAINER_TITLE].fillna("", inplace=True)
+        records_df[ENTRYTYPE].isin([INPROCEEDINGS, PROCEEDINGS, INBOOK]),
+        CONTAINER_TITLE,
+    ] = records_df[BOOKTITLE]
+    records_df.loc[records_df[ENTRYTYPE] == BOOK, CONTAINER_TITLE] = records_df[TITLE]
+    records_df[CONTAINER_TITLE].fillna("", inplace=True)
 
 
 def get_container_title_short(ct_array: np.array) -> np.array:
     return np.array(
-        ["".join(item[0] for item in ct.split() if item.isalpha()) for ct in ct_array]
+        [
+            "".join(item[0] for item in ct.split() if item.isalpha())
+            if ct != "nan"
+            else ""
+            for ct in ct_array
+        ]
     )
 
 
@@ -388,6 +411,7 @@ def prep_title(title_array: np.array) -> np.array:
             .replace("co-", "co")
             .replace("post-", "post")
             .replace("three-dimensional", "threedimensional")
+            .replace("+", " plus ")
             for title in title_array
         ]
     )
@@ -430,6 +454,8 @@ def prep_title(title_array: np.array) -> np.array:
 
     # Remove html tags
     title_array = np.array([re.sub(r"<.*?>", " ", title) for title in title_array])
+    # Replace html special entities
+    title_array = np.array([html.unescape(title) for title in title_array])
 
     # Remove language tags added by some databases (at the end)
     title_array = np.array(
@@ -549,6 +575,8 @@ JOURNAL_ABBREV = {
     "anna": "ann",
     "revi": "rev",
     "rese": "res",
+    "bmj br med j": "bmj",
+    "br med j": "bmj",
 }
 
 
@@ -561,11 +589,6 @@ def prep_container_title(ct_array: np.array) -> np.array:
 
         # Replace trailing "the" (ignore case)
         ct = re.sub(r"\sthe\s*$", "", ct, flags=re.IGNORECASE)
-
-        # Replace translated journals
-        ct_lower = ct.lower().rstrip()
-        if ct_lower in JOURNAL_TRANSLATIONS_DICT:
-            ct = JOURNAL_TRANSLATIONS_DICT[ct_lower]
 
         ct = (
             ct.lower()
@@ -920,16 +943,16 @@ def prep_isbn(isbn_array: np.array) -> np.array:
 
 
 function_mapping = {
-    Fields.AUTHOR: prep_authors,
-    Fields.TITLE: prep_title,
-    Fields.CONTAINER_TITLE: prep_container_title,
-    Fields.YEAR: prep_year,
-    Fields.VOLUME: prep_volume,
-    Fields.NUMBER: prep_number,
-    Fields.PAGES: prep_pages,
-    Fields.ABSTRACT: prep_abstract,
-    Fields.DOI: prep_doi,
-    Fields.ISBN: prep_isbn,
+    AUTHOR: prep_authors,
+    TITLE: prep_title,
+    CONTAINER_TITLE: prep_container_title,
+    YEAR: prep_year,
+    VOLUME: prep_volume,
+    NUMBER: prep_number,
+    PAGES: prep_pages,
+    ABSTRACT: prep_abstract,
+    DOI: prep_doi,
+    ISBN: prep_isbn,
 }
 
 
@@ -946,20 +969,20 @@ def process_df_split(split_df: pd.DataFrame) -> pd.DataFrame:
 
     set_container_title(split_df)
 
-    split_df["author_full"] = split_df[Fields.AUTHOR]
+    split_df["author_full"] = split_df[AUTHOR]
 
     for field, function in function_mapping.items():
         split_df[field] = function(split_df[field].values)  # type: ignore
 
     # TODO : integrate into prep_author if the author_full (minimally processed) is effective
-    split_df[Fields.AUTHOR] = select_authors(split_df[Fields.AUTHOR].values)
+    split_df[AUTHOR] = select_authors(split_df[AUTHOR].values)
 
-    split_df.loc[split_df[Fields.PAGES] == split_df[Fields.YEAR], Fields.PAGES] = ""
+    split_df.loc[split_df[PAGES] == split_df[YEAR], PAGES] = ""
 
-    if Fields.BOOKTITLE in split_df.columns:
-        split_df = split_df.drop(columns=[Fields.BOOKTITLE])
-    if Fields.JOURNAL in split_df.columns:
-        split_df = split_df.drop(columns=[Fields.JOURNAL])
+    if BOOKTITLE in split_df.columns:
+        split_df = split_df.drop(columns=[BOOKTITLE])
+    if JOURNAL in split_df.columns:
+        split_df = split_df.drop(columns=[JOURNAL])
 
     split_df = split_df.fillna("")
 
@@ -969,7 +992,7 @@ def process_df_split(split_df: pd.DataFrame) -> pd.DataFrame:
 def prep(records_df: pd.DataFrame, *, cpu: int = -1) -> pd.DataFrame:
     """Prepare records for dedupe"""
 
-    print(f"Loaded {records_df.shape[0]} records")
+    print(f"Loaded {records_df.shape[0]:,} records")
 
     print("Prep started at", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
@@ -978,18 +1001,18 @@ def prep(records_df: pd.DataFrame, *, cpu: int = -1) -> pd.DataFrame:
     if 0 == records_df.shape[0]:
         return {}
 
-    assert all(
-        f in records_df.columns
-        for f in [Fields.ENTRYTYPE, Fields.TITLE, Fields.AUTHOR, Fields.YEAR]
-    )
+    assert all(f in records_df.columns for f in [ENTRYTYPE, TITLE, AUTHOR, YEAR])
 
-    if Fields.STATUS not in records_df:
-        records_df[Fields.STATUS] = "md_processed"
+    if ID not in records_df.columns:
+        records_df[ID] = range(1, len(records_df) + 1)
+
+    if STATUS not in records_df:
+        records_df[STATUS] = "md_processed"
         print("Warning: setting missing status")
 
     records_df = records_df[
         ~(
-            records_df[Fields.STATUS].isin(
+            records_df[STATUS].isin(
                 [
                     "md_imported",
                     "md_needs_manual_preparation",
@@ -998,28 +1021,31 @@ def prep(records_df: pd.DataFrame, *, cpu: int = -1) -> pd.DataFrame:
         )
     ]
 
-    records_df[Fields.TITLE] = records_df[Fields.TITLE].replace(
-        ["#NAME?", "UNKNOWN", ""], np.nan
-    )
-    if records_df[Fields.TITLE].isnull().any():
+    records_df[TITLE] = records_df[TITLE].replace(["#NAME?", "UNKNOWN", ""], np.nan)
+    if records_df[TITLE].isnull().any():
         print(
             "Warning: Some records have empty title field. These records will be dropped."
         )
-        records_df = records_df.dropna(subset=[Fields.TITLE])
+        records_df = records_df.dropna(subset=[TITLE])
 
-    # TODO : print a warning
-    records_df = records_df[records_df[Fields.ENTRYTYPE] != "proceedings"]
+    # if columns are of type float, we need to avoid casting "3.0" to "30"
+    for col in records_df.columns:
+        if records_df[col].dtype == float:
+            records_df[col] = records_df[col].apply(
+                lambda x: str(int(x)) if x == x else ""
+            )
 
     optional_fields = [
-        Fields.JOURNAL,
-        Fields.BOOKTITLE,
-        Fields.SERIES,
-        Fields.VOLUME,
-        Fields.NUMBER,
-        Fields.PAGES,
-        Fields.ABSTRACT,
-        Fields.ISBN,
-        Fields.DOI,
+        JOURNAL,
+        BOOKTITLE,
+        SERIES,
+        VOLUME,
+        NUMBER,
+        PAGES,
+        ABSTRACT,
+        ISBN,
+        DOI,
+        SEARCH_SET,
     ]
     for optional_field in optional_fields:
         if optional_field not in records_df:
@@ -1029,22 +1055,23 @@ def prep(records_df: pd.DataFrame, *, cpu: int = -1) -> pd.DataFrame:
         labels=list(
             records_df.columns.difference(
                 [
-                    Fields.ID,
-                    Fields.ENTRYTYPE,
-                    Fields.AUTHOR,
-                    Fields.TITLE,
-                    Fields.YEAR,
-                    Fields.JOURNAL,
-                    Fields.CONTAINER_TITLE,
-                    Fields.BOOKTITLE,
-                    Fields.VOLUME,
-                    Fields.NUMBER,
-                    Fields.PAGES,
-                    Fields.STATUS,
-                    Fields.ABSTRACT,
-                    Fields.URL,
-                    Fields.ISBN,
-                    Fields.DOI,
+                    ID,
+                    ENTRYTYPE,
+                    AUTHOR,
+                    TITLE,
+                    YEAR,
+                    JOURNAL,
+                    CONTAINER_TITLE,
+                    BOOKTITLE,
+                    VOLUME,
+                    NUMBER,
+                    PAGES,
+                    STATUS,
+                    ABSTRACT,
+                    URL,
+                    ISBN,
+                    DOI,
+                    SEARCH_SET,
                 ]
             )
         ),
@@ -1054,31 +1081,33 @@ def prep(records_df: pd.DataFrame, *, cpu: int = -1) -> pd.DataFrame:
 
     records_df[
         [
-            Fields.STATUS,
-            Fields.AUTHOR,
-            Fields.TITLE,
-            Fields.JOURNAL,
-            Fields.YEAR,
-            Fields.VOLUME,
-            Fields.NUMBER,
-            Fields.PAGES,
-            Fields.ABSTRACT,
-            Fields.DOI,
-            Fields.ISBN,
+            STATUS,
+            AUTHOR,
+            TITLE,
+            JOURNAL,
+            YEAR,
+            VOLUME,
+            NUMBER,
+            PAGES,
+            ABSTRACT,
+            DOI,
+            ISBN,
+            SEARCH_SET,
         ]
     ] = records_df[
         [
-            Fields.STATUS,
-            Fields.AUTHOR,
-            Fields.TITLE,
-            Fields.JOURNAL,
-            Fields.YEAR,
-            Fields.VOLUME,
-            Fields.NUMBER,
-            Fields.PAGES,
-            Fields.ABSTRACT,
-            Fields.DOI,
-            Fields.ISBN,
+            STATUS,
+            AUTHOR,
+            TITLE,
+            JOURNAL,
+            YEAR,
+            VOLUME,
+            NUMBER,
+            PAGES,
+            ABSTRACT,
+            DOI,
+            ISBN,
+            SEARCH_SET,
         ]
     ].astype(
         str
@@ -1101,19 +1130,19 @@ def prep(records_df: pd.DataFrame, *, cpu: int = -1) -> pd.DataFrame:
     records_df = pd.concat(list(results))
 
     records_df = records_df.assign(
-        author_first=records_df[Fields.AUTHOR].str.split().str[0],
-        title_short=records_df[Fields.TITLE].apply(lambda x: " ".join(x.split()[:10])),
+        author_first=records_df[AUTHOR].str.split().str[0],
+        title_short=records_df[TITLE].apply(lambda x: " ".join(x.split()[:10])),
         container_title_short=get_container_title_short(
-            records_df[Fields.CONTAINER_TITLE].values
+            records_df[CONTAINER_TITLE].values
         ),
     )
 
-    records_df["ID"] = records_df["ID"].astype(str)
-    records_df.loc[records_df["title"] == "nan", "title"] = ""
-    records_df.loc[records_df["abstract"] == "nan", "abstract"] = ""
-    records_df.loc[records_df["year"] == "nan", "year"] = ""
-    records_df.loc[records_df["author_full"] == "nan", "author_full"] = ""
-    records_df.loc[records_df["container_title"] == "nan", "container_title"] = ""
+    records_df[ID] = records_df[ID].astype(str)
+    records_df.loc[records_df[SEARCH_SET] == "nan", SEARCH_SET] = ""
+    records_df.loc[records_df[TITLE] == "nan", TITLE] = ""
+    records_df.loc[records_df[ABSTRACT] == "nan", ABSTRACT] = ""
+    records_df.loc[records_df[YEAR] == "nan", YEAR] = ""
+    records_df.loc[records_df[CONTAINER_TITLE] == "nan", CONTAINER_TITLE] = ""
 
     end_time = time.time()
     print(f"Prep completed after: {end_time - start_time:.2f} seconds")

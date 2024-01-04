@@ -14,7 +14,12 @@ from tqdm import tqdm
 
 import bib_dedupe.cluster
 import bib_dedupe.util
-from bib_dedupe.constants import Fields
+from bib_dedupe.constants.fields import AUTHOR_FIRST
+from bib_dedupe.constants.fields import CONTAINER_TITLE_SHORT
+from bib_dedupe.constants.fields import ID
+from bib_dedupe.constants.fields import ORIGIN
+from bib_dedupe.constants.fields import STATUS
+from bib_dedupe.constants.fields import TITLE_SHORT
 
 
 class DedupeBenchmarker:
@@ -88,12 +93,9 @@ class DedupeBenchmarker:
         """Get benchmark for dedupe"""
         import colrev.review_manager
         import colrev.record
-        from colrev.constants import Fields
 
         def merged(record: dict) -> bool:
-            return (
-                len([o for o in record[Fields.ORIGIN] if not o.startswith("md_")]) != 1
-            )
+            return len([o for o in record[ORIGIN] if not o.startswith("md_")]) != 1
 
         self.review_manager = colrev.review_manager.ReviewManager(
             path_str=str(self.colrev_project_path), force_mode=True
@@ -102,23 +104,23 @@ class DedupeBenchmarker:
 
         records = self.review_manager.dataset.load_records_dict()
         for record in records.values():
-            if Fields.STATUS not in record:
-                record[Fields.STATUS] = colrev.record.RecordState.md_processed
+            if STATUS not in record:
+                record[STATUS] = colrev.record.RecordState.md_processed
                 print("setting missing status")
 
         # Select md-processed records (discard recently added/non-deduped ones)
         records = {
-            r[Fields.ID]: r
+            r[ID]: r
             for r in records.values()
-            if r[Fields.STATUS]
+            if r[STATUS]
             in colrev.record.RecordState.get_post_x_states(
                 state=colrev.record.RecordState.md_processed
             )
         }
         # Drop origins starting with md_... (not relevant for dedupe)
         for record_dict in records.values():
-            record_dict[Fields.ORIGIN] = [
-                o for o in record_dict[Fields.ORIGIN] if not o.startswith("md_")
+            record_dict[ORIGIN] = [
+                o for o in record_dict[ORIGIN] if not o.startswith("md_")
             ]
 
         records_pre_merged_list = [r for r in records.values() if not merged(r)]
@@ -126,7 +128,7 @@ class DedupeBenchmarker:
             o
             for r in records.values()
             if merged(r)
-            for o in r[Fields.ORIGIN]
+            for o in r[ORIGIN]
             if not o.startswith("md_")
         ]
 
@@ -143,25 +145,24 @@ class DedupeBenchmarker:
             try:
                 for hist_record_dict in hist_recs.values():
                     if any(
-                        o in hist_record_dict[Fields.ORIGIN]
-                        for o in records_merged_origins
+                        o in hist_record_dict[ORIGIN] for o in records_merged_origins
                     ) and not merged(hist_record_dict):
                         # only consider post-md_prepared (non-merged) records
                         if hist_record_dict[
-                            Fields.STATUS
+                            STATUS
                         ] in colrev.record.RecordState.get_post_x_states(
                             state=colrev.record.RecordState.md_prepared
                         ):
-                            hist_record_dict[Fields.ORIGIN] = [
+                            hist_record_dict[ORIGIN] = [
                                 o
-                                for o in hist_record_dict[Fields.ORIGIN]
+                                for o in hist_record_dict[ORIGIN]
                                 if not o.startswith("md_")
                             ]
                             records_pre_merged_list.append(hist_record_dict)
                             records_merged_origins.remove(
                                 [
                                     o
-                                    for o in hist_record_dict[Fields.ORIGIN]
+                                    for o in hist_record_dict[ORIGIN]
                                     if not o.startswith("md_")
                                 ][0]
                             )
@@ -173,19 +174,17 @@ class DedupeBenchmarker:
 
         # drop missing from records
         # (can only evaluate record/origins that are available in records_pre_merged)
-        pre_merged_orgs = {
-            o for r in records_pre_merged.values() for o in r[Fields.ORIGIN]
-        }
+        pre_merged_orgs = {o for r in records_pre_merged.values() for o in r[ORIGIN]}
         for record_dict in records.values():
-            record_dict[Fields.ORIGIN] = [
+            record_dict[ORIGIN] = [
                 o
-                for o in record_dict[Fields.ORIGIN]
+                for o in record_dict[ORIGIN]
                 if o in pre_merged_orgs and o not in records_merged_origins
             ]
-        records = {r["ID"]: r for r in records.values() if len(r[Fields.ORIGIN]) > 0}
+        records = {r["ID"]: r for r in records.values() if len(r[ORIGIN]) > 0}
 
-        assert {o for x in records_pre_merged.values() for o in x[Fields.ORIGIN]} == {
-            o for x in records.values() for o in x[Fields.ORIGIN]
+        assert {o for x in records_pre_merged.values() for o in x[ORIGIN]} == {
+            o for x in records.values() for o in x[ORIGIN]
         }
         # [x for x in o_rec if x not in o_pre]
 
@@ -199,8 +198,8 @@ class DedupeBenchmarker:
 
         merged_record_ids = []
         for row in list(records_df.to_dict(orient="records")):
-            if len(row[Fields.ID]) > 1:
-                merged_record_ids.append(row[Fields.ID])
+            if len(row[ID]) > 1:
+                merged_record_ids.append(row[ID])
 
         merged_record_ids = bib_dedupe.util.connected_components(merged_record_ids)
         self.true_merged_ids = merged_record_ids
@@ -399,11 +398,15 @@ class DedupeBenchmarker:
 
         maybe_cases_df = matched_df[matched_df["duplicate_label"] == "maybe"]
 
+        columns_to_drop = [
+            TITLE_SHORT,
+            AUTHOR_FIRST,
+            CONTAINER_TITLE_SHORT,
+            ORIGIN,
+        ]
         prepared_records_df = prepared_records_df.drop(
             columns=[
-                Fields.TITLE_SHORT,
-                Fields.AUTHOR_FIRST,
-                Fields.CONTAINER_TITLE_SHORT,
+                col for col in columns_to_drop if col in prepared_records_df.columns
             ]
         )
 
@@ -483,6 +486,9 @@ class DedupeBenchmarker:
 
                 if cases_df.empty:
                     continue
+
+            if "colrev_origin" in cases_df.columns:
+                cases_df = cases_df.drop(columns=["colrev_origin"])
 
             cases_df.to_csv(self.benchmark_path / f"{list_name}.csv", index=False)
 

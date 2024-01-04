@@ -7,41 +7,53 @@ from itertools import combinations
 
 import pandas as pd
 
-from bib_dedupe.constants import Fields
+from bib_dedupe.constants.fields import ABSTRACT
+from bib_dedupe.constants.fields import AUTHOR_FIRST
+from bib_dedupe.constants.fields import CONTAINER_TITLE_SHORT
+from bib_dedupe.constants.fields import DOI
+from bib_dedupe.constants.fields import NUMBER
+from bib_dedupe.constants.fields import PAGES
+from bib_dedupe.constants.fields import SEARCH_SET
+from bib_dedupe.constants.fields import TITLE_SHORT
+from bib_dedupe.constants.fields import VOLUME
+from bib_dedupe.constants.fields import YEAR
+from bib_dedupe.util import VerbosePrint
+
+verbose_print = VerbosePrint(verbosity_level=1)
 
 block_fields_list = [
-    {Fields.AUTHOR_FIRST, Fields.YEAR},
-    {Fields.AUTHOR_FIRST, Fields.CONTAINER_TITLE_SHORT},
-    {Fields.TITLE_SHORT, Fields.PAGES},
-    {Fields.TITLE_SHORT, Fields.AUTHOR_FIRST},
-    {Fields.TITLE_SHORT, Fields.VOLUME},
-    {Fields.TITLE_SHORT, Fields.CONTAINER_TITLE_SHORT},
-    {Fields.TITLE_SHORT, Fields.YEAR},
+    {AUTHOR_FIRST, YEAR},
+    {AUTHOR_FIRST, CONTAINER_TITLE_SHORT},
+    {TITLE_SHORT, PAGES},
+    {TITLE_SHORT, AUTHOR_FIRST},
+    {TITLE_SHORT, VOLUME},
+    {TITLE_SHORT, CONTAINER_TITLE_SHORT},
+    {TITLE_SHORT, YEAR},
     {
-        Fields.CONTAINER_TITLE_SHORT,
-        Fields.VOLUME,
-        Fields.NUMBER,
+        CONTAINER_TITLE_SHORT,
+        VOLUME,
+        NUMBER,
     },
     {
-        Fields.CONTAINER_TITLE_SHORT,
-        Fields.VOLUME,
-        Fields.YEAR,
+        CONTAINER_TITLE_SHORT,
+        VOLUME,
+        YEAR,
     },
     {
-        Fields.CONTAINER_TITLE_SHORT,
-        Fields.VOLUME,
-        Fields.PAGES,
+        CONTAINER_TITLE_SHORT,
+        VOLUME,
+        PAGES,
     },
     {
-        Fields.CONTAINER_TITLE_SHORT,
-        Fields.YEAR,
-        Fields.PAGES,
+        CONTAINER_TITLE_SHORT,
+        YEAR,
+        PAGES,
     },
-    {Fields.YEAR, Fields.VOLUME, Fields.NUMBER},
-    {Fields.YEAR, Fields.VOLUME, Fields.PAGES},
-    {Fields.YEAR, Fields.NUMBER, Fields.PAGES},
-    {Fields.DOI},
-    {Fields.ABSTRACT},
+    {YEAR, VOLUME, NUMBER},
+    {YEAR, VOLUME, PAGES},
+    {YEAR, NUMBER, PAGES},
+    {DOI},
+    {ABSTRACT},
 ]
 
 
@@ -77,12 +89,13 @@ def create_pairs_for_block_fields(
     )
     pairs["block_rule"] = "-".join(block_fields)
 
-    if not set(block_fields).intersection({Fields.TITLE_SHORT, Fields.DOI}):
+    pairs["require_title_overlap"] = False
+    if not set(block_fields).intersection({TITLE_SHORT, DOI, PAGES}):
         pairs["require_title_overlap"] = True
-    else:
-        pairs["require_title_overlap"] = False
 
-    print(f"Blocked {str(pairs.shape[0]).rjust(8)} pairs with {block_fields}")
+    verbose_print.print(
+        f"Blocked {str('{:,}'.format(pairs.shape[0])).rjust(8)} pairs with {block_fields}"
+    )
 
     return pairs
 
@@ -105,54 +118,20 @@ def calculate_pairs(records_df: pd.DataFrame, block_fields: list) -> pd.DataFram
     return pairs
 
 
-def block(records_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    This function performs blocking operation on the given dataframe.
+def reduce_distinct_sets(pairs_df: pd.DataFrame) -> pd.DataFrame:
+    if f"{SEARCH_SET}_1" not in pairs_df.columns:
+        return pairs_df
 
-    Parameters:
-    records_df (pd.DataFrame): The dataframe containing the records.
+    pairs_df = pairs_df[
+        ~(
+            (pairs_df[f"{SEARCH_SET}_1"] == pairs_df[f"{SEARCH_SET}_2"])
+            & (pairs_df[f"{SEARCH_SET}_1"] != "")
+        )
+    ]
+    return pairs_df
 
-    Returns:
-    pd.DataFrame: The dataframe after blocking operation.
-    """
 
-    print("Block started at", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-    start_time = time.time()
-
-    pairs_df = pd.DataFrame(columns=["ID1", "ID2"])
-
-    pool = multiprocessing.Pool()
-    results = pool.starmap(
-        calculate_pairs, [(records_df, field) for field in block_fields_list]
-    )
-    pool.close()
-    pool.join()
-
-    pairs_df = pd.concat(results, ignore_index=True).drop_duplicates(
-        subset=["ID1", "ID2"]
-    )
-
-    pairs_df = pd.merge(
-        pairs_df,
-        records_df.add_suffix("_1"),
-        left_on="ID1",
-        right_on="ID_1",
-        how="left",
-        suffixes=("", "_1"),
-    )
-
-    pairs_df = pd.merge(
-        pairs_df,
-        records_df.add_suffix("_2"),
-        left_on="ID2",
-        right_on="ID_2",
-        how="left",
-        suffixes=("", "_2"),
-    )
-
-    # TODO : if debug:
-    print(f"Blocked {pairs_df.shape[0]} pairs")
-
+def reduce_non_overlapping_titles(pairs_df: pd.DataFrame) -> pd.DataFrame:
     # Don't require title_overlap (words) for identical titles
     # and titles not containing a space
     pairs_df.loc[
@@ -187,9 +166,70 @@ def block(records_df: pd.DataFrame) -> pd.DataFrame:
             )
         )
     ]
+    return pairs_df
 
-    print(f"Blocked pairs reduced to {pairs_df.shape[0]} pairs")
 
+def block(records_df: pd.DataFrame, *, verbosity_level: int = 1) -> pd.DataFrame:
+    """
+    This function performs blocking operation on the given dataframe.
+
+    Parameters:
+    records_df (pd.DataFrame): The dataframe containing the records.
+
+    Returns:
+    pd.DataFrame: The dataframe after blocking operation.
+    """
+
+    global verbose_print
+    verbose_print = VerbosePrint(verbosity_level=verbosity_level)
+    verbose_print.print(
+        "Block started at " + datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    )
+    start_time = time.time()
+
+    pairs_df = pd.DataFrame(columns=["ID1", "ID2"])
+
+    pool = multiprocessing.Pool()
+    results = pool.starmap(
+        calculate_pairs, [(records_df, field) for field in block_fields_list]
+    )
+    pool.close()
+    pool.join()
+
+    pairs_df = pd.concat(results, ignore_index=True)
+
+    # title overlap is only required when there is no blocked pair that requires it.
+    pairs_df["require_title_overlap"] = pairs_df.groupby(["ID1", "ID2"])[
+        "require_title_overlap"
+    ].transform("all")
+    pairs_df = pairs_df.drop_duplicates(subset=["ID1", "ID2"])
+
+    pairs_df = pd.merge(
+        pairs_df,
+        records_df.add_suffix("_1"),
+        left_on="ID1",
+        right_on="ID_1",
+        how="left",
+        suffixes=("", "_1"),
+    )
+
+    pairs_df = pd.merge(
+        pairs_df,
+        records_df.add_suffix("_2"),
+        left_on="ID2",
+        right_on="ID_2",
+        how="left",
+        suffixes=("", "_2"),
+    )
+
+    verbose_print.print(
+        f"Blocked {str('{:,}'.format(pairs_df.shape[0])).rjust(8)} pairs"
+    )
+
+    pairs_df = reduce_non_overlapping_titles(pairs_df)
+    pairs_df = reduce_distinct_sets(pairs_df)
+
+    verbose_print.print(f"Blocked pairs reduced to {pairs_df.shape[0]:,} pairs")
     end_time = time.time()
-    print(f"Block completed after: {end_time - start_time:.2f} seconds")
+    verbose_print.print(f"Block completed after: {end_time - start_time:.2f} seconds")
     return pairs_df

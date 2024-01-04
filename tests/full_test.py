@@ -34,4 +34,4 @@ def test_full() -> None:
     assert result["TP"] == 2
     assert result["FP"] == 0
     assert result["FN"] == 0
-    assert result["TN"] == 4
+    assert result["TN"] == 6

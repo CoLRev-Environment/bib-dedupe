@@ -1,1 +1,1 @@
-case,ID,title,year,author,pages,volume,number,ENTRYTYPE,colrev_status,abstract,isbn,doi,container_title,author_full
+case,ID,title,year,author,pages,volume,number,ENTRYTYPE,status,abstract,isbn,doi,search_set,container_title,author_full

@@ -14,7 +14,7 @@ This approach enables validation, undo operations, and a more nuanced understand
 - Goal: automated duplicate linking without false positives
 - preprocessing approach that mirrors the specific error generation process of academic databases (e.g., re-formatting authors, abbreviating journals)
 - **Entity Resolution**: Bib-Dedupe does not simply delete duplicates, but it links duplicates to resolve the entitity and integrates the data. This allows for validation, undo operations, and a more comprehensive understanding of record relationships.
-- **Programmatic Access**: Bib-Dedupe is designed for seamless integration into your research workflow, providing programmatic access for easy incorporation into scripts and applications.
+- **Programmatic Access**: Bib-Dedupe is designed for seamless integration into existing research workflows, providing programmatic access for easy incorporation into scripts and applications.
 - **Transparent and Reproducible Rules**: Bib-Dedupe's blocking and matching rules are transparent and easily reproducible. Researchers can fine-tune these rules based on their specific needs, promoting reproducibility in deduplication processes.
 - **Continuous Benchmarking**: Continuous integration tests running on GitHub Actions ensure ongoing benchmarking, maintaining the library's reliability and performance across datasets.
 - **Efficient and Parallel Computation**: Bib-Dedupe implements computations efficiently and in parallel, using appropriate data structures and functions for optimal performance.
@@ -38,7 +38,6 @@ records_df = pd.read_csv("records.csv")
 
 # Get the merged_df
 merged_df = merge(records_df)
-
 ```
 
 For more detailed usage instructions and customization options, refer to the documentation.
@@ -46,15 +45,17 @@ For more detailed usage instructions and customization options, refer to the doc
 For advanced use cases, it is also possible to complete and customize each step individually
 
 ```python
-from bib_dedupe.bib_dedupe import prep, block, match, merge, export_maybe, import_maybe_decisions
+from bib_dedupe.bib_dedupe import prep, block, match, merge, export_maybe, import_maybe
 
 # Block records
 blocked_df = block(records_df)
+
 # Identify matches
 matched_df = match(blocked_df)
+
 # Check maybe cases
 export_maybe(matched_df, records_df, matches)
-matches = import_maybe_decisions(matches)
+matches = import_maybe(matches)
 
 # Merge
 merged_df = merge(records_df, matches=matches)
@@ -62,18 +63,19 @@ merged_df = merge(records_df, matches=matches)
 
 Fields used by BibDeduper
 
-| **Name**       | **Definition**                                               |
-|----------------|--------------------------------------------------------------|
-| **ID**         | A unique ID                                                  |
-| **author**     | The author(s) of the publication                             |
-| **title**      | The title of the publication                                 |
-| **year**       | The year of publication                                      |
-| **journal**    | The name of the journal in which the publication appeared    |
-| **volume**     | The volume number of the publication                         |
-| **number**     | The issue number of the publication                          |
-| **pages**      | The page numbers of the publication                          |
-| **doi**        | The Digital Object Identifier (DOI)                          |
-| **abstract**   | The abstract                                                 |
+| **Name**        | **Definition**                                               |
+|-----------------|--------------------------------------------------------------|
+| **ID**          | A unique ID                                                  |
+| **author**      | The author(s) of the publication                             |
+| **title**       | The title of the publication                                 |
+| **year**        | The year of publication                                      |
+| **journal**     | The name of the journal in which the publication appeared    |
+| **volume**      | The volume number of the publication                         |
+| **number**      | The issue number of the publication                          |
+| **pages**       | The page numbers of the publication                          |
+| **doi**         | The Digital Object Identifier (DOI)                          |
+| **abstract**    | The abstract                                                 |
+| **search_set**  | Distinct sets of papers (e.g., old_search), can be empty.    |
 
 ## Continuous evaluation
 

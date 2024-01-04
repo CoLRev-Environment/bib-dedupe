@@ -144,6 +144,11 @@ def test_sim_container_title(
             "thrombomodulin atypical hemolytic uremic syndrome authors reply",
             0.0,
         ),
+        (
+            "open label, multi center clinical trial eculizumab pediatric patients atypical hemolytic uremic syndrome",
+            "open label, multi center clinical trial eculizumab adult patients atypical hemolytic uremic syndrome",
+            0.0,
+        ),
         # ("cardiac vascular remodelling effect antihypertensive agents",
         #  "session 2 cardiac vascular remodelling effect antihypertensive agents",
         #  1.0),

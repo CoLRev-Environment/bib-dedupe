@@ -67,7 +67,7 @@ def export_maybe(matched_df: pd.DataFrame, records_df: pd.DataFrame) -> None:
     bib_dedupe.maybe_cases.export_maybe(matched_df, records_df)
 
 
-def import_maybe_decisions(matched_df: pd.DataFrame) -> pd.DataFrame:
+def import_maybe(matched_df: pd.DataFrame) -> pd.DataFrame:
     """
     This function is used to import decisions for maybe cases.
 
@@ -78,7 +78,7 @@ def import_maybe_decisions(matched_df: pd.DataFrame) -> pd.DataFrame:
     pd.DataFrame: The dataframe containing the updated matches.
     """
 
-    return bib_dedupe.maybe_cases.import_maybe_decisions(matched_df)
+    return bib_dedupe.maybe_cases.import_maybe(matched_df)
 
 
 def merge(
@@ -98,7 +98,8 @@ def merge(
     """
 
     if not duplicate_id_sets:
-        blocked_df = block(records_df=records_df)
+        prep_df = prep(records_df)
+        blocked_df = block(records_df=prep_df)
         matched_df = match(blocked_df)
         duplicate_id_sets = bib_dedupe.cluster.get_connected_components(matched_df)
 

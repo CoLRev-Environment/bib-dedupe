@@ -9,7 +9,17 @@ import numpy as np
 import pandas as pd
 from rapidfuzz import fuzz
 
-from bib_dedupe.constants import Fields
+from bib_dedupe.constants.fields import ABSTRACT
+from bib_dedupe.constants.fields import AUTHOR
+from bib_dedupe.constants.fields import CONTAINER_TITLE
+from bib_dedupe.constants.fields import DOI
+from bib_dedupe.constants.fields import ISBN
+from bib_dedupe.constants.fields import NUMBER
+from bib_dedupe.constants.fields import PAGE_RANGES_ADJACENT
+from bib_dedupe.constants.fields import PAGES
+from bib_dedupe.constants.fields import TITLE
+from bib_dedupe.constants.fields import VOLUME
+from bib_dedupe.constants.fields import YEAR
 
 
 def sim_token_sort_ratio(string_1: str, string_2: str) -> float:
@@ -132,8 +142,6 @@ def sim_title(title_1: str, title_2: str, debug: bool = False) -> float:
                 "comment",
                 "response",
                 "reply",
-                "author",
-                "correction",
             ]
         ]
     ):
@@ -167,21 +175,16 @@ def sim_title(title_1: str, title_2: str, debug: bool = False) -> float:
             ((term in t1 and term not in t2) or (term in t2 and term not in t1))
             for term in [
                 "women",
-                "erratum",
+                "adult",
+                "pediatric",
                 "protocol",
+                "vivo",
+                "vitro",
+                "rats",
+                "cats",
             ]
         ]
     ):
-        return 0
-
-    # In vivo vs. in vitro
-    if "vivo" in t1 and "vitro" in t2:
-        return 0
-    if "vitro" in t1 and "vivo" in t2:
-        return 0
-    if "rats" in t1 and "rats" not in t2:
-        return 0
-    if "rats" not in t1 and "rats" in t2:
         return 0
 
     if any(term in t1 for term in ["part", "effect", "treatment"]):
@@ -293,7 +296,7 @@ def sim_number(n1_str: str, n2_str: str) -> float:
         else:
             return 0.0
     else:
-        # Fields.NUMBER,  # some journals have numbers like 3/4 (which can be abbreviated)
+        # NUMBER,  # some journals have numbers like 3/4 (which can be abbreviated)
         return fuzz.token_sort_ratio(str(n1), str(n2)) / 100
 
 
@@ -417,21 +420,21 @@ def page_ranges_adjacent(row: pd.Series) -> str:
 
 
 similarity_functions = {
-    Fields.PAGES: sim_page,
-    Fields.TITLE: sim_title,
-    Fields.YEAR: sim_year,
-    Fields.NUMBER: sim_number,
-    Fields.CONTAINER_TITLE: sim_container_title,
-    Fields.VOLUME: sim_volume,
-    Fields.ABSTRACT: sim_abstract,
-    Fields.ISBN: sim_token_sort_ratio,
-    Fields.DOI: sim_doi,
+    PAGES: sim_page,
+    TITLE: sim_title,
+    YEAR: sim_year,
+    NUMBER: sim_number,
+    CONTAINER_TITLE: sim_container_title,
+    VOLUME: sim_volume,
+    ABSTRACT: sim_abstract,
+    ISBN: sim_token_sort_ratio,
+    DOI: sim_doi,
 }
 
 
 def process_df_split(split_df: pd.DataFrame) -> pd.DataFrame:
     for index, row in split_df.iterrows():
-        split_df.loc[index, Fields.AUTHOR] = sim_author(
+        split_df.loc[index, AUTHOR] = sim_author(
             str(row["author_1"]),
             str(row["author_full_1"]),
             str(row["author_2"]),
@@ -443,74 +446,7 @@ def process_df_split(split_df: pd.DataFrame) -> pd.DataFrame:
                 str(row[f"{field}_1"]), str(row[f"{field}_2"])
             )
 
-        split_df.loc[index, Fields.PAGE_RANGES_ADJACENT] = page_ranges_adjacent(row)
-
-    # TODO / TBD: fix misassignments in sim or match-conditions?
-    # TODO : the cross-match should be in conditions
-    # because the NUMBER/VOLUME/PAGES similarities are only used in match() / not in non_contradicting.
-    # Fix similarities for misassigned fields
-    conditions = [
-        (
-            (split_df["pages_1"] == "")
-            & (split_df["number_1"] == split_df["pages_2"])
-            & (split_df["number_2"] == "")
-            & (split_df["pages_2"] != ""),
-            Fields.PAGES,
-        ),
-        (
-            (split_df["pages_1"] == "")
-            & (split_df["number_1"] == split_df["pages_2"])
-            & (split_df["number_2"] == "")
-            & (split_df["pages_2"] != ""),
-            Fields.NUMBER,
-        ),
-        (
-            (split_df["pages_2"] == "")
-            & (split_df["number_2"] == split_df["pages_1"])
-            & (split_df["number_1"] == "")
-            & (split_df["pages_1"] != ""),
-            Fields.PAGES,
-        ),
-        (
-            (split_df["pages_2"] == "")
-            & (split_df["number_2"] == split_df["pages_1"])
-            & (split_df["number_1"] == "")
-            & (split_df["pages_1"] != ""),
-            Fields.NUMBER,
-        ),
-        (
-            (split_df["volume_1"] == "")
-            & (split_df["number_1"] == split_df["volume_2"])
-            & (split_df["number_2"] == "")
-            & (split_df["volume_2"] != ""),
-            Fields.VOLUME,
-        ),
-        (
-            (split_df["volume_1"] == "")
-            & (split_df["number_1"] == split_df["volume_2"])
-            & (split_df["number_2"] == "")
-            & (split_df["volume_2"] != ""),
-            Fields.NUMBER,
-        ),
-        (
-            (split_df["volume_2"] == "")
-            & (split_df["number_2"] == split_df["volume_1"])
-            & (split_df["number_1"] == "")
-            & (split_df["volume_1"] != ""),
-            Fields.VOLUME,
-        ),
-        (
-            (split_df["volume_2"] == "")
-            & (split_df["number_2"] == split_df["volume_1"])
-            & (split_df["number_1"] == "")
-            & (split_df["volume_1"] != ""),
-            Fields.NUMBER,
-        ),
-    ]
-
-    for condition, field in conditions:
-        if condition.any():
-            split_df.loc[condition, field] = 1.0
+        split_df.loc[index, PAGE_RANGES_ADJACENT] = page_ranges_adjacent(row)
 
     return split_df
 

@@ -9,20 +9,33 @@ import pandas as pd
 import bib_dedupe.conditions
 import bib_dedupe.sim
 import bib_dedupe.util
-from bib_dedupe.constants import Colors
-from bib_dedupe.constants import Fields
+from bib_dedupe.constants.colors import END
+from bib_dedupe.constants.colors import GREEN
+from bib_dedupe.constants.colors import ORANGE
+from bib_dedupe.constants.colors import RED
+from bib_dedupe.constants.fields import ABSTRACT
+from bib_dedupe.constants.fields import AUTHOR
+from bib_dedupe.constants.fields import CONTAINER_TITLE
+from bib_dedupe.constants.fields import DOI
+from bib_dedupe.constants.fields import ISBN
+from bib_dedupe.constants.fields import NUMBER
+from bib_dedupe.constants.fields import PAGE_RANGES_ADJACENT
+from bib_dedupe.constants.fields import PAGES
+from bib_dedupe.constants.fields import TITLE
+from bib_dedupe.constants.fields import VOLUME
+from bib_dedupe.constants.fields import YEAR
 
 SIM_FIELDS = [
-    Fields.AUTHOR,
-    Fields.TITLE,
-    Fields.CONTAINER_TITLE,
-    Fields.YEAR,
-    Fields.VOLUME,
-    Fields.NUMBER,
-    Fields.PAGES,
-    Fields.ABSTRACT,
-    Fields.ISBN,
-    Fields.DOI,
+    AUTHOR,
+    TITLE,
+    CONTAINER_TITLE,
+    YEAR,
+    VOLUME,
+    NUMBER,
+    PAGES,
+    ABSTRACT,
+    ISBN,
+    DOI,
 ]
 
 
@@ -51,57 +64,37 @@ def match(
     for field in remaining_fields:
         pairs[field] = pairs[field].astype(str)
 
-    updated_paper_pairs = pd.DataFrame()
-    updated_pair_conditions = bib_dedupe.conditions.updated_pair_conditions
-    if debug:
-        p_printer.pprint(pairs.iloc[0].to_dict())
-        print("Conditions for updated paper versions:")
-        for updated_pair_condition in updated_pair_conditions:
-            if pairs.query(updated_pair_condition).shape[0] != 0:
-                print(f"{Colors.GREEN}{updated_pair_condition}{Colors.END}")
-            else:
-                print(updated_pair_condition)
-
-    updated_paper_pairs = pairs.query("(" + " | ".join(updated_pair_conditions) + ")")
-
     duplicate_conditions = bib_dedupe.conditions.duplicate_conditions
     if debug:
+        p_printer.pprint(pairs.iloc[0].to_dict())
         if pairs.shape[0] != 0:
             for item in [
-                Fields.AUTHOR,
-                Fields.TITLE,
-                Fields.CONTAINER_TITLE,
-                Fields.VOLUME,
-                Fields.NUMBER,
-                Fields.PAGES,
-                Fields.ABSTRACT,
-                Fields.YEAR,
-                Fields.DOI,
-                Fields.PAGE_RANGES_ADJACENT,
+                AUTHOR,
+                TITLE,
+                CONTAINER_TITLE,
+                VOLUME,
+                NUMBER,
+                PAGES,
+                ABSTRACT,
+                YEAR,
+                DOI,
+                PAGE_RANGES_ADJACENT,
             ]:
                 similarity = pairs.loc[0, item]
-                if item == Fields.PAGE_RANGES_ADJACENT:
-                    print(
-                        f"{Colors.RED}{Fields.PAGE_RANGES_ADJACENT}: {similarity}{Colors.END}"
-                    )
+                if item == PAGE_RANGES_ADJACENT:
+                    print(f"{RED}{PAGE_RANGES_ADJACENT}: {similarity}{END}")
                     continue
                 if similarity > 0.9:
-                    print(
-                        f"{Colors.GREEN}Similarity {item:<20}: {similarity:.2f}{Colors.END}"
-                    )
+                    print(f"{GREEN}Similarity {item:<20}: {similarity:.2f}{END}")
                 elif similarity > 0.6:
-                    print(
-                        f"{Colors.ORANGE}Similarity {item:<20}: {similarity:.2f}{Colors.END}"
-                    )
+                    print(f"{ORANGE}Similarity {item:<20}: {similarity:.2f}{END}")
                 else:
-                    print(
-                        f"{Colors.RED}Similarity {item:<20}: {similarity:.2f}{Colors.END}"
-                    )
+                    print(f"{RED}Similarity {item:<20}: {similarity:.2f}{END}")
 
             print("Merge conditions that matched:")
             for duplicate_condition in duplicate_conditions:
                 if pairs.query(duplicate_condition).shape[0] > 0:
-                    print(f"{Colors.GREEN}{duplicate_condition}{Colors.END}")
+                    print(f"{GREEN}{duplicate_condition}{END}")
                 else:
                     print(f"{duplicate_condition}")
 
@@ -114,14 +107,11 @@ def match(
         print("Exclude conditions:")
         for non_duplicate_condition in non_duplicate_conditions:
             if pairs.query(non_duplicate_condition).shape[0] != 0:
-                print(f"{Colors.RED}{non_duplicate_condition}{Colors.END}")
+                print(f"{RED}{non_duplicate_condition}{END}")
             else:
                 print(non_duplicate_condition)
 
     true_pairs = true_pairs.query("~(" + " | ".join(non_duplicate_conditions) + ")")
-
-    # add updated pairs to true pairs
-    true_pairs = pd.concat([true_pairs, updated_paper_pairs])
 
     true_pairs = true_pairs.drop_duplicates()
 
@@ -134,15 +124,11 @@ def match(
 
     # Get potential duplicates for manual deduplication
     maybe_pairs = pairs[
-        (pairs[Fields.TITLE] > 0.85) & (pairs["author"] > 0.75)
-        | (pairs[Fields.TITLE] > 0.8) & (pairs[Fields.ABSTRACT] > 0.8)
-        | (pairs[Fields.TITLE] > 0.8) & (pairs[Fields.ISBN] > 0.99)
-        | (pairs[Fields.TITLE] > 0.8) & (pairs[Fields.CONTAINER_TITLE] > 0.8)
-        | (
-            pd.isna(pairs[Fields.DOI])
-            | (pairs[Fields.DOI] > 0.99)
-            | (pairs[Fields.DOI] == 0)
-        )
+        (pairs[TITLE] > 0.85) & (pairs["author"] > 0.75)
+        | (pairs[TITLE] > 0.8) & (pairs[ABSTRACT] > 0.8)
+        | (pairs[TITLE] > 0.8) & (pairs[ISBN] > 0.99)
+        | (pairs[TITLE] > 0.8) & (pairs[CONTAINER_TITLE] > 0.8)
+        | (pd.isna(pairs[DOI]) | (pairs[DOI] > 0.99) | (pairs[DOI] == 0))
         & ~(
             (
                 pd.to_numeric(pairs["year_1"], errors="coerce")
@@ -181,14 +167,12 @@ def match(
     # Add a label column to each dataframe
     true_pairs["duplicate_label"] = "duplicate"
     maybe_pairs["duplicate_label"] = "maybe"
-    updated_paper_pairs["duplicate_label"] = "updated_version"
 
     # Select the ID_1 and ID_2 fields and the new label column
     true_pairs = true_pairs[["ID_1", "ID_2", "duplicate_label"]]
     maybe_pairs = maybe_pairs[["ID_1", "ID_2", "duplicate_label"]]
-    updated_paper_pairs = updated_paper_pairs[["ID_1", "ID_2", "duplicate_label"]]
 
     # Concatenate the dataframes
-    result_df = pd.concat([true_pairs, maybe_pairs, updated_paper_pairs])
+    result_df = pd.concat([true_pairs, maybe_pairs])
 
     return result_df
