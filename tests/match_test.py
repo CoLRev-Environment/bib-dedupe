@@ -1,3 +1,5 @@
+# flake8: noqa: E501
+# pylint: disable=line-too-long
 # @pytest.mark.parametrize(
 #     "df, keys, expected_output",
 #     [

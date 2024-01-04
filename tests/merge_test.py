@@ -10,7 +10,12 @@ from bib_dedupe.constants.fields import YEAR
 from bib_dedupe.merge import merge
 
 
-def test_merge():
+def test_merge() -> None:
+    """
+    This test function verifies the functionality of the merge function.
+    It creates a DataFrame with two records, merges them, and then checks
+    the values of the merged record to ensure they are as expected.
+    """
     records_df = pd.DataFrame(
         {
             ID: ["001", "002"],

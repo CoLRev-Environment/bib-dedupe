@@ -23,9 +23,7 @@ jobs:
 
       - name: Run Evaluation
         run: |
-          jupyter nbconvert --execute notebooks/asreview.ipynb --to notebook --inplace
-          jupyter nbconvert --execute notebooks/bib-dedupe.ipynb --to notebook --inplace
-          jupyter nbconvert --execute notebooks/comparison.ipynb --to notebook --inplace
+          jupyter nbconvert --execute notebooks/evaluation.ipynb --to notebook --inplace
 
       - name: Commit and push changes
         run: |
