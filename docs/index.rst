@@ -71,4 +71,5 @@ For advanced use cases, it is also possible to complete and customize each step 
    :caption: Contents:
 
    evaluation
+   usage
    api
