@@ -16,6 +16,8 @@ jobs:
       id-token: write
     steps:
     - name: Install dependencies
-      run: pip install furo
+      run: |
+          pip install bib_dedupe
+          pip install furo
     - id: deployment
       uses: sphinx-notes/pages@v3
