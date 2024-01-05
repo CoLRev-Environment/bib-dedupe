@@ -30,3 +30,4 @@ extensions = ['sphinx.ext.autodoc']
 
 html_theme = 'furo'
 html_static_path = ['_static']
+html_title = "Bib-Dedupe"

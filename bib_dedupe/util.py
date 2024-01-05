@@ -418,7 +418,7 @@ class BibDedupeUtil:
 
         plt.tight_layout()
         # plt.show()
-        plt.savefig(str(Path("../output/evaluation_total.png")))
+        plt.savefig(str(Path("../docs/_static/evaluation_total.png")))
         plt.close()
 
     def append_to_output(self, result: dict, *, package_name: str) -> None:
