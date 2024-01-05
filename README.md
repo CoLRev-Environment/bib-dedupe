@@ -2,6 +2,8 @@
 
 <!-- [![License](https://img.shields.io/github/license/CoLRev-Ecosystem/bib-dedupe.svg)](https://github.com/CoLRev-Environment/bib-dedupe/releases/) -->
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/bib-dedupe)
+
 
 ## Overview
 
@@ -21,7 +23,7 @@ This approach enables validation, undo operations, and a more nuanced understand
 
 ## Installation
 
-To install Bib-Dedupe, use the following pip command:
+Bib-Dedupe is available on [PyPI](https://pypi.org/project/bib-dedupe/), and can be installed via pip:
 
 ```bash
 pip install bib-dedupe
@@ -46,6 +48,8 @@ For advanced use cases, it is also possible to complete and customize each step 
 
 ```python
 from bib_dedupe.bib_dedupe import prep, block, match, merge, export_maybe, import_maybe
+
+records_df = prep(records_df)
 
 # Block records
 blocked_df = block(records_df)
@@ -88,24 +92,25 @@ A summary of the evaluation is available in the [README.md](notebooks/README.md)
 
 ## Documentation
 
-Explore the official documentation for comprehensive information on installation, usage, and customization of Bib-Dedupe.
+Explore the [official documentation](https://colrev-environment.github.io/bib-dedupe/) for comprehensive information on installation, usage, and customization of Bib-Dedupe.
 
 ## Citation
 
 If you use Bib-Dedupe in your research, please cite it as follows:
 
-TODO
+Wagner, G. (2024) Bib-Dedupe - An open-source Python library for deduplication of bibliographic records. Available at https://github.com/CoLRev-Environment/bib-dedupe.
+
 
 ## Contribution Guidelines
 
-We welcome contributions from the community to enhance and expand Bib-Dedupe. If you would like to contribute, please follow our contribution guidelines.
+We welcome contributions from the community to enhance and expand Bib-Dedupe. If you would like to contribute, please follow our [contribution guidelines](CONTRIBUTING.md).
 
 ## License
 
-Bib-Dedupe is released under the MIT License, allowing free and open use and modification.
+Bib-Dedupe is released under the [MIT License](LICENSE), allowing free and open use and modification.
 
 ## Contact
 
-For any questions, issues, or feedback, please open an issue on our GitHub repository.
+For any questions, issues, or feedback, please open an [issue](https://github.com/CoLRev-Environment/bib-dedupe/issues) on our GitHub repository.
 
 Happy deduplicating with Bib-Dedupe!
