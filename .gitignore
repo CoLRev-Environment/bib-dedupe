@@ -4,3 +4,13 @@ notebooks/.ipynb_checkpoints/
 data/**/matches_FN_list_remaining.csv
 bib_dedupe/constants/__pycache__/
 docs/_build
+data/cytology_screening/maybe_pairs.csv
+data/depression/maybe_pairs.csv
+data/diabetes/maybe_pairs.csv
+data/digital_work/maybe_pairs.csv
+data/haematology/maybe_pairs.csv
+data/neuroimaging/maybe_pairs.csv
+data/respiratory/maybe_pairs.csv
+data/srsr/maybe_pairs.csv
+data/stroke/maybe_pairs.csv
+data/cardiac/maybe_pairs.csv

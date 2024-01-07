@@ -16,4 +16,4 @@ API
 .. autofunction:: bib_dedupe.bib_dedupe.import_maybe
 
 
-.. autofunction:: bib_dedupe.bib_dedupe.merge    
+.. autofunction:: bib_dedupe.bib_dedupe.merge

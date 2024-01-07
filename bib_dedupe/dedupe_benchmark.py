@@ -49,9 +49,6 @@ class DedupeBenchmarker:
             self.benchmark_path, "records_pre_merged.csv"
         )
         self.merged_record_ids_path = Path(self.benchmark_path, "merged_record_ids.csv")
-        self.updated_papers_ids_path = Path(
-            self.benchmark_path, "updated_papers_ids.csv"
-        )
         if regenerate_benchmark_from_history:
             self.__get_dedupe_benchmark()
         else:
@@ -61,16 +58,9 @@ class DedupeBenchmarker:
         true_merged_ids_df = pd.read_csv(str(self.merged_record_ids_path))
         self.true_merged_ids = true_merged_ids_df["merged_ids"].str.split(";").tolist()
 
-        # Updated paper versions are considered duplicates.
-        if self.updated_papers_ids_path.is_file():
-            true_updated_papers_ids_df = pd.read_csv(str(self.updated_papers_ids_path))
-        else:
-            true_updated_papers_ids_df = pd.DataFrame(columns=["ids"])
-
         # print("before", self.true_merged_ids)
         self.true_merged_ids = bib_dedupe.util.connected_components(
             self.true_merged_ids
-            + true_updated_papers_ids_df["ids"].str.split(";").tolist()
         )
 
         # print("after", self.true_merged_ids)
@@ -79,8 +69,12 @@ class DedupeBenchmarker:
             records_df = pd.read_csv(str(self.records_pre_merged_path))
             self.records_df = records_df
         else:
-            part1_path = self.records_pre_merged_path.with_name(self.records_pre_merged_path.stem + '_part1.csv')
-            part2_path = self.records_pre_merged_path.with_name(self.records_pre_merged_path.stem + '_part2.csv')
+            part1_path = self.records_pre_merged_path.with_name(
+                self.records_pre_merged_path.stem + "_part1.csv"
+            )
+            part2_path = self.records_pre_merged_path.with_name(
+                self.records_pre_merged_path.stem + "_part2.csv"
+            )
 
             if part1_path.is_file() and part2_path.is_file():
                 part1_df = pd.read_csv(str(part1_path))
@@ -224,7 +218,6 @@ class DedupeBenchmarker:
         *,
         blocked_df: pd.DataFrame,
         predicted: list,
-        # updated_paper_pairs: list,
     ) -> dict:
         """Compare the predicted matches and blocked pairs to the ground truth."""
 
@@ -289,7 +282,6 @@ class DedupeBenchmarker:
             "matches_FP_list": matches_fp_list,
             "matches_FN_list": matches_fn_list,
             "blocks": blocks,
-            # "updated_paper_pairs": updated_paper_pairs,
         }
 
     def get_runtime(self, timestamp: datetime) -> str:
@@ -403,7 +395,7 @@ class DedupeBenchmarker:
 
         records_df = [ID, title, author, ...]
         blocked_df = ...
-        results = {"blocks_FN_list", "matches_FP_list", "matches_FN_list", "updated_paper_pairs"}
+        results = {"blocks_FN_list", "matches_FP_list", "matches_FN_list"}
         """
 
         maybe_cases_df = matched_df[matched_df["duplicate_label"] == "maybe"]
