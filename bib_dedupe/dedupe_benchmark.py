@@ -75,8 +75,18 @@ class DedupeBenchmarker:
 
         # print("after", self.true_merged_ids)
 
-        records_df = pd.read_csv(str(self.records_pre_merged_path))
-        self.records_df = records_df
+        if self.records_pre_merged_path.is_file():
+            records_df = pd.read_csv(str(self.records_pre_merged_path))
+            self.records_df = records_df
+        else:
+            part1_path = self.records_pre_merged_path.with_name(self.records_pre_merged_path.stem + '_part1.csv')
+            part2_path = self.records_pre_merged_path.with_name(self.records_pre_merged_path.stem + '_part2.csv')
+
+            if part1_path.is_file() and part2_path.is_file():
+                part1_df = pd.read_csv(str(part1_path))
+                self.records_df = part1_df
+                part2_df = pd.read_csv(str(part2_path))
+                self.records_df = self.records_df.append(part2_df, ignore_index=True)
 
     def get_records_for_dedupe(self) -> pd.DataFrame:
         """
