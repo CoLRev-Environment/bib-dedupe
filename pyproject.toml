@@ -9,9 +9,6 @@ readme = "README.md"
 [[tool.poetry.packages]]
 include = "bib_dedupe"
 
-[[tool.poetry.packages]]
-include = "data"
-
 [tool.poetry.scripts]
 bib-dedupe = "bib_dedupe.cli:main"
 
@@ -20,6 +17,8 @@ python = "^3.8"
 pylint = {version = "3.0.1", optional = true }
 pytest = {version = "^7.2.1", optional = true }
 coverage = {extras = ["toml"], version = "^7.3.2", optional = true }
+notebook = {version = "^6.4.11", optional = true }
+asreview = {version = "^1.5", optional = true }
 number-parser = "^0.3.2"
 numpy = "^1.19.5"
 pandas = "^1.3.4"
@@ -27,6 +26,7 @@ rapidfuzz = "^3.5.2"
 tqdm = "^4.66.1"
 
 [tool.poetry.extras]
+with-data = ["pandas", "asreview", "notebook"]
 dev = ["pylint", "pytest", "coverage", "pytest-skip-slow"]
 
 [tool.mypy]

@@ -17,14 +17,17 @@ jobs:
         with:
           python-version: 3.9
 
+      - name: Install Poetry
+        run: |
+          pip install poetry
+
       - name: Install bib_dedupe package
         run: |
-          pip install .
-          pip install -r notebooks/requirements.txt
+          poetry install -E with-data
 
       - name: Run Evaluation
         run: |
-          jupyter nbconvert --execute notebooks/evaluation.ipynb --to notebook --inplace
+          poetry run jupyter nbconvert --execute notebooks/evaluation.ipynb --to notebook --inplace
 
       - name: Commit and push changes
         run: |
@@ -33,3 +36,4 @@ jobs:
           git add output/*
           git commit -m "Update evaluation ($(date +'%Y-%m-%d-%H-%M'))"
           git push origin main
+

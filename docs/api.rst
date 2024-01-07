@@ -10,4 +10,10 @@ API
 .. autofunction:: bib_dedupe.bib_dedupe.match
 
 
+.. autofunction:: bib_dedupe.bib_dedupe.export_maybe
+
+
+.. autofunction:: bib_dedupe.bib_dedupe.import_maybe
+
+
 .. autofunction:: bib_dedupe.bib_dedupe.merge    

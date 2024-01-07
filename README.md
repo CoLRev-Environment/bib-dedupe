@@ -9,7 +9,6 @@
 
 Bib-Dedupe is an open-source **Python library for deduplication of bibliographic records**, tailored for literature reviews.
 Unlike traditional deduplication methods, Bib-Dedupe focuses on entity resolution, linking duplicate records instead of simply deleting them.
-This approach enables validation, undo operations, and a more nuanced understanding of record relationships.
 
 ## Features
 

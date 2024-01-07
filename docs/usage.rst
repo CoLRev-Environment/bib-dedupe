@@ -2,25 +2,17 @@ Usage
 ====================================
 
 
+It is possible to complete and customize each step individually:
+
 .. code-block:: python
 
    import pandas as pd
-   from bib_dedupe.bib_dedupe import merge
+   from bib_dedupe.bib_dedupe import prep, block, match, merge, export_maybe, import_maybe
 
    # Load your bibliographic dataset into a pandas DataFrame
    records_df = pd.read_csv("records.csv")
 
-   # Get the merged_df
-   merged_df = merge(records_df)
-
-For more detailed usage instructions and customization options, refer to the documentation.
-
-For advanced use cases, it is also possible to complete and customize each step individually
-
-.. code-block:: python
-
-   from bib_dedupe.bib_dedupe import prep, block, match, merge, export_maybe, import_maybe
-
+  # Preproces records
    records_df = prep(records_df)
 
    # Block records
