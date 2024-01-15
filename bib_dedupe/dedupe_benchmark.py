@@ -55,9 +55,6 @@ class DedupeBenchmarker:
             self.__load_data()
 
     def __load_data(self) -> None:
-        true_merged_ids_df = pd.read_csv(str(self.merged_record_ids_path))
-        self.true_merged_ids = true_merged_ids_df["merged_ids"].str.split(";").tolist()
-
         # print("after", self.true_merged_ids)
 
         if self.records_pre_merged_path.is_file():
@@ -76,6 +73,45 @@ class DedupeBenchmarker:
                 self.records_df = part1_df
                 part2_df = pd.read_csv(str(part2_path))
                 self.records_df = self.records_df.append(part2_df, ignore_index=True)
+
+        true_merged_ids_df = pd.read_csv(str(self.merged_record_ids_path))
+        self.true_merged_ids = true_merged_ids_df["merged_ids"].str.split(";").tolist()
+
+        # Validate
+        non_unique_lists = []
+        for merged_id_list in self.true_merged_ids:
+            if len(merged_id_list) != len(set(merged_id_list)):
+                non_unique_lists.append(merged_id_list)
+
+        for non_unique_list in non_unique_lists:
+            print(f"Duplicate strings found in: {non_unique_list}")
+
+        if non_unique_lists:
+            raise ValueError(
+                "Each list in self.true_merged_ids should only contain unique strings"
+            )
+
+        all_ids_in_true_merged_ids = [
+            id for sublist in self.true_merged_ids for id in sublist
+        ]
+        ids_not_in_records_df = set(all_ids_in_true_merged_ids) - set(
+            self.records_df["ID"].tolist()
+        )
+        if ids_not_in_records_df:
+            print(f"IDs not found in records_df: {ids_not_in_records_df}")
+            raise ValueError(
+                "Not all ids in self.true_merged_ids are in self.records_df column ID"
+            )
+
+        # Validate: Ensure that there is no overlap between sets of self.true_merged_ids
+        flattened_ids = [id for sublist in self.true_merged_ids for id in sublist]
+        if len(flattened_ids) != len(set(flattened_ids)):
+            from collections import Counter
+
+            counter = Counter(flattened_ids)
+            problem_ids = [id for id, count in counter.items() if count > 1]
+            print(f"Problem IDs: {problem_ids}")
+            raise ValueError("Overlap found between sets in self.true_merged_ids")
 
     def get_records_for_dedupe(self) -> pd.DataFrame:
         """
@@ -329,15 +365,15 @@ class DedupeBenchmarker:
 
         all_ids = records_df["ID"].tolist()
 
-        true_non_merged_ids = [
+        true_non_duplicate_ids = [
             x for x in all_ids if not any(x in y for y in self.true_merged_ids)
         ]
 
         # Assume that IDs are not changed (merged IDs are not available)
         # For each ID-set, **exactly one** must be in the merged_df
 
-        for true_non_merged_id in true_non_merged_ids:
-            if true_non_merged_id in merged_df["ID"].tolist():
+        for true_non_duplicate_id in true_non_duplicate_ids:
+            if true_non_duplicate_id in merged_df["ID"].tolist():
                 results["TN"] += 1
             else:
                 results["FP"] += 1
