@@ -12,15 +12,17 @@ import bib_dedupe.maybe_cases
 import bib_dedupe.merge
 import bib_dedupe.prep
 import bib_dedupe.sim
+from bib_dedupe import verbose_print
 
 
-def prep(records_df: pd.DataFrame) -> pd.DataFrame:
+def prep(records_df: pd.DataFrame, *, verbosity_level: int = 1) -> pd.DataFrame:
     """Get (pre-processed) records for dedupe"""
 
+    verbose_print.verbosity_level = verbosity_level
     return bib_dedupe.prep.prep(records_df)
 
 
-def block(records_df: pd.DataFrame) -> pd.DataFrame:
+def block(records_df: pd.DataFrame, *, verbosity_level: int = 1) -> pd.DataFrame:
     """
     This function is used to block pairs for deduplication.
 
@@ -30,13 +32,16 @@ def block(records_df: pd.DataFrame) -> pd.DataFrame:
     Returns:
     pd.DataFrame: The dataframe containing the blocked pairs for deduplication.
     """
+    verbose_print.verbosity_level = verbosity_level
 
     pairs_df = bib_dedupe.block.block(records_df)
 
     return pairs_df
 
 
-def match(pairs_df: pd.DataFrame, *, debug: bool = False) -> pd.DataFrame:
+def match(
+    pairs_df: pd.DataFrame, *, verbosity_level: int = 1, debug: bool = False
+) -> pd.DataFrame:
     """
     Identifies the true matches from the given pairs.
 
@@ -51,11 +56,14 @@ def match(pairs_df: pd.DataFrame, *, debug: bool = False) -> pd.DataFrame:
     Returns:
     DataFrame: The DataFrame containing the true matches.
     """
+    verbose_print.verbosity_level = verbosity_level
 
     return bib_dedupe.match.match(pairs_df, debug=debug)
 
 
-def export_maybe(matched_df: pd.DataFrame, records_df: pd.DataFrame) -> None:
+def export_maybe(
+    matched_df: pd.DataFrame, records_df: pd.DataFrame, *, verbosity_level: int = 1
+) -> None:
     """
     This function is used to export maybe cases for deduplication.
 
@@ -63,11 +71,12 @@ def export_maybe(matched_df: pd.DataFrame, records_df: pd.DataFrame) -> None:
     matched_df (pd.DataFrame): The dataframe containing the matched pairs.
     records_df (pd.DataFrame): The dataframe containing the records.
     """
+    verbose_print.verbosity_level = verbosity_level
 
     bib_dedupe.maybe_cases.export_maybe(matched_df, records_df)
 
 
-def import_maybe(matched_df: pd.DataFrame) -> pd.DataFrame:
+def import_maybe(matched_df: pd.DataFrame, *, verbosity_level: int = 1) -> pd.DataFrame:
     """
     This function is used to import decisions for maybe cases.
 
@@ -77,14 +86,31 @@ def import_maybe(matched_df: pd.DataFrame) -> pd.DataFrame:
     Returns:
     pd.DataFrame: The dataframe containing the updated matches.
     """
+    verbose_print.verbosity_level = verbosity_level
 
     return bib_dedupe.maybe_cases.import_maybe(matched_df)
+
+
+def cluster(matched_df: pd.DataFrame, *, verbosity_level: int = 1) -> list:
+    """
+    This function is used to cluster the matched data.
+
+    Parameters:
+    matched_df (pd.DataFrame): The dataframe containing the matches.
+
+    Returns:
+    list: The list of clusters.
+    """
+    verbose_print.verbosity_level = verbosity_level
+
+    return bib_dedupe.cluster.get_connected_components(matched_df)
 
 
 def merge(
     records_df: pd.DataFrame,
     *,
     duplicate_id_sets: typing.Optional[list] = None,
+    verbosity_level: int = 1,
 ) -> pd.DataFrame:
     """
     This function returns a DataFrame after merging the records.
@@ -96,6 +122,7 @@ def merge(
     Returns:
         pd.DataFrame: The merged DataFrame.
     """
+    verbose_print.verbosity_level = verbosity_level
 
     if not duplicate_id_sets:
         prep_df = prep(records_df)

@@ -6,6 +6,7 @@ import pandas as pd
 from rapidfuzz import fuzz
 
 import bib_dedupe.cluster
+from bib_dedupe import verbose_print
 from bib_dedupe.constants.fields import ABSTRACT
 from bib_dedupe.constants.fields import AUTHOR
 from bib_dedupe.constants.fields import CONTAINER_TITLE
@@ -17,7 +18,10 @@ from bib_dedupe.constants.fields import VOLUME
 from bib_dedupe.constants.fields import YEAR
 
 
-def export_maybe(matched_df: pd.DataFrame, records_df: pd.DataFrame) -> None:
+def export_maybe(
+    matched_df: pd.DataFrame,
+    records_df: pd.DataFrame,
+) -> None:
     """
     This method is used to check maybe cases for deduplication.
 
@@ -150,7 +154,7 @@ def export_maybe(matched_df: pd.DataFrame, records_df: pd.DataFrame) -> None:
     print("3. Save the changes to 'maybe_cases.csv'.")
 
 
-def import_maybe(matched_df: pd.DataFrame) -> pd.DataFrame:
+def import_maybe(matched_df: pd.DataFrame, *, verbosity_level: int = 1) -> pd.DataFrame:
     """
     This method is used to import decisions for maybe cases.
 
@@ -160,6 +164,7 @@ def import_maybe(matched_df: pd.DataFrame) -> pd.DataFrame:
     Returns:
     pd.DataFrame: The dataframe containing the updated matches.
     """
+    verbose_print.verbosity_level = verbosity_level
 
     if not Path("maybe_cases.csv").is_file():
         return matched_df

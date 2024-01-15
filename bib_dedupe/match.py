@@ -1,6 +1,5 @@
 #! /usr/bin/env python
 """Match for dedupe"""
-import pprint
 import time
 from datetime import datetime
 
@@ -9,6 +8,7 @@ import pandas as pd
 import bib_dedupe.conditions
 import bib_dedupe.sim
 import bib_dedupe.util
+from bib_dedupe import verbose_print
 from bib_dedupe.constants.colors import END
 from bib_dedupe.constants.colors import GREEN
 from bib_dedupe.constants.colors import ORANGE
@@ -45,7 +45,6 @@ def match(
     include_metadata: bool = False,
     debug: bool = False,
 ) -> pd.DataFrame:
-    p_printer = pprint.PrettyPrinter(indent=4, width=140, compact=False)
     pairs = bib_dedupe.sim.calculate_similarities(pairs)
 
     print("Match started at", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
@@ -66,7 +65,7 @@ def match(
 
     duplicate_conditions = bib_dedupe.conditions.duplicate_conditions
     if debug:
-        p_printer.pprint(pairs.iloc[0].to_dict())
+        verbose_print.pretty_print(pairs.iloc[0].to_dict())
         if pairs.shape[0] != 0:
             for item in [
                 AUTHOR,

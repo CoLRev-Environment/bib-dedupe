@@ -50,10 +50,10 @@ Datasets
      - n=53,001
      - Included (based on `OSF <https://osf.io/c9evs/>`_)
    * - Kwon et al. 2015 [3]
-     - 
+     -
      - Requested: 2023-11-14
    * - Borissov et al. 2022 [1]
-     - 
+     -
      - Requested: 2023-11-14
 
 The datasets may have applied a different understanding of duplicates. We double-checked borderline cases to make sure that the duplicate pairs in the data correspond to our definition.

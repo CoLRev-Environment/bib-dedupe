@@ -2,9 +2,10 @@
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-import colrev.ops.dedupe
 import pandas as pd
 from rapidfuzz import fuzz
+
+import bib_dedupe.cluster
 
 
 def parse_xml_osf(dirname, xml_file, *, n: int, dupes: int):
@@ -112,7 +113,10 @@ def parse_xml_osf(dirname, xml_file, *, n: int, dupes: int):
             [row["colrev_origin"][0], most_similar_row["colrev_origin"][0]]
         )
 
-    origin_pairs = colrev.ops.dedupe.Dedupe.connected_components(origin_pairs)
+    origin_pairs_df = pd.DataFrame(origin_pairs, columns=["ID_1", "ID_2"])
+    origin_pairs_df["duplicate_label"] = "duplicate"
+
+    origin_pairs = bib_dedupe.cluster.connected_components(origin_pairs_df)
 
     origin_pairs_df = pd.DataFrame({"merged_origins": origin_pairs})
     origin_pairs_df.to_csv(Path(dirname) / "merged_record_origins.csv", index=False)
@@ -151,7 +155,11 @@ def parse_csv(data_dir, csv_path):
     ]
     df["merged_colrev_origin"] = df["colrev_origin"] + df["duplicate_colrev_origin"]
     origin_pairs = df["merged_colrev_origin"].values.tolist()
-    origin_pairs = colrev.ops.dedupe.Dedupe.connected_components(origin_pairs)
+
+    origin_pairs_df = pd.DataFrame(origin_pairs, columns=["ID_1", "ID_2"])
+    origin_pairs_df["duplicate_label"] = "duplicate"
+
+    origin_pairs = bib_dedupe.cluster.connected_components(origin_pairs_df)
     origin_pairs = [pair for pair in origin_pairs if len(pair) > 1]
 
     origin_pairs_df = pd.DataFrame({"merged_origins": origin_pairs})

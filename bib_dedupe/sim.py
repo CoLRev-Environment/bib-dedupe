@@ -451,7 +451,9 @@ def process_df_split(split_df: pd.DataFrame) -> pd.DataFrame:
     return split_df
 
 
-def calculate_similarities(pairs_df: pd.DataFrame) -> pd.DataFrame:
+def calculate_similarities(
+    pairs_df: pd.DataFrame,
+) -> pd.DataFrame:
     """
     Calculate similarities between pairs of data in a DataFrame.
 

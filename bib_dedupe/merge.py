@@ -2,13 +2,13 @@
 """Debug for dedupe"""
 import pandas as pd
 
+from bib_dedupe import verbose_print
 from bib_dedupe.constants.fields import AUTHOR
 from bib_dedupe.constants.fields import JOURNAL
 from bib_dedupe.constants.fields import ORIGIN
 from bib_dedupe.constants.fields import PAGES
 from bib_dedupe.constants.fields import TITLE
 from bib_dedupe.constants.fields import YEAR
-from bib_dedupe.util import VerbosePrint
 
 
 def percent_upper_chars(input_string: str) -> float:
@@ -106,7 +106,6 @@ def merge(
     duplicate_id_sets: list,
     merge_functions: dict = DEFAULT_MERGE_FUNCTIONS,
     origin_column: str = ORIGIN,
-    verbosity_level: int = 1,
 ) -> pd.DataFrame:
     """
     This function merges duplicate records in a DataFrame.
@@ -123,8 +122,6 @@ def merge(
     Returns:
     pd.DataFrame: The DataFrame with duplicate records merged.
     """
-
-    verbose_print = VerbosePrint(verbosity_level=verbosity_level)
 
     for duplicate_ids in duplicate_id_sets:
         if not set(duplicate_ids).issubset(set(records_df["ID"].tolist())):

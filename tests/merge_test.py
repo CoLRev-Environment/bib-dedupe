@@ -1,5 +1,6 @@
 import pandas as pd
 
+from bib_dedupe.bib_dedupe import merge
 from bib_dedupe.constants.fields import AUTHOR
 from bib_dedupe.constants.fields import ID
 from bib_dedupe.constants.fields import JOURNAL
@@ -7,7 +8,6 @@ from bib_dedupe.constants.fields import ORIGIN
 from bib_dedupe.constants.fields import PAGES
 from bib_dedupe.constants.fields import TITLE
 from bib_dedupe.constants.fields import YEAR
-from bib_dedupe.merge import merge
 
 
 def test_merge() -> None:

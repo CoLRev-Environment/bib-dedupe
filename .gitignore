@@ -14,3 +14,5 @@ data/respiratory/maybe_pairs.csv
 data/srsr/maybe_pairs.csv
 data/stroke/maybe_pairs.csv
 data/cardiac/maybe_pairs.csv
+notebooks/__pycache__/
+bib_dedupe/constants/__pycache__

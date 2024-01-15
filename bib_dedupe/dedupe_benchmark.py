@@ -58,11 +58,6 @@ class DedupeBenchmarker:
         true_merged_ids_df = pd.read_csv(str(self.merged_record_ids_path))
         self.true_merged_ids = true_merged_ids_df["merged_ids"].str.split(";").tolist()
 
-        # print("before", self.true_merged_ids)
-        self.true_merged_ids = bib_dedupe.util.connected_components(
-            self.true_merged_ids
-        )
-
         # print("after", self.true_merged_ids)
 
         if self.records_pre_merged_path.is_file():
@@ -205,9 +200,8 @@ class DedupeBenchmarker:
             if len(row[ID]) > 1:
                 merged_record_ids.append(row[ID])
 
-        merged_record_ids = bib_dedupe.util.connected_components(merged_record_ids)
         self.true_merged_ids = merged_record_ids
-        merged_record_ids_df = pd.DataFrame({"merged_ids": merged_record_ids})
+        merged_record_ids_df = pd.DataFrame({"merged_ids": self.true_merged_ids})
         records_pre_merged_df.to_csv(str(self.records_pre_merged_path), index=False)
         merged_record_ids_df.to_csv(str(self.merged_record_ids_path), index=False)
 
