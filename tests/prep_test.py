@@ -5,7 +5,6 @@ from bib_dedupe.prep import prep_abstract
 from bib_dedupe.prep import prep_authors
 from bib_dedupe.prep import prep_container_title
 from bib_dedupe.prep import prep_doi
-from bib_dedupe.prep import prep_isbn
 from bib_dedupe.prep import prep_number
 from bib_dedupe.prep import prep_pages
 from bib_dedupe.prep import prep_title
@@ -478,28 +477,6 @@ def test_prep_pages(input_pages: str, expected_output: str) -> None:
 )
 def test_prep_abstract(input_abstract: str, expected_output: str) -> None:
     result = prep_abstract(np.array([input_abstract]))
-    assert result[0] == expected_output
-
-
-@pytest.mark.parametrize(
-    "input_isbn, expected_output",
-    [
-        (
-            """1469-493X (electronic)
-1469-493X""",  #
-            "1469-493x",
-        ),
-        (
-            """0145-6008 (Print)
-0145-6008""",
-            "0145-6008",
-        ),
-        ("2041-1723 (Electronic)\n2041-1723 (Linking)", "2041-1723"),
-        ("978-3-16-148410-1", "978-3-16-148410-1"),
-    ],
-)
-def test_prep_isbn(input_isbn: str, expected_output: str) -> None:
-    result = prep_isbn(np.array([input_isbn]))
     assert result[0] == expected_output
 
 

@@ -13,13 +13,14 @@ from bib_dedupe.constants.fields import ABSTRACT
 from bib_dedupe.constants.fields import AUTHOR
 from bib_dedupe.constants.fields import CONTAINER_TITLE
 from bib_dedupe.constants.fields import DOI
-from bib_dedupe.constants.fields import ISBN
 from bib_dedupe.constants.fields import NUMBER
 from bib_dedupe.constants.fields import PAGE_RANGES_ADJACENT
 from bib_dedupe.constants.fields import PAGES
 from bib_dedupe.constants.fields import TITLE
 from bib_dedupe.constants.fields import VOLUME
 from bib_dedupe.constants.fields import YEAR
+
+TITLE_STOPWORDS = ["the", "a", "an", "in", "on", "at", "and", "or", "of"]
 
 
 def sim_token_sort_ratio(string_1: str, string_2: str) -> float:
@@ -58,11 +59,9 @@ def sim_author(
     author_diff = 0.0
 
     if len(author_full_1) > 5 and len(author_full_2) > 5:
-        # TODO : test whether similarity of capital letters may be sufficient (in combination with title/...)
         # Extract capital letters from both author_full_1 and author_full_2
         capital_letters_author_full_1 = re.findall(r"[A-Z]", author_full_1)
         capital_letters_author_full_2 = re.findall(r"[A-Z]", author_full_2)
-        # TODO: sort ratio
         # Calculate similarity of capital letters in author_full_1 and author_full_2
         capital_letters = (
             fuzz.token_sort_ratio(
@@ -115,9 +114,6 @@ def sim_page(pages_string_1: str, pages_string_2: str) -> float:
         return 1
     else:
         return fuzz.token_sort_ratio(pages_string_1, pages_string_2) / 100
-
-
-TITLE_STOPWORDS = ["the", "a", "an", "in", "on", "at", "and", "or", "of"]
 
 
 def sim_title(title_1: str, title_2: str, debug: bool = False) -> float:
@@ -296,7 +292,7 @@ def sim_number(n1_str: str, n2_str: str) -> float:
         else:
             return 0.0
     else:
-        # NUMBER,  # some journals have numbers like 3/4 (which can be abbreviated)
+        # some journals have numbers like 3/4 (which can be abbreviated)
         return fuzz.token_sort_ratio(str(n1), str(n2)) / 100
 
 
@@ -381,8 +377,6 @@ def sim_container_title(container_1: str, container_2: str) -> float:
     else:
         overall = fuzz.partial_ratio(str(container_1), str(container_2)) / 100
 
-    # print(overall, abbreviation_match, word_match)
-
     return max(overall, abbreviation_match, word_match)
 
 
@@ -427,7 +421,6 @@ similarity_functions = {
     CONTAINER_TITLE: sim_container_title,
     VOLUME: sim_volume,
     ABSTRACT: sim_abstract,
-    ISBN: sim_token_sort_ratio,
     DOI: sim_doi,
 }
 
@@ -466,8 +459,6 @@ def calculate_similarities(
 
     print("Sim started at", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     start_time = time.time()
-
-    # pairs_df = process_df_split(pairs_df)
 
     df_split = np.array_split(pairs_df, 8)
 

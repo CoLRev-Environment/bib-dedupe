@@ -428,7 +428,7 @@ class DedupeBenchmarker:
         results = {"blocks_FN_list", "matches_FP_list", "matches_FN_list"}
         """
 
-        maybe_cases_df = matched_df[matched_df["duplicate_label"] == "maybe"]
+        maybe_cases_df = matched_df[matched_df["duplicate_label"] == "maybe"].copy()
 
         columns_to_drop = [
             TITLE_SHORT,

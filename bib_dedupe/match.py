@@ -17,7 +17,6 @@ from bib_dedupe.constants.fields import ABSTRACT
 from bib_dedupe.constants.fields import AUTHOR
 from bib_dedupe.constants.fields import CONTAINER_TITLE
 from bib_dedupe.constants.fields import DOI
-from bib_dedupe.constants.fields import ISBN
 from bib_dedupe.constants.fields import NUMBER
 from bib_dedupe.constants.fields import PAGE_RANGES_ADJACENT
 from bib_dedupe.constants.fields import PAGES
@@ -34,7 +33,6 @@ SIM_FIELDS = [
     NUMBER,
     PAGES,
     ABSTRACT,
-    ISBN,
     DOI,
 ]
 
@@ -125,7 +123,6 @@ def match(
     maybe_pairs = pairs[
         (pairs[TITLE] > 0.85) & (pairs["author"] > 0.75)
         | (pairs[TITLE] > 0.8) & (pairs[ABSTRACT] > 0.8)
-        | (pairs[TITLE] > 0.8) & (pairs[ISBN] > 0.99)
         | (pairs[TITLE] > 0.8) & (pairs[CONTAINER_TITLE] > 0.8)
         | (pd.isna(pairs[DOI]) | (pairs[DOI] > 0.99) | (pairs[DOI] == 0))
         & ~(
