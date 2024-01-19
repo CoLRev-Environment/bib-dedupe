@@ -21,7 +21,6 @@ from bib_dedupe.constants.fields import JOURNAL
 from bib_dedupe.constants.fields import NUMBER
 from bib_dedupe.constants.fields import PAGES
 from bib_dedupe.constants.fields import PUBLISHER
-from bib_dedupe.constants.fields import STATUS
 from bib_dedupe.constants.fields import TITLE
 from bib_dedupe.constants.fields import VOLUME
 from bib_dedupe.constants.fields import YEAR
@@ -60,7 +59,6 @@ def export_for_pytest(
             [
                 ID,
                 ENTRYTYPE,
-                STATUS,
                 TITLE,
                 AUTHOR,
                 YEAR,
@@ -468,8 +466,7 @@ def append_to_output(result: dict, *, package_name: str) -> None:
         dataset_df = results_df.sort_values(by="time", ascending=False)
         dataset_df = add_external_evaluations(dataset_df)
         total_df = (
-            dataset_df[dataset_df["dataset"] != "problem_cases"]
-            .drop_duplicates(subset=["package", "dataset"], keep="first")
+            dataset_df.drop_duplicates(subset=["package", "dataset"], keep="first")
             .groupby(["package"])
             .sum(numeric_only=True)
             .reset_index()
@@ -508,8 +505,6 @@ def append_to_output(result: dict, *, package_name: str) -> None:
         f.write("\n\n")
         f.write("# Individual datasets\n\n")
         for dataset in results_df["dataset"].unique():
-            if dataset == "problem_cases":
-                continue
             dataset_df = results_df[results_df["dataset"] == dataset]
             n_total = (
                 dataset_df.iloc[0]["FP"]

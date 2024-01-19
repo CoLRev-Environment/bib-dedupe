@@ -1,10 +1,14 @@
 #! /usr/bin/env python
 """Debug for dedupe"""
-import pprint
+from pathlib import Path
 
 import pandas as pd
 
+from bib_dedupe import verbose_print
+from bib_dedupe.bib_dedupe import block
+from bib_dedupe.bib_dedupe import match
 from bib_dedupe.bib_dedupe import prep
+from bib_dedupe.dedupe_benchmark import DedupeBenchmarker
 
 
 def debug() -> None:
@@ -23,16 +27,10 @@ def debug() -> None:
     except (pd.errors.EmptyDataError, FileNotFoundError):
         df_matches_fp = pd.DataFrame()
 
-    from bib_dedupe.dedupe_benchmark import DedupeBenchmarker
-    from bib_dedupe.bib_dedupe import block, match
-    from pathlib import Path
-
     dedupe_benchmark = DedupeBenchmarker(benchmark_path=Path.cwd())
 
     records_df = dedupe_benchmark.get_records_for_dedupe()
     records_df = prep(records_df)
-
-    p_printer = pprint.PrettyPrinter(indent=4, width=140, compact=False)
 
     while True:
         id_pair = input("id_pair:")
@@ -57,8 +55,10 @@ def debug() -> None:
                 print("selected_prepared_records_df is empty. Continuing...")
                 continue
 
-            actual_blocked_df = block(records_df=selected_prepared_records_df)
-            matches = match(actual_blocked_df, debug=True)
-            p_printer.pprint(matches)
+            actual_blocked_df = block(
+                records_df=selected_prepared_records_df, verbosity_level=2
+            )
+            matches = match(actual_blocked_df, verbosity_level=2)
+            verbose_print.p_printer.pprint(matches)
         except ValueError as exc:
             print(exc)

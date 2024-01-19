@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-"""Preparation for dedupe"""
+"""Module for preparing bibliographic data for deduplication."""
 import concurrent.futures
 import os
 import time
@@ -21,7 +21,6 @@ from bib_dedupe.constants.fields import NUMBER
 from bib_dedupe.constants.fields import PAGES
 from bib_dedupe.constants.fields import SEARCH_SET
 from bib_dedupe.constants.fields import SERIES
-from bib_dedupe.constants.fields import STATUS
 from bib_dedupe.constants.fields import TITLE
 from bib_dedupe.constants.fields import VOLUME
 from bib_dedupe.constants.fields import YEAR
@@ -65,7 +64,16 @@ function_mapping = {
 }
 
 
-def process_df_split(split_df: pd.DataFrame) -> pd.DataFrame:
+def prepare_df_split(split_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Prepare a split dataframe for deduplication.
+
+    Args:
+        split_df: A split dataframe.
+
+    Returns:
+        The processed dataframe.
+    """
     split_df.replace(
         to_replace={
             "UNKNOWN": "",
@@ -99,31 +107,29 @@ def process_df_split(split_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def __general_prep(records_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Perform general preparation on the records dataframe.
+
+    Args:
+        records_df: The records dataframe.
+
+    Returns:
+        The prepared dataframe.
+    """
+    records_df = records_df.copy()
+
     if ID not in records_df.columns:
         records_df.loc[:, ID] = range(1, len(records_df) + 1)
 
     assert all(f in records_df.columns for f in REQUIRED_FIELDS)
 
-    if STATUS in records_df:
-        records_df = records_df[
-            ~(
-                records_df[STATUS].isin(
-                    [
-                        "md_imported",
-                        "md_needs_manual_preparation",
-                    ]
-                )
-            )
-        ]
-
     for column in records_df.columns:
-        records_df.loc[:, column] = records_df[column].replace(
+        records_df[column] = records_df[column].replace(
             ["#NAME?", "UNKNOWN", ""], np.nan
         )
-
     if records_df[TITLE].isnull().any():
         verbose_print.print(
-            "Warning: Some records have empty title field. These records will be dropped."
+            "Warning: Some records have empty title field. These records will not be considered."
         )
         records_df = records_df.dropna(subset=[TITLE])
 
@@ -135,8 +141,8 @@ def __general_prep(records_df: pd.DataFrame) -> pd.DataFrame:
             )
 
     for optional_field in OPTIONAL_FIELDS:
-        if optional_field not in records_df:
-            records_df.loc[:, optional_field] = ""
+        if optional_field not in records_df.columns:
+            records_df = records_df.assign(**{optional_field: ""})
 
     records_df = records_df.drop(
         labels=list(records_df.columns.difference(ALL_FIELDS)),
@@ -151,6 +157,13 @@ def __general_prep(records_df: pd.DataFrame) -> pd.DataFrame:
 def determine_cpu_count(requested_cpu: int, record_count: int) -> int:
     """
     Determines the number of CPUs to use based on the requested CPU count and the number of records.
+
+    Args:
+        requested_cpu: The requested CPU count.
+        record_count: The number of records.
+
+    Returns:
+        The number of CPUs to use.
     """
     if requested_cpu == -1:
         cpu_count = os.cpu_count() or 1
@@ -165,8 +178,16 @@ def determine_cpu_count(requested_cpu: int, record_count: int) -> int:
 
 
 def prep(records_df: pd.DataFrame, *, cpu: int = -1) -> pd.DataFrame:
-    """Prepare records for dedupe"""
+    """
+    Prepare records for deduplication.
 
+    Args:
+        records_df: The records dataframe.
+        cpu: The number of CPUs to use. If -1, use all available CPUs.
+
+    Returns:
+        The prepared records dataframe.
+    """
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     verbose_print.print(f"Loaded {records_df.shape[0]:,} records")
     verbose_print.print(f"Prep started at {now}")
@@ -180,7 +201,7 @@ def prep(records_df: pd.DataFrame, *, cpu: int = -1) -> pd.DataFrame:
     cpu = determine_cpu_count(cpu, records_df.shape[0])
     df_split = np.array_split(records_df, cpu)
     with concurrent.futures.ProcessPoolExecutor(max_workers=cpu) as executor:
-        results = executor.map(process_df_split, df_split)
+        results = executor.map(prepare_df_split, df_split)
     records_df = pd.concat(list(results))
     records_df = records_df.assign(
         author_first=records_df[AUTHOR].str.split().str[0],

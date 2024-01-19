@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-"""Block for dedupe"""
+"""Block for dedupe."""
 import multiprocessing
 import time
 from datetime import datetime
@@ -7,6 +7,7 @@ from itertools import combinations
 
 import pandas as pd
 
+from bib_dedupe import verbose_print
 from bib_dedupe.constants.fields import ABSTRACT
 from bib_dedupe.constants.fields import AUTHOR_FIRST
 from bib_dedupe.constants.fields import CONTAINER_TITLE_SHORT
@@ -17,9 +18,6 @@ from bib_dedupe.constants.fields import SEARCH_SET
 from bib_dedupe.constants.fields import TITLE_SHORT
 from bib_dedupe.constants.fields import VOLUME
 from bib_dedupe.constants.fields import YEAR
-from bib_dedupe.util import VerbosePrint
-
-verbose_print = VerbosePrint(verbosity_level=1)
 
 block_fields_list = [
     {AUTHOR_FIRST, YEAR},
@@ -63,6 +61,9 @@ def create_pairs_for_block_fields(
     """
     Create pairs for block fields.
 
+    This function creates pairs of records for the given block fields.
+    It only considers records where all block fields are non-empty.
+
     Parameters:
     records_df (pd.DataFrame): The dataframe containing the records.
     block_fields (list): The list of block fields.
@@ -104,6 +105,8 @@ def calculate_pairs(records_df: pd.DataFrame, block_fields: list) -> pd.DataFram
     """
     Calculate pairs for deduplication.
 
+    This function calculates pairs of records for deduplication based on the given block fields.
+
     Parameters:
     records_df (pd.DataFrame): The dataframe containing the records.
     block_fields (list): The list of block fields.
@@ -119,6 +122,18 @@ def calculate_pairs(records_df: pd.DataFrame, block_fields: list) -> pd.DataFram
 
 
 def reduce_distinct_sets(pairs_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Reduce distinct sets.
+
+    This function reduces the pairs dataframe. It removes pairs where
+    both records are from the same search set.
+
+    Parameters:
+    pairs_df (pd.DataFrame): The dataframe containing the pairs.
+
+    Returns:
+    pd.DataFrame: The dataframe after reduction.
+    """
     if f"{SEARCH_SET}_1" not in pairs_df.columns:
         return pairs_df
 
@@ -132,6 +147,17 @@ def reduce_distinct_sets(pairs_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def reduce_non_overlapping_titles(pairs_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Reduce non-overlapping titles.
+
+    This function reduces the pairs dataframe by removing pairs where the titles do not overlap.
+
+    Parameters:
+    pairs_df (pd.DataFrame): The dataframe containing the pairs.
+
+    Returns:
+    pd.DataFrame: The dataframe after reduction.
+    """
     # Don't require title_overlap (words) for identical titles
     # and titles not containing a space
     pairs_df.loc[
@@ -169,10 +195,14 @@ def reduce_non_overlapping_titles(pairs_df: pd.DataFrame) -> pd.DataFrame:
     return pairs_df
 
 
-def block(records_df: pd.DataFrame, *, verbosity_level: int = 1) -> pd.DataFrame:
+def block(records_df: pd.DataFrame) -> pd.DataFrame:
     """
-    This function performs blocking operation on the given dataframe.
+    Perform blocking operation on the given dataframe.
 
+    This function performs blocking operation on the given dataframe to prepare it for deduplication.
+    It calculates pairs of records for deduplication based on a predefined list of block fields.
+    It then reduces the pairs dataframe by removing pairs where the titles
+    do not overlap or both records are from the same search set.
     Parameters:
     records_df (pd.DataFrame): The dataframe containing the records.
 
@@ -180,8 +210,6 @@ def block(records_df: pd.DataFrame, *, verbosity_level: int = 1) -> pd.DataFrame
     pd.DataFrame: The dataframe after blocking operation.
     """
 
-    global verbose_print
-    verbose_print = VerbosePrint(verbosity_level=verbosity_level)
     verbose_print.print(
         "Block started at " + datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     )

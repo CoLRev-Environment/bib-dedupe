@@ -18,7 +18,6 @@ from bib_dedupe.constants.fields import AUTHOR_FIRST
 from bib_dedupe.constants.fields import CONTAINER_TITLE_SHORT
 from bib_dedupe.constants.fields import ID
 from bib_dedupe.constants.fields import ORIGIN
-from bib_dedupe.constants.fields import STATUS
 from bib_dedupe.constants.fields import TITLE_SHORT
 
 
@@ -128,6 +127,8 @@ class DedupeBenchmarker:
         """Get benchmark for dedupe"""
         import colrev.review_manager
         import colrev.record
+
+        STATUS = "colrev_status"
 
         def merged(record: dict) -> bool:
             return len([o for o in record[ORIGIN] if not o.startswith("md_")]) != 1

@@ -19,6 +19,8 @@ def percent_upper_chars(input_string: str) -> float:
 
 
 def default_merge_function_title(titles: list) -> str:
+    """Default merge function for title field"""
+
     best_title = titles[0]
 
     # Note : avoid switching titles
@@ -40,6 +42,8 @@ def default_merge_function_title(titles: list) -> str:
 
 
 def default_merge_function_author(authors: list) -> str:
+    """Default merge function for author field"""
+
     best_author = authors[0]
 
     best_author_upper = percent_upper_chars(best_author)
@@ -54,6 +58,8 @@ def default_merge_function_author(authors: list) -> str:
 
 
 def default_merge_function_container_title(journals: list) -> str:
+    """Default merge function for container-title field"""
+
     best_journal = journals[0]
 
     best_journal_upper = percent_upper_chars(best_journal)
@@ -72,10 +78,14 @@ def default_merge_function_container_title(journals: list) -> str:
 
 
 def default_merge_function_year(years: list) -> str:
+    """Default merge function for year field"""
+    # max() to select published version when merging with forthcoming
     return str(max(int(year) for year in years if year.isdigit()))
 
 
 def default_merge_function_pages(pages: list) -> str:
+    """Default merge function for pages field"""
+
     best_pages = pages[0]
     for page in pages[1:]:
         if "--" in page and "--" not in best_pages:
@@ -84,6 +94,8 @@ def default_merge_function_pages(pages: list) -> str:
 
 
 def default_merge_function_origin(origins: list) -> str:
+    """Default merge function for origin field"""
+
     unique_origins = set()
     for origin in origins:
         unique_origins.update(origin.split(";"))

@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 from rapidfuzz import fuzz
 
+from bib_dedupe import verbose_print
 from bib_dedupe.constants.fields import ABSTRACT
 from bib_dedupe.constants.fields import AUTHOR
 from bib_dedupe.constants.fields import CONTAINER_TITLE
@@ -162,7 +163,7 @@ def sim_title(title_1: str, title_2: str, debug: bool = False) -> float:
         and len(t1_digits) < 3
     ):
         if debug:
-            print(f"mismatching digits: {t1_digits} - {t2_digits}")
+            verbose_print.print(f"mismatching digits: {t1_digits} - {t2_digits}")
         return 0
 
     # Women vs men split studies
@@ -341,9 +342,6 @@ def sim_container_title(container_1: str, container_2: str) -> float:
     ):
         return 0.0
 
-    if {container_1, container_2} == {"j alzh dise", "adv alzh dise"}:
-        return 0.0
-
     container_1 = container_1.replace("res", "")
     container_2 = container_2.replace("res", "")
 
@@ -457,7 +455,9 @@ def calculate_similarities(
         pd.DataFrame: DataFrame with calculated similarities.
     """
 
-    print("Sim started at", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    verbose_print.print(
+        "Sim started at " + datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    )
     start_time = time.time()
 
     df_split = np.array_split(pairs_df, 8)
@@ -468,6 +468,6 @@ def calculate_similarities(
     pairs_df = pd.concat(list(results))
 
     end_time = time.time()
-    print(f"Sim completed after: {end_time - start_time:.2f} seconds")
+    verbose_print.print(f"Sim completed after: {end_time - start_time:.2f} seconds")
 
     return pairs_df

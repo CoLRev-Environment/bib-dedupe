@@ -34,10 +34,6 @@ def non_contradicting(*keys: str) -> str:
     )
 
 
-def empty(*keys: str) -> str:
-    return " & ".join(f"({key}_1 == '' & {key}_2 == '')" for key in keys)
-
-
 def both_entrytypes(entrytype: str) -> str:
     return f"({ENTRYTYPE}_1 == '{entrytype}' & {ENTRYTYPE}_2 == '{entrytype}')"
 

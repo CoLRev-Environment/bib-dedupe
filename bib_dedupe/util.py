@@ -13,7 +13,7 @@ class VerbosePrint:
         self.verbosity_level = verbosity_level
         self.p_printer = pprint.PrettyPrinter(indent=4, width=140, compact=False)
 
-    def print(self, message: str, *, level: int = 1) -> None:
+    def print(self, message: str = "", *, level: int = 1) -> None:
         """Print a message if the specified level is less than or equal to the current verbosity level."""
         if level <= self.verbosity_level:
             print(message)

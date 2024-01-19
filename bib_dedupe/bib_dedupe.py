@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-"""Bib-dedupe module"""
+"""Module for deduplicating bibliographic records"""
 from __future__ import annotations
 
 import typing
@@ -15,24 +15,38 @@ import bib_dedupe.sim
 from bib_dedupe import verbose_print
 
 
-def prep(records_df: pd.DataFrame, *, verbosity_level: int = 1) -> pd.DataFrame:
-    """Get (pre-processed) records for dedupe"""
+def prep(
+    records_df: pd.DataFrame, *, verbosity_level: typing.Optional[int] = None
+) -> pd.DataFrame:
+    """Preprocesses records for deduplication.
 
-    verbose_print.verbosity_level = verbosity_level
+    Args:
+        records_df (pd.DataFrame): The dataframe containing the records to be preprocessed.
+        verbosity_level (int, optional): Level of verbosity for logging. Defaults to None.
+
+    Returns:
+        pd.DataFrame: The preprocessed records dataframe.
+    """
+    if verbosity_level is not None:
+        verbose_print.verbosity_level = verbosity_level
     return bib_dedupe.prep.prep(records_df)
 
 
-def block(records_df: pd.DataFrame, *, verbosity_level: int = 1) -> pd.DataFrame:
+def block(
+    records_df: pd.DataFrame, *, verbosity_level: typing.Optional[int] = None
+) -> pd.DataFrame:
     """
-    This function is used to block pairs for deduplication.
+    Blocks pairs of records for deduplication.
 
-    Parameters:
-    records_df (pd.DataFrame): The dataframe containing the records to be deduplicated.
+    Args:
+        records_df (pd.DataFrame): The dataframe containing the records to be deduplicated.
+        verbosity_level (int, optional): Level of verbosity for logging. Defaults to None.
 
     Returns:
-    pd.DataFrame: The dataframe containing the blocked pairs for deduplication.
+        pd.DataFrame: The dataframe containing the blocked pairs for deduplication.
     """
-    verbose_print.verbosity_level = verbosity_level
+    if verbosity_level is not None:
+        verbose_print.verbosity_level = verbosity_level
 
     pairs_df = bib_dedupe.block.block(records_df)
 
@@ -40,68 +54,79 @@ def block(records_df: pd.DataFrame, *, verbosity_level: int = 1) -> pd.DataFrame
 
 
 def match(
-    pairs_df: pd.DataFrame, *, verbosity_level: int = 1, debug: bool = False
+    pairs_df: pd.DataFrame, *, verbosity_level: typing.Optional[int] = None
 ) -> pd.DataFrame:
     """
-    Identifies the true matches from the given pairs.
-
-    The pairs are compared based on various fields and their similarity scores.
-    The fields used for comparison are: Pages, Volume, Title, Abstract, Author, ISBN, Container Title, Number.
-    The similarity scores for these fields are calculated using the fuzz.token_sort_ratio function.
-    The pairs that satisfy certain conditions based on these similarity scores are considered as true matches.
+    Identifies true/maybe matches from the given pairs based on similarity scores.
 
     Args:
-        pairs (pd.DataFrame): The DataFrame containing the pairs to be compared.
+        pairs_df (pd.DataFrame): The DataFrame containing the pairs to be compared.
+        verbosity_level (int, optional): Level of verbosity for logging. Defaults to None.
+        debug (bool, optional): If True, enables debug mode. Defaults to False.
 
     Returns:
-    DataFrame: The DataFrame containing the true matches.
+        pd.DataFrame: The DataFrame containing the true/maybe matches.
     """
-    verbose_print.verbosity_level = verbosity_level
+    if verbosity_level is not None:
+        verbose_print.verbosity_level = verbosity_level
 
-    return bib_dedupe.match.match(pairs_df, debug=debug)
+    return bib_dedupe.match.match(pairs_df)
 
 
 def export_maybe(
-    matched_df: pd.DataFrame, records_df: pd.DataFrame, *, verbosity_level: int = 1
+    matched_df: pd.DataFrame,
+    records_df: pd.DataFrame,
+    *,
+    verbosity_level: typing.Optional[int] = None,
 ) -> None:
     """
-    This function is used to export maybe cases for deduplication.
+    Exports 'maybe' cases for manual review during deduplication.
 
-    Parameters:
-    matched_df (pd.DataFrame): The dataframe containing the matched pairs.
-    records_df (pd.DataFrame): The dataframe containing the records.
+    Args:
+        matched_df (pd.DataFrame): The dataframe containing the matched pairs.
+        records_df (pd.DataFrame): The dataframe containing the records.
+        verbosity_level (int, optional): Level of verbosity for logging. Defaults to None.
     """
-    verbose_print.verbosity_level = verbosity_level
+    if verbosity_level is not None:
+        verbose_print.verbosity_level = verbosity_level
 
     bib_dedupe.maybe_cases.export_maybe(matched_df, records_df)
 
 
-def import_maybe(matched_df: pd.DataFrame, *, verbosity_level: int = 1) -> pd.DataFrame:
+def import_maybe(
+    matched_df: pd.DataFrame, *, verbosity_level: typing.Optional[int] = None
+) -> pd.DataFrame:
     """
-    This function is used to import decisions for maybe cases.
+    Imports decisions for 'maybe' cases after manual review.
 
-    Parameters:
-    matched_df (pd.DataFrame): The dataframe containing the matches.
+    Args:
+        matched_df (pd.DataFrame): The dataframe containing the matches.
+        verbosity_level (int, optional): Level of verbosity for logging. Defaults to None.
 
     Returns:
-    pd.DataFrame: The dataframe containing the updated matches.
+        pd.DataFrame: The dataframe containing the updated matches.
     """
-    verbose_print.verbosity_level = verbosity_level
+    if verbosity_level is not None:
+        verbose_print.verbosity_level = verbosity_level
 
     return bib_dedupe.maybe_cases.import_maybe(matched_df)
 
 
-def cluster(matched_df: pd.DataFrame, *, verbosity_level: int = 1) -> list:
+def cluster(
+    matched_df: pd.DataFrame, *, verbosity_level: typing.Optional[int] = None
+) -> list:
     """
-    This function is used to cluster the matched data.
+    Clusters the matched data for deduplication.
 
-    Parameters:
-    matched_df (pd.DataFrame): The dataframe containing the matches.
+    Args:
+        matched_df (pd.DataFrame): The dataframe containing the matches.
+        verbosity_level (int, optional): Level of verbosity for logging. Defaults to None.
 
     Returns:
-    list: The list of clusters.
+        list: The list of clusters.
     """
-    verbose_print.verbosity_level = verbosity_level
+    if verbosity_level is not None:
+        verbose_print.verbosity_level = verbosity_level
 
     return bib_dedupe.cluster.get_connected_components(matched_df)
 
@@ -110,19 +135,23 @@ def merge(
     records_df: pd.DataFrame,
     *,
     duplicate_id_sets: typing.Optional[list] = None,
-    verbosity_level: int = 1,
+    verbosity_level: typing.Optional[int] = None,
 ) -> pd.DataFrame:
     """
-    This function returns a DataFrame after merging the records.
+    Merges duplicate records in the given dataframe.
 
     Args:
         records_df (pd.DataFrame): The DataFrame containing the records to be merged.
-        matches (dict): A dictionary containing the matches.
+        duplicate_id_sets (list, optional): List of sets containing duplicate
+        record IDs. If None, the function will perform deduplication process
+        to identify duplicates. Defaults to None.
+        verbosity_level (int, optional): Level of verbosity for logging. Defaults to None.
 
     Returns:
         pd.DataFrame: The merged DataFrame.
     """
-    verbose_print.verbosity_level = verbosity_level
+    if verbosity_level is not None:
+        verbose_print.verbosity_level = verbosity_level
 
     if not duplicate_id_sets:
         prep_df = prep(records_df)

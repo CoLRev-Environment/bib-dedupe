@@ -1,6 +1,6 @@
 import pandas as pd
 
-import bib_dedupe.conditions
+import bib_dedupe.match_conditions
 from bib_dedupe.bib_dedupe import block
 from bib_dedupe.bib_dedupe import prep
 
@@ -40,13 +40,13 @@ q_stats = {
         # "TN": 0,
         # "FN": 0
     }
-    for duplicate_condition in bib_dedupe.conditions.duplicate_conditions
+    for duplicate_condition in bib_dedupe.match_conditions.duplicate_conditions
 }
 
 for i in range(len(actual_blocked_df)):
     item_df = actual_blocked_df.iloc[[i]]
 
-    for duplicate_condition in bib_dedupe.conditions.duplicate_conditions:
+    for duplicate_condition in bib_dedupe.match_conditions.duplicate_conditions:
         case = (
             f"{item_df['colrev_origin_1'].iloc[0]};{item_df['colrev_origin_2'].iloc[0]}"
         )

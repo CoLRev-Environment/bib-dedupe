@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 """Module to check maybe cases"""
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -16,6 +17,29 @@ from bib_dedupe.constants.fields import PAGES
 from bib_dedupe.constants.fields import TITLE
 from bib_dedupe.constants.fields import VOLUME
 from bib_dedupe.constants.fields import YEAR
+
+FIELDS_TO_EXPORT = [
+    "similarity_score",
+    "duplicate_label",
+    "cluster_ID",
+    AUTHOR,
+    TITLE,
+    CONTAINER_TITLE,
+    YEAR,
+    VOLUME,
+    NUMBER,
+    PAGES,
+    DOI,
+    ABSTRACT,
+]
+
+
+def __calculate_similarity(
+    author1: str, title1: str, author2: str, title2: str
+) -> float:
+    concatenated1 = author1 + title1
+    concatenated2 = author2 + title2
+    return round(fuzz.ratio(concatenated1, concatenated2) / 100, 2)
 
 
 def export_maybe(
@@ -68,15 +92,8 @@ def export_maybe(
         how="inner",
     )
 
-    def calculate_similarity(
-        author1: str, title1: str, author2: str, title2: str
-    ) -> float:
-        concatenated1 = author1 + title1
-        concatenated2 = author2 + title2
-        return round(fuzz.ratio(concatenated1, concatenated2) / 100, 2)
-
     similarity_scores = maybe_df.groupby("cluster_ID").apply(
-        lambda group: calculate_similarity(
+        lambda group: __calculate_similarity(
             group["author"].iloc[0],
             group["title"].iloc[0],
             group["author"].iloc[1],
@@ -93,44 +110,12 @@ def export_maybe(
         ["similarity_score", "cluster_ID"], ascending=[False, True]
     ).reset_index(drop=True)
     maybe_df.insert(0, "duplicate_label", "maybe")
-    maybe_df = maybe_df[
-        [
-            "similarity_score",
-            "duplicate_label",
-            "cluster_ID",
-            AUTHOR,
-            TITLE,
-            CONTAINER_TITLE,
-            YEAR,
-            VOLUME,
-            NUMBER,
-            PAGES,
-            DOI,
-            ABSTRACT,
-        ]
-        + [
-            col
-            for col in maybe_df.columns
-            if col
-            not in [
-                "similarity_score",
-                "duplicate_label",
-                "cluster_ID",
-                AUTHOR,
-                TITLE,
-                CONTAINER_TITLE,
-                YEAR,
-                VOLUME,
-                NUMBER,
-                PAGES,
-                DOI,
-                ABSTRACT,
-            ]
-        ]
-    ]
 
-    from pathlib import Path
-    from datetime import datetime
+    # Reorder the columns
+    maybe_df = maybe_df[
+        FIELDS_TO_EXPORT
+        + [col for col in maybe_df.columns if col not in FIELDS_TO_EXPORT]
+    ]
 
     file_path = Path("maybe_cases.csv")
     if file_path.exists():
@@ -143,18 +128,20 @@ def export_maybe(
 
     maybe_df.to_csv("maybe_cases.csv", index=False)
 
-    print(
+    verbose_print.print(
         "Please follow the steps below to replace the "
         "'duplicate_label' column with 'duplicate' if it is a duplicate:"
     )
-    print("1. Open the 'maybe_cases.csv' file.")
-    print(
+    verbose_print.print("1. Open the 'maybe_cases.csv' file.")
+    verbose_print.print(
         "2. Replace the 'duplicate_label' column values with 'duplicate' where necessary."
     )
-    print("3. Save the changes to 'maybe_cases.csv'.")
+    verbose_print.print("3. Save the changes to 'maybe_cases.csv'.")
 
 
-def import_maybe(matched_df: pd.DataFrame, *, verbosity_level: int = 1) -> pd.DataFrame:
+def import_maybe(
+    matched_df: pd.DataFrame,
+) -> pd.DataFrame:
     """
     This method is used to import decisions for maybe cases.
 
@@ -164,12 +151,11 @@ def import_maybe(matched_df: pd.DataFrame, *, verbosity_level: int = 1) -> pd.Da
     Returns:
     pd.DataFrame: The dataframe containing the updated matches.
     """
-    verbose_print.verbosity_level = verbosity_level
 
     if not Path("maybe_cases.csv").is_file():
+        verbose_print.print("File maybe_cases.csv does not exist")
         return matched_df
 
-    # Load the 'maybe_cases.csv' file
     maybe_cases_df = pd.read_csv("maybe_cases.csv")
 
     duplicate_cases = (
@@ -179,11 +165,10 @@ def import_maybe(matched_df: pd.DataFrame, *, verbosity_level: int = 1) -> pd.Da
         .values.tolist()
     )
 
-    # Print how many cases were labeled as duplicate
-    print(f"Number of cases labeled as duplicate: {len(duplicate_cases)}")
+    verbose_print.print(f"Number of cases labeled as duplicate: {len(duplicate_cases)}")
 
+    # Replace the 'duplicate_label' column in matched_df dataframe with 'duplicate' for these cases
     if len(duplicate_cases):
-        # Replace the 'duplicate_label' column in matched_df dataframe with 'duplicate' for these cases
         matched_df.loc[
             matched_df.apply(
                 lambda row: {row["ID_1"], row["ID_2"]} in duplicate_cases, axis=1
@@ -191,7 +176,6 @@ def import_maybe(matched_df: pd.DataFrame, *, verbosity_level: int = 1) -> pd.Da
             "duplicate_label",
         ] = "duplicate"
 
-    # if not keep_maybes:
     matched_df = matched_df[matched_df["duplicate_label"] != "maybe"]
 
     return matched_df

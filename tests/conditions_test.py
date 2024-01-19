@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-import bib_dedupe.conditions
+import bib_dedupe.match_conditions
 from bib_dedupe.constants.fields import ABSTRACT
 from bib_dedupe.constants.fields import AUTHOR
 from bib_dedupe.constants.fields import CONTAINER_TITLE
@@ -54,8 +54,8 @@ def test_conditions() -> None:
     )
 
     for condition in (
-        bib_dedupe.conditions.non_duplicate_conditions
-        + bib_dedupe.conditions.duplicate_conditions
+        bib_dedupe.match_conditions.non_duplicate_conditions
+        + bib_dedupe.match_conditions.duplicate_conditions
     ):
         try:
             print(condition)

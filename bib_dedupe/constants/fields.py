@@ -22,7 +22,6 @@ SCHOOL = "school"
 LANGUAGE = "language"
 
 ORIGIN = "origin"
-STATUS = "status"
 SEARCH_SET = "search_set"
 
 TITLE = "title"

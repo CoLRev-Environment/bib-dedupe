@@ -108,9 +108,6 @@ def get_container_title_short(ct_array: np.array) -> np.array:
 
 def prep_container_title(ct_array: np.array) -> np.array:
     def get_abbrev(ct: str) -> str:
-        # Use abbreviated versions
-        # journal of infection and chemotherapy
-        # j infect chemother
         ct = str(ct)
 
         # Replace trailing "the" (ignore case)
@@ -165,7 +162,6 @@ def prep_container_title(ct_array: np.array) -> np.array:
 
     ct_array = np.array(
         [
-            # |(\. )
             re.split(r"(\.\d+)|(: )|( - )", value)[0]
             if re.search(r"(\.\d+)|(\. )|(: )|( - )", value)
             else value
@@ -186,7 +182,7 @@ def prep_container_title(ct_array: np.array) -> np.array:
     #         for value in ct_array
     #     ]
     # )
-    # Note : distinguish confernces before (see digital_work)
+    # Note : distinguish conferences before (see digital_work)
 
     # Replace words in parentheses at the end
     ct_array = np.array(

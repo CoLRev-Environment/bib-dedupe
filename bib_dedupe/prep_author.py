@@ -25,7 +25,6 @@ NAME_PREFIXES_LOWER = [
 
 
 def get_author_format_case(authors: typing.List[str], original_string: str) -> str:
-    # TODO : non-latin, empty (after replacing special characters)
     if authors == [""]:
         return "empty"
 
@@ -78,7 +77,7 @@ def get_authors_split(authors: str) -> list:
         if authors.count(" ") <= 2:
             return authors.split(" ")
 
-    authors_list = re.split(r"(?=[A-Z])", authors)  # .replace(".", ""))
+    authors_list = re.split(r"(?=[A-Z])", authors)
     for i in range(len(authors_list) - 1):
         if (
             authors_list[i].endswith("-")
@@ -267,7 +266,6 @@ def preprocess_author(authors: str, *, debug: bool) -> str:
         authors_str = " and ".join(authors_list)
 
     authors_str = authors_str.replace(" ,", ",")
-    # authors_str = authors_str.replace("anonymous", "").replace("jr", "")
     authors_str = re.sub(r"[^A-Za-z0-9, ]+", "", authors_str)
     return authors_str.lower()
 

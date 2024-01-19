@@ -26,12 +26,7 @@ def prep_volume(volume_array: np.array) -> np.array:
         ]
     )
     volume_array = np.array(
-        [
-            re.sub(r"[^\d\(\)]", "", volume)
-            # if len(volume) < 4 and any(char.isdigit() for char in volume)
-            # else volume
-            for volume in volume_array
-        ]
+        [re.sub(r"[^\d\(\)]", "", volume) for volume in volume_array]
     )
 
     volume_array = np.array(
