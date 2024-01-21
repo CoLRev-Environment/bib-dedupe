@@ -6,6 +6,8 @@ from typing import List
 
 import pandas as pd
 
+from bib_dedupe.constants.fields import DUPLICATE_LABEL
+
 
 def get_adjacency_list(duplicates_df: pd.DataFrame) -> dict:
     """
@@ -68,7 +70,7 @@ def get_connected_components(
     if duplicates_df.empty:
         return []
 
-    duplicates_df = duplicates_df[duplicates_df["duplicate_label"] == label]
+    duplicates_df = duplicates_df[duplicates_df[DUPLICATE_LABEL] == label]
 
     adjacency_list = get_adjacency_list(duplicates_df)
 

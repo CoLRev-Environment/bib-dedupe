@@ -47,3 +47,9 @@ CONTAINER_TITLE_SHORT = "container_title_short"
 
 # For similarity
 PAGE_RANGES_ADJACENT = "page_ranges_adjacent"
+
+DUPLICATE_LABEL = "duplicate_label"
+CLUSTER_ID = "cluster_ID"
+
+DUPLICATE = "duplicate"
+MAYBE = "maybe"

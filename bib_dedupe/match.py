@@ -17,6 +17,10 @@ from bib_dedupe.constants.fields import ABSTRACT
 from bib_dedupe.constants.fields import AUTHOR
 from bib_dedupe.constants.fields import CONTAINER_TITLE
 from bib_dedupe.constants.fields import DOI
+from bib_dedupe.constants.fields import DUPLICATE
+from bib_dedupe.constants.fields import DUPLICATE_LABEL
+from bib_dedupe.constants.fields import ID
+from bib_dedupe.constants.fields import MAYBE
 from bib_dedupe.constants.fields import NUMBER
 from bib_dedupe.constants.fields import PAGE_RANGES_ADJACENT
 from bib_dedupe.constants.fields import PAGES
@@ -85,9 +89,9 @@ def __get_true_pairs(pairs: pd.DataFrame) -> pd.DataFrame:
     true_pairs = true_pairs.drop_duplicates()
 
     # Add a label column to each dataframe
-    true_pairs["duplicate_label"] = "duplicate"
+    true_pairs[DUPLICATE_LABEL] = DUPLICATE
     # Select the ID_1 and ID_2 fields and the new label column
-    true_pairs = true_pairs[["ID_1", "ID_2", "duplicate_label"]]
+    true_pairs = true_pairs[[f"{ID}_1", f"{ID}_2", DUPLICATE_LABEL]]
 
     return true_pairs
 
@@ -102,13 +106,13 @@ def __get_maybe_pairs(pairs: pd.DataFrame, true_pairs: pd.DataFrame) -> pd.DataF
         | (pd.isna(pairs[DOI]) | (pairs[DOI] > 0.99) | (pairs[DOI] == 0))
         & ~(
             (
-                pd.to_numeric(pairs["year_1"], errors="coerce")
-                - pd.to_numeric(pairs["year_2"], errors="coerce")
+                pd.to_numeric(pairs[f"{YEAR}_1"], errors="coerce")
+                - pd.to_numeric(pairs[f"{YEAR}_2"], errors="coerce")
                 > 1
             )
             | (
-                pd.to_numeric(pairs["year_2"], errors="coerce")
-                - pd.to_numeric(pairs["year_1"], errors="coerce")
+                pd.to_numeric(pairs[f"{YEAR}_2"], errors="coerce")
+                - pd.to_numeric(pairs[f"{YEAR}_1"], errors="coerce")
                 > 1
             )
         )
@@ -118,15 +122,15 @@ def __get_maybe_pairs(pairs: pd.DataFrame, true_pairs: pd.DataFrame) -> pd.DataF
 
     # Drop from maybe_pairs where ID_1 ID_2 combinations are in true_pairs
     maybe_pairs = maybe_pairs[
-        ~maybe_pairs.set_index(["ID_1", "ID_2"]).index.isin(
-            true_pairs.set_index(["ID_1", "ID_2"]).index
+        ~maybe_pairs.set_index([f"{ID}_1", f"{ID}_2"]).index.isin(
+            true_pairs.set_index([f"{ID}_1", f"{ID}_2"]).index
         )
     ]
 
     # Add a label column to each dataframe
-    maybe_pairs["duplicate_label"] = "maybe"
+    maybe_pairs[DUPLICATE_LABEL] = MAYBE
     # Select the ID_1 and ID_2 fields and the new label column
-    maybe_pairs = maybe_pairs[["ID_1", "ID_2", "duplicate_label"]]
+    maybe_pairs = maybe_pairs[[f"{ID}_1", f"{ID}_2", DUPLICATE_LABEL]]
 
     return maybe_pairs
 
@@ -145,7 +149,7 @@ def match(pairs: pd.DataFrame) -> pd.DataFrame:
             f"Match completed after: {end_time - start_time:.2f} seconds"
         )
 
-        return pd.DataFrame(columns=["ID_1", "ID_2", "duplicate_label"])
+        return pd.DataFrame(columns=[f"{ID}_1", f"{ID}_2", DUPLICATE_LABEL])
 
     for field in SIM_FIELDS_FLOAT:
         pairs[field] = pairs[field].astype(float)

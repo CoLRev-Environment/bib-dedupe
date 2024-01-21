@@ -1,7 +1,6 @@
 Usage
 ====================================
 
-
 It is possible to complete and customize each step individually:
 
 .. code-block:: python
@@ -58,3 +57,9 @@ Fields used by BibDeduper
      - The abstract
    * - **search_set**
      - Distinct sets of papers (e.g., old_search), can be empty.
+
+
+Search updates
+-----------------------
+
+When updating a literature search, the `old_search` can be assumed to have no duplicates. To exclude a set of papers from deduplication, it is possible to pass a corresponding label to the `search_set` column.

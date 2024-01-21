@@ -16,9 +16,24 @@ import bib_dedupe.cluster
 import bib_dedupe.util
 from bib_dedupe.constants.fields import AUTHOR_FIRST
 from bib_dedupe.constants.fields import CONTAINER_TITLE_SHORT
+from bib_dedupe.constants.fields import DUPLICATE_LABEL
 from bib_dedupe.constants.fields import ID
+from bib_dedupe.constants.fields import MAYBE
 from bib_dedupe.constants.fields import ORIGIN
 from bib_dedupe.constants.fields import TITLE_SHORT
+
+TP = "TP"
+FP = "FP"
+TN = "TN"
+FN = "FN"
+PRECISION = "precision"
+SENSITIVITY = "sensitivity"
+SPECIFICITY = "specificity"
+FP_RATE = "false_positive_rate"
+F1 = "f1"
+RUNTIME = "runtime"
+
+CASE = "case"
 
 
 class DedupeBenchmarker:
@@ -94,7 +109,7 @@ class DedupeBenchmarker:
             id for sublist in self.true_merged_ids for id in sublist
         ]
         ids_not_in_records_df = set(all_ids_in_true_merged_ids) - set(
-            self.records_df["ID"].tolist()
+            self.records_df[ID].tolist()
         )
         if ids_not_in_records_df:
             print(f"IDs not found in records_df: {ids_not_in_records_df}")
@@ -206,7 +221,7 @@ class DedupeBenchmarker:
             except KeyError:
                 break
 
-        records_pre_merged = {r["ID"]: r for r in records_pre_merged_list}
+        records_pre_merged = {r[ID]: r for r in records_pre_merged_list}
 
         # drop missing from records
         # (can only evaluate record/origins that are available in records_pre_merged)
@@ -217,7 +232,7 @@ class DedupeBenchmarker:
                 for o in record_dict[ORIGIN]
                 if o in pre_merged_orgs and o not in records_merged_origins
             ]
-        records = {r["ID"]: r for r in records.values() if len(r[ORIGIN]) > 0}
+        records = {r[ID]: r for r in records.values() if len(r[ORIGIN]) > 0}
 
         assert {o for x in records_pre_merged.values() for o in x[ORIGIN]} == {
             o for x in records.values() for o in x[ORIGIN]
@@ -257,7 +272,7 @@ class DedupeBenchmarker:
             for combination in combinations(item, 2):
                 ground_truth_pairs.add(";".join(sorted(combination)))
 
-        blocked = blocked_df.apply(lambda row: [row["ID_1"], row["ID_2"]], axis=1)
+        blocked = blocked_df.apply(lambda row: [row[f"{ID}_1"], row[f"{ID}_2"]], axis=1)
 
         blocked_pairs = set()
         for item in blocked:
@@ -269,13 +284,13 @@ class DedupeBenchmarker:
             for combination in combinations(item, 2):
                 predicted_pairs.add(";".join(sorted(combination)))
 
-        blocks = {"TP": 0, "FP": 0, "TN": 0, "FN": 0}
+        blocks = {TP: 0, FP: 0, TN: 0, FN: 0}
         blocks_fn_list = []
-        matches = {"TP": 0, "FP": 0, "TN": 0, "FN": 0}
+        matches = {TP: 0, FP: 0, TN: 0, FN: 0}
         matches_fp_list = []
         matches_fn_list = []
 
-        all_ids = self.records_df["ID"].tolist()
+        all_ids = self.records_df[ID].tolist()
 
         # Note: the following takes long:
         for combination in combinations(all_ids, 2):
@@ -283,29 +298,29 @@ class DedupeBenchmarker:
 
             if pair in blocked_pairs:
                 if pair in ground_truth_pairs:
-                    blocks["TP"] += 1
+                    blocks[TP] += 1
                 else:
-                    blocks["FP"] += 1
+                    blocks[FP] += 1
                     # Don't need a list here.
             else:
                 if pair in ground_truth_pairs:
-                    blocks["FN"] += 1
+                    blocks[FN] += 1
                     blocks_fn_list.append(combination)
                 else:
-                    blocks["TN"] += 1
+                    blocks[TN] += 1
 
             if pair in predicted_pairs:
                 if pair in ground_truth_pairs:
-                    matches["TP"] += 1
+                    matches[TP] += 1
                 else:
-                    matches["FP"] += 1
+                    matches[FP] += 1
                     matches_fp_list.append(combination)
             else:
                 if pair in ground_truth_pairs:
-                    matches["FN"] += 1
+                    matches[FN] += 1
                     matches_fn_list.append(combination)
                 else:
-                    matches["TN"] += 1
+                    matches[TN] += 1
 
         return {
             "matches": matches,
@@ -357,14 +372,14 @@ class DedupeBenchmarker:
         """
 
         results: typing.Dict[str, typing.Any] = {
-            "TP": 0,
-            "FP": 0,
-            "FN": 0,
-            "TN": 0,
-            "runtime": self.get_runtime(timestamp),
+            TP: 0,
+            FP: 0,
+            FN: 0,
+            TN: 0,
+            RUNTIME: self.get_runtime(timestamp),
         }
 
-        all_ids = records_df["ID"].tolist()
+        all_ids = records_df[ID].tolist()
 
         true_non_duplicate_ids = [
             x for x in all_ids if not any(x in y for y in self.true_merged_ids)
@@ -374,42 +389,40 @@ class DedupeBenchmarker:
         # For each ID-set, **exactly one** must be in the merged_df
 
         for true_non_duplicate_id in true_non_duplicate_ids:
-            if true_non_duplicate_id in merged_df["ID"].tolist():
-                results["TN"] += 1
+            if true_non_duplicate_id in merged_df[ID].tolist():
+                results[TN] += 1
             else:
-                results["FP"] += 1
+                results[FP] += 1
 
         for true_merged_id_set in self.true_merged_ids:
-            nr_in_merged_df = merged_df[merged_df["ID"].isin(true_merged_id_set)].shape[
-                0
-            ]
+            nr_in_merged_df = merged_df[merged_df[ID].isin(true_merged_id_set)].shape[0]
             # One would always be required to be a non-duplicate (true value:negative)
             # All that are removed are true positive, all that are not removed are false negatives
             if nr_in_merged_df == 0:
-                results["FP"] += 1
-                results["TP"] += len(true_merged_id_set) - 1
+                results[FP] += 1
+                results[TP] += len(true_merged_id_set) - 1
             elif nr_in_merged_df >= 1:
-                results["TN"] += 1
-                results["FN"] += nr_in_merged_df - 1
-                results["TP"] += len(true_merged_id_set) - nr_in_merged_df
+                results[TN] += 1
+                results[FN] += nr_in_merged_df - 1
+                results[TP] += len(true_merged_id_set) - nr_in_merged_df
 
-        specificity = results["TN"] / (results["TN"] + results["FP"])
-        sensitivity = results["TP"] / (results["TP"] + results["FN"])
+        specificity = results[TN] / (results[TN] + results[FP])
+        sensitivity = results[TP] / (results[TP] + results[FN])
 
-        results["false_positive_rate"] = results["FP"] / (results["FP"] + results["TN"])
+        results[FP_RATE] = results[FP] / (results[FP] + results[TN])
 
-        results["specificity"] = specificity
-        results["sensitivity"] = sensitivity
-        if (results["TP"] + results["FP"]) > 0:
-            results["precision"] = results["TP"] / (results["TP"] + results["FP"])
-            results["f1"] = (
+        results[SPECIFICITY] = specificity
+        results[SENSITIVITY] = sensitivity
+        if (results[TP] + results[FP]) > 0:
+            results[PRECISION] = results[TP] / (results[TP] + results[FP])
+            results[F1] = (
                 2
-                * (results["precision"] * results["sensitivity"])
-                / (results["precision"] + results["sensitivity"])
+                * (results[PRECISION] * results[SENSITIVITY])
+                / (results[PRECISION] + results[SENSITIVITY])
             )
         else:
-            results["precision"] = 0.0
-            results["f1"] = 0.0
+            results[PRECISION] = 0.0
+            results[F1] = 0.0
 
         results["dataset"] = Path(self.benchmark_path).name
 
@@ -429,7 +442,7 @@ class DedupeBenchmarker:
         results = {"blocks_FN_list", "matches_FP_list", "matches_FN_list"}
         """
 
-        maybe_cases_df = matched_df[matched_df["duplicate_label"] == "maybe"].copy()
+        maybe_cases_df = matched_df[matched_df[DUPLICATE_LABEL] == MAYBE].copy()
 
         columns_to_drop = [
             TITLE_SHORT,
@@ -443,28 +456,28 @@ class DedupeBenchmarker:
             ]
         )
 
-        maybe_cases_df.loc[:, "case"] = (
-            maybe_cases_df["ID_1"] + ";" + maybe_cases_df["ID_2"]
+        maybe_cases_df.loc[:, CASE] = (
+            maybe_cases_df[f"{ID}_1"] + ";" + maybe_cases_df[f"{ID}_2"]
         )
         maybe_df_copy = maybe_cases_df.copy()
         maybe_df_1 = pd.merge(
             maybe_df_copy,
             prepared_records_df,
-            left_on="ID_2",
-            right_on="ID",
+            left_on=f"{ID}_2",
+            right_on=ID,
             how="inner",
         )
         maybe_df_2 = pd.merge(
             maybe_cases_df,
             prepared_records_df,
-            left_on="ID_1",
-            right_on="ID",
+            left_on=f"{ID}_1",
+            right_on=ID,
             how="inner",
         )
 
         maybe_df = pd.concat([maybe_df_1, maybe_df_2])
-        maybe_df = maybe_df.sort_values(by="case")
-        maybe_df = maybe_df.drop(columns=["ID_1", "ID_2", "duplicate_label"])
+        maybe_df = maybe_df.sort_values(by=CASE)
+        maybe_df = maybe_df.drop(columns=[f"{ID}_1", f"{ID}_2", DUPLICATE_LABEL])
 
         maybe_df.to_csv(self.benchmark_path / "maybe_pairs.csv", index=False)
 
@@ -485,43 +498,40 @@ class DedupeBenchmarker:
         ]:
             id_pairs = results[list_name]
 
-            id_pairs_cases_df = pd.DataFrame(id_pairs, columns=["ID_1", "ID_2"])
-            id_pairs_cases_df.loc[:, "case"] = (
-                id_pairs_cases_df["ID_1"] + ";" + id_pairs_cases_df["ID_2"]
+            id_pairs_cases_df = pd.DataFrame(id_pairs, columns=[f"{ID}_1", f"{ID}_2"])
+            id_pairs_cases_df.loc[:, CASE] = (
+                id_pairs_cases_df[f"{ID}_1"] + ";" + id_pairs_cases_df[f"{ID}_2"]
             )
 
             id_pairs_cases_df_copy = id_pairs_cases_df.copy()
             id_pairs_df_1 = pd.merge(
                 id_pairs_cases_df_copy,
                 prepared_records_df,
-                left_on="ID_2",
-                right_on="ID",
+                left_on=f"{ID}_2",
+                right_on=ID,
                 how="inner",
             )
             id_pairs_df_2 = pd.merge(
                 id_pairs_cases_df,
                 prepared_records_df,
-                left_on="ID_1",
-                right_on="ID",
+                left_on=f"{ID}_1",
+                right_on=ID,
                 how="inner",
             )
 
             cases_df = pd.concat([id_pairs_df_1, id_pairs_df_2])
-            cases_df = cases_df.sort_values(by="case")
-            cases_df = cases_df.drop(columns=["ID_1", "ID_2"])
+            cases_df = cases_df.sort_values(by=CASE)
+            cases_df = cases_df.drop(columns=[f"{ID}_1", f"{ID}_2"])
 
             if not cases_df.empty:
                 cases_df = cases_df[
-                    ["case", "ID"]
-                    + [col for col in cases_df.columns if col not in ["case", "ID"]]
+                    [CASE, ID]
+                    + [col for col in cases_df.columns if col not in [CASE, ID]]
                 ]
-                cases_df = cases_df.sort_values(by=["case", "ID"])
+                cases_df = cases_df.sort_values(by=[CASE, ID])
 
                 if cases_df.empty:
                     continue
-
-            if "colrev_origin" in cases_df.columns:
-                cases_df = cases_df.drop(columns=["colrev_origin"])
 
             cases_df.to_csv(self.benchmark_path / f"{list_name}.csv", index=False)
 
@@ -530,7 +540,7 @@ class DedupeBenchmarker:
                 continue
             try:
                 ignored_df = pd.read_csv(ignored_file)
-                cases_df = cases_df[~cases_df["case"].isin(ignored_df["case"])]
+                cases_df = cases_df[~cases_df[CASE].isin(ignored_df[CASE])]
                 cases_df.to_csv(
                     self.benchmark_path / f"{list_name}_remaining.csv", index=False
                 )
