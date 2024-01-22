@@ -29,8 +29,8 @@ and "help wanted" is open to whoever wants to implement it.
 
 ### Write Documentation
 
-Bib-Dedupe could always use more documentation, whether as part of the
-official Bib-Dedupe docs, in docstrings, or even on the web in blog posts,
+BibDedupe could always use more documentation, whether as part of the
+official BibDedupe docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
 #### Submit Feedback
@@ -46,7 +46,7 @@ If you are proposing a feature:
 
 ## Get Started!
 
-Ready to contribute? Here's how to set up Bib-Dedupe for local development.
+Ready to contribute? Here's how to set up BibDedupe for local development.
 
 1. Fork the `bib-dedupe` repo on GitHub.
 2. Clone your fork locally:

@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.abspath("../../bib_dedupe"))
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "Bib-Dedupe"
+project = "BibDedupe"
 copyright = "2024, Gerit Wagner"
 author = "Gerit Wagner"
 release = "0.6.0"
@@ -31,4 +31,4 @@ extensions = ["sphinx.ext.autodoc"]
 
 html_theme = "furo"
 html_static_path = ["_static"]
-html_title = "Bib-Dedupe"
+html_title = "BibDedupe"
