@@ -10,12 +10,10 @@ authors:
 - name: Gerit Wagner
 orcid: "0000-0003-3926-7717"
 affiliation: Otto-Friedrich Universität Bamberg
-date: "2023-11-20"
+date: "2024-01-22"
 bibliography: paper.bib
 
 ---
-
-**TODO: update tables etc. with latest results from the evaluations**
 
 # Summary
 
@@ -45,8 +43,6 @@ As such, preventing false positives is of critical importance, while false negat
 
 Methodology for Dealing With Duplicate Study Effects in a Meta-Analysis @Wood2008 -->
 
-<!-- TODO : implicitly evaluate according to the requiremens -->
-
 Proprietary research software for duplicate identification often suffers from shortcomings related to the four requirements.
 Relying on tools like Endnote, Covidence, or Hubmeta requires compromises related to false positives, limited transparency of black-box algorithms, or the lack of peer-review and external validation.
 Moreover, the use of proprietary tools often incurs costs, and restricts the combination of research tools, because data is hard to access and programmatic interfaces are not offered.
@@ -57,7 +53,7 @@ Moreover, the use of proprietary tools often incurs costs, and restricts the com
 
 General purpose deduplication libraries often lack the specificity needed for bibliographic data, requiring skills and excessive amounts of effort to develop and evaluate algorithms.
 For example, libraries such as the *Python Record Linkage Toolkit* [@DeBruin2019] and *dedupe (io)* [@GreggEder2022] provide an arsenal of similarity measures, blocking rules, and utility functions.
-As such, they provide a valuable basis to support the design of domain-specific duplicate identification tools, but they are rarely used directly by researchers conducting a meta-analysis.
+As such, they provide a valuable basis to support the design of domain-specific duplicate identification tools, but they are rarely used directly by researchers conducting a meta-analysis [@NguyenEtAl2022].
 When developing a custom deduplication algorithm, its effectiveness can only be evaluated by creating an independently deduplicated dataset.
 More severely, develping an accurate algorithm require in-depth knowledge of publication practices and errors (meta data variation) typically introduced by academic databases, or other systems handling bibliographic metadata.
 Experience shows that minor changes potentially have significant effects on overall performance.
@@ -103,7 +99,7 @@ https://github.com/ropeladder/record-linkage-resources
 
 ```python
 import pandas as pd
-from bib_dedupe import merge
+from bib_dedupe.bib_dedupe import merge
 
 # Load your bibliographic dataset into a pandas DataFrame
 records_df = pd.read_csv("records.csv")
@@ -116,7 +112,8 @@ merged_df = merge(records_df)
 For advanced use cases, it is also possible to complete and customize each step individually
 
 ```python
-from bib_dedupe import prep, block, match, merge, export_maybe, import_maybe
+ from bib_dedupe.bib_dedupe import prep, block, match, merge
+ from bib_dedupe.bib_dedupe import export_maybe, import_maybe
 
 # Preprocess records
 records_df = prep(records_df)
@@ -280,7 +277,7 @@ comprehensively analyzed error cases
 
 **Package** | **FP** | **TP** | **FN** | **TN** | **FP rate** | **Specificity** | **Sensitivity** | **F1**
 :-----------|-------:|-------:|-------:|-------:|------------:|----------------:|----------------:|-------:
-BibDedupe   | 0      | 34906  | 312    | 125568 | 0           | 1.0             | 0.99            | 1.00
+BibDedupe   | 0      | 35035  | 227    | 125537 | 0           | 1.0             | 0.99            | 0.997
 asreview    | 5596   | 29749  | 5469   | 119972 | 0.04        | 0.96            | 0.84            | 0.84
 
 Given that ASySD and other tools were evaluated on a subset of the datasets contained in our evaluation [@Hair2023], it is instructive to re-print the results for comparison.

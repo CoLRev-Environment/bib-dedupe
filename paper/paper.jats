@@ -18,8 +18,8 @@
 <article-id pub-id-type="publisher-id">0</article-id>
 <article-id pub-id-type="doi">N/A</article-id>
 <title-group>
-<article-title>BibDedupe: A Python Library for Bibliographic Record
-Deduplication</article-title>
+<article-title>BibDedupe: An Open-Source Python Library for
+Bibliographic Record Deduplication</article-title>
 </title-group>
 <contrib-group>
 <contrib contrib-type="author">
@@ -34,10 +34,10 @@ Deduplication</article-title>
 </aff>
 </contrib>
 </contrib-group>
-<pub-date date-type="pub" publication-format="electronic" iso-8601-date="2023-11-20">
-<day>20</day>
-<month>11</month>
-<year>2023</year>
+<pub-date date-type="pub" publication-format="electronic" iso-8601-date="2024-01-22">
+<day>22</day>
+<month>1</month>
+<year>2024</year>
 </pub-date>
 <volume>¿VOL?</volume>
 <issue>¿ISSUE?</issue>
@@ -64,8 +64,6 @@ a Creative Commons Attribution 4.0 International License (CC BY
 </article-meta>
 </front>
 <body>
-<p><bold>TODO: update tables etc. with latest results from the
-evaluations</bold></p>
 <sec id="summary">
   <title>Summary</title>
   <p>BibDedupe is a Python library developed for bibliographic record
@@ -141,19 +139,20 @@ evaluations</bold></p>
   blocking rules, and utility functions. As such, they provide a
   valuable basis to support the design of domain-specific duplicate
   identification tools, but they are rarely used directly by researchers
-  conducting a meta-analysis [<bold>TODO : find and cite a
-  reference?</bold>]. When developing a custom deduplication algorithm,
-  its effectiveness can only be evaluated by creating an independently
-  deduplicated dataset. More severely, develping an accurate algorithm
-  require in-depth knowledge of publication practices and errors (meta
-  data variation) typically introduced by academic databases, or other
-  systems handling bibliographic metadata. Experience shows that minor
-  changes potentially have significant effects on overall performance.
-  Finally, machine-learning libraries, such as <italic>dedupe
-  (io)</italic>, involve the learning of blocking rules and similarity
-  functions from each dataset, and based on user input. This limits
-  reproducibiltiy, and the required manual efforts reduce
-  efficiency.</p>
+  conducting a meta-analysis
+  (<xref alt="Nguyen et al., 2022" rid="ref-NguyenEtAl2022" ref-type="bibr">Nguyen
+  et al., 2022</xref>). When developing a custom deduplication
+  algorithm, its effectiveness can only be evaluated by creating an
+  independently deduplicated dataset. More severely, develping an
+  accurate algorithm require in-depth knowledge of publication practices
+  and errors (meta data variation) typically introduced by academic
+  databases, or other systems handling bibliographic metadata.
+  Experience shows that minor changes potentially have significant
+  effects on overall performance. Finally, machine-learning libraries,
+  such as <italic>dedupe (io)</italic>, involve the learning of blocking
+  rules and similarity functions from each dataset, and based on user
+  input. This limits reproducibiltiy, and the required manual efforts
+  reduce efficiency.</p>
   <p>Open-source research software for duplicate identification is
   scarce, and to-date, peer-reviewed software is non-existent in this
   area. In the Python ecosystem, the only library we found is
@@ -180,7 +179,7 @@ evaluations</bold></p>
 <sec id="example-usage">
   <title>Example usage</title>
   <code language="python">import pandas as pd
-from bib_dedupe import merge
+from bib_dedupe.bib_dedupe import merge
 
 # Load your bibliographic dataset into a pandas DataFrame
 records_df = pd.read_csv(&quot;records.csv&quot;)
@@ -190,7 +189,7 @@ merged_df = merge(records_df)
   </code>
   <p>For advanced use cases, it is also possible to complete and
   customize each step individually</p>
-  <code language="python">from bib_dedupe import prep, block, match, merge, export_maybe, import_maybe
+  <code language="python"> from bib_dedupe.bib_dedupe import prep, block, match, merge, export_maybe, import_maybe
 
 # Preprocess records
 records_df = prep(records_df)
@@ -218,7 +217,7 @@ merged_df = merge(records_df, matched_df=matched_df)</code>
     </list-item>
     <list-item>
       <p>Paper versions, including the author’s original, submitted,
-      accepted, and proof versions
+      accepted, proof, and corrected versions
       (<xref alt="NISO/ALPSP JAV Working Group and others, 2008" rid="ref-NISO2008" ref-type="bibr">NISO/ALPSP
       JAV Working Group and others, 2008</xref>)</p>
     </list-item>
@@ -446,13 +445,13 @@ First-letters similarity    : 1.0</preformat>
           <tr>
             <td align="left">BibDedupe</td>
             <td align="right">0</td>
-            <td align="right">34906</td>
-            <td align="right">312</td>
-            <td align="right">125568</td>
+            <td align="right">35035</td>
+            <td align="right">227</td>
+            <td align="right">125537</td>
             <td align="right">0</td>
             <td align="right">1.0</td>
             <td align="right">0.99</td>
-            <td align="right">1.00</td>
+            <td align="right">0.997</td>
           </tr>
           <tr>
             <td align="left">asreview</td>
@@ -810,6 +809,28 @@ First-letters similarity    : 1.0</preformat>
       <article-title>NISO-RP-8-2008, journal article versions (JAV): recommendations</article-title>
       <publisher-name>NISO: National Information Standards Organization</publisher-name>
       <year iso-8601-date="2008">2008</year>
+    </element-citation>
+  </ref>
+  <ref id="ref-NguyenEtAl2022">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Nguyen</surname><given-names>Phi-Yen</given-names></name>
+        <name><surname>Kanukula</surname><given-names>Raju</given-names></name>
+        <name><surname>McKenzie</surname><given-names>Joanne E</given-names></name>
+        <name><surname>Alqaidoom</surname><given-names>Zainab</given-names></name>
+        <name><surname>Brennan</surname><given-names>Sue E</given-names></name>
+        <name><surname>Haddaway</surname><given-names>Neal R</given-names></name>
+        <name><surname>Hamilton</surname><given-names>Daniel G</given-names></name>
+        <name><surname>Karunananthan</surname><given-names>Sathya</given-names></name>
+        <name><surname>McDonald</surname><given-names>Steve</given-names></name>
+        <name><surname>Moher</surname><given-names>David</given-names></name>
+        <name><surname>others</surname></name>
+      </person-group>
+      <article-title>Changing patterns in reporting and sharing of review data in systematic reviews with meta-analysis of the effects of interventions: Cross sectional meta-research study</article-title>
+      <source>bmj</source>
+      <year iso-8601-date="2022">2022</year>
+      <volume>379</volume>
+      <pub-id pub-id-type="doi">10.1136/bmj-2022-072428</pub-id>
     </element-citation>
   </ref>
 </ref-list>
