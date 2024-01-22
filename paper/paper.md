@@ -8,8 +8,11 @@ tags:
 - Blocking
 authors:
 - name: Gerit Wagner
+  affiliation: 1
 orcid: "0000-0003-3926-7717"
-affiliation: Otto-Friedrich Universität Bamberg
+affiliations:
+ - name: Otto-Friedrich Universität Bamberg
+   index: 1
 date: "2024-01-22"
 bibliography: paper.bib
 

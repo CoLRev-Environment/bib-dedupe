@@ -27,12 +27,13 @@ Bibliographic Record Deduplication</article-title>
 <surname>Wagner</surname>
 <given-names>Gerit</given-names>
 </name>
-<aff id="aff-">
+<xref ref-type="aff" rid="aff-1"/>
+</contrib>
+<aff id="aff-1">
 <institution-wrap>
-<institution></institution>
+<institution>Otto-Friedrich Universität Bamberg</institution>
 </institution-wrap>
 </aff>
-</contrib>
 </contrib-group>
 <pub-date date-type="pub" publication-format="electronic" iso-8601-date="2024-01-22">
 <day>22</day>
