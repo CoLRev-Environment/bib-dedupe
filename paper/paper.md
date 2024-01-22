@@ -55,10 +55,10 @@ General purpose deduplication libraries often lack the specificity needed for bi
 For example, libraries such as the *Python Record Linkage Toolkit* [@DeBruin2019] and *dedupe (io)* [@GreggEder2022] provide an arsenal of similarity measures, blocking rules, and utility functions.
 As such, they provide a valuable basis to support the design of domain-specific duplicate identification tools, but they are rarely used directly by researchers conducting a meta-analysis [@NguyenEtAl2022].
 When developing a custom deduplication algorithm, its effectiveness can only be evaluated by creating an independently deduplicated dataset.
-More severely, develping an accurate algorithm require in-depth knowledge of publication practices and errors (meta data variation) typically introduced by academic databases, or other systems handling bibliographic metadata.
+More severely, developing an accurate algorithm require in-depth knowledge of publication practices and errors (meta data variation) typically introduced by academic databases, or other systems handling bibliographic metadata.
 Experience shows that minor changes potentially have significant effects on overall performance.
 Finally, machine-learning libraries, such as *dedupe (io)*, involve the learning of blocking rules and similarity functions from each dataset, and based on user input.
-This limits reproducibiltiy, and the required manual efforts reduce efficiency.
+This limits reproducibility, and the required manual efforts reduce efficiency.
 
 <!-- 
 
@@ -160,7 +160,7 @@ To accurately identify and merge duplicates, BibDedupe implements the steps of p
 As seen in the usage example, each step can be adapted.
 
 <!--
-- point out that the dois and the crossref system have redundant global identifiers (different identifiers refer to the same paper - they cannot be used directly for the purpose of deduplication in literature reviews)
+- point out that the DOIs and the crossref system have redundant global identifiers (different identifiers refer to the same paper - they cannot be used directly for the purpose of deduplication in literature reviews)
 - provide a conceptual definition of duplicates (high level, not possible to evaluate automatically) -> provide an operational definition (e.g., references for which all meta-data is identical and complete, they can be assumed to refer to the same paper)
 - add the issue of levels to the operational definition (e.g., books/book-chapters, conferences/conference-papers)
 - the completeness condition emphasizes the importance of preparation as a preceding step
@@ -171,7 +171,7 @@ As seen in the usage example, each step can be adapted.
 ## Preprocessing
 
 Preprocessing involves an array of standardizations across fields, including replacement of special characters.
-For titles and journals, stopwords are removed to give more weight to distinctive words in the similarity measures.
+For titles and journals, stop words are removed to give more weight to distinctive words in the similarity measures.
 For the author field, name particles are removed because they are often handled incorrectly in the data creation process.
 Additional notes and translations are removed from the title field.
 For translated journal names, the English version is used as a replacement.
@@ -206,7 +206,7 @@ In the specific context of bibliographic duplicates, it is essential to rational
 The conditions and similarity functions account for bibliographic errors commonly introduced between duplicates.
 We summarize the key design decisions of BibDedupe, which differ from other approaches (notably ASySD):
 
-- **Robust author similarities**: The most substantial format variation is observed in the author field, requiring robust similarity measures. This is particularly challenging for non-Western names, which are are not supported well by current [citation style conventions](https://tp.libguides.com/c.php?g=920621&p=6640859), or name-parsing software (see [nameparser](https://github.com/derek73/python-nameparser/issues/83)). Given that Chinese authors are leading in many research output and impact rankings [@BrainardNormile2022], this is a limitation. After testing multiple similarity measures, we found that the agreement between capital or beginning-of-word letters provided the most robust measure of author similarity, suggesting that common similarity measures like Jaro-Winkler are less appropriate in this case. We briefly illustrate this with an example of non-Western names that were erroneously abbreviated:
+- **Robust author similarities**: The most substantial format variation is observed in the author field, requiring robust similarity measures. This is particularly challenging for non-Western names, which are not supported well by current [citation style conventions](https://tp.libguides.com/c.php?g=920621&p=6640859), or name-parsing software (see [nameparser](https://github.com/derek73/python-nameparser/issues/83)). Given that Chinese authors are leading in many research output and impact rankings [@BrainardNormile2022], this is a limitation. After testing multiple similarity measures, we found that the agreement between capital or beginning-of-word letters provided the most robust measure of author similarity, suggesting that common similarity measures like Jaro-Winkler are less appropriate in this case. We briefly illustrate this with an example of non-Western names that were erroneously abbreviated:
 
 <!--
 Yet, it is evident that this is the same author team, with systematic errors in the abbreviation of non-Western names.
@@ -230,9 +230,9 @@ pico: ...
 "in vitro" and "in vivo", "men" and "women", "adults" and "adolescents", or "cats" and "rats". This variation clearly results from different publications.
 -->
 
-- **Translations of container titles**: Given the nested data structure, in which papers are contained in journals, proceedings, or other containers, accurate matching is required for the field of container titles. To accomplish this, BibDedupe uses a list of approx. 1,300 translated journal names as replacements in the preprocessing step, effectively increasing the average Jaro-Winkler similarity between journals and their translated titles from 0.45 to 1.0. This leads to a sbustantial improvement in false negatives.
+- **Translations of container titles**: Given the nested data structure, in which papers are contained in journals, proceedings, or other containers, accurate matching is required for the field of container titles. To accomplish this, BibDedupe uses a list of approx. 1,300 translated journal names as replacements in the preprocessing step, effectively increasing the average Jaro-Winkler similarity between journals and their translated titles from 0.45 to 1.0. This leads to a substantial improvement in false negatives.
 
-- **Handling missing values**: While values author, title, and container_title fields are rarely missing, there can be missing values in the other fields, such as the volume, doi, or abstract. Similarity measures typically return insufficient results when only one value is missing. For instance, when one paper contains a doi and the other does not, the similarity would be zero, as it would be the case for different dois. We distinguish these cases based on a `non_contradictory()` function, which is robust against missing values, and indicates whether non-missing values differ between records.
+- **Handling missing values**: While values author, title, and container_title fields are rarely missing, there can be missing values in the other fields, such as the volume, DOI, or abstract. Similarity measures typically return insufficient results when only one value is missing. For instance, when one paper contains a DOI and the other does not, the similarity would be zero, as it would be the case for different DOIs. We distinguish these cases based on a `non_contradictory()` function, which is robust against missing values, and indicates whether non-missing values differ between records.
 
 <!--
 Note: there were no improvements in accuracy when handling misplaced values (volume/number/pages) explicitly.
@@ -258,12 +258,12 @@ For instance, proper capitalization is preferred when one record has author or t
 
 To evaluate BibDedupe, we collected 10 datasets comprising over 160,000 records and 34,900 duplicates [@Hair2023;@RathboneEtAl2015;@WagnerPresterPare2021].
 This is, to the best of our knowledge, the most comprehensive evaluation of bibliographic duplicate detection algorithms to date.
-We completed over 3,000 iterations to evaluate and improve BibDedupe based on these dataset.
+We completed over 3,000 iterations to evaluate and improve BibDedupe based on these datasets.
 
 The efforts involved tuning the preprocessing, blocking, and matching steps, vetting different similarity measures, and validating the false positives and negatives based on the definition of (non)-duplicates.
 We carefully reviewed the conditions to combine and generalize narrowly defined cases.
 In addition, we implemented unit tests to ensure consistency, and understand how changes in the code affect each step.
-Runtime was optimized by implementing and evaluating different approaches to parallel processing, such as processing numpy-arrays vs. splitting dataframes horizontally.
+Runtime was optimized by implementing and evaluating different approaches to parallel processing, such as processing NumPy-arrays vs. splitting dataframes horizontally.
 As a result, the depression dataset with approx. 80,000 records is processed in under 10 minutes with 8 CPUs.
 
 <!--

@@ -143,7 +143,7 @@ a Creative Commons Attribution 4.0 International License (CC BY
   (<xref alt="Nguyen et al., 2022" rid="ref-NguyenEtAl2022" ref-type="bibr">Nguyen
   et al., 2022</xref>). When developing a custom deduplication
   algorithm, its effectiveness can only be evaluated by creating an
-  independently deduplicated dataset. More severely, develping an
+  independently deduplicated dataset. More severely, developing an
   accurate algorithm require in-depth knowledge of publication practices
   and errors (meta data variation) typically introduced by academic
   databases, or other systems handling bibliographic metadata.
@@ -151,7 +151,7 @@ a Creative Commons Attribution 4.0 International License (CC BY
   effects on overall performance. Finally, machine-learning libraries,
   such as <italic>dedupe (io)</italic>, involve the learning of blocking
   rules and similarity functions from each dataset, and based on user
-  input. This limits reproducibiltiy, and the required manual efforts
+  input. This limits reproducibility, and the required manual efforts
   reduce efficiency.</p>
   <p>Open-source research software for duplicate identification is
   scarce, and to-date, peer-reviewed software is non-existent in this
@@ -189,7 +189,8 @@ merged_df = merge(records_df)
   </code>
   <p>For advanced use cases, it is also possible to complete and
   customize each step individually</p>
-  <code language="python"> from bib_dedupe.bib_dedupe import prep, block, match, merge, export_maybe, import_maybe
+  <code language="python"> from bib_dedupe.bib_dedupe import prep, block, match, merge
+ from bib_dedupe.bib_dedupe import export_maybe, import_maybe
 
 # Preprocess records
 records_df = prep(records_df)
@@ -261,7 +262,7 @@ merged_df = merge(records_df, matched_df=matched_df)</code>
     <title>Preprocessing</title>
     <p>Preprocessing involves an array of standardizations across
     fields, including replacement of special characters. For titles and
-    journals, stopwords are removed to give more weight to distinctive
+    journals, stop words are removed to give more weight to distinctive
     words in the similarity measures. For the author field, name
     particles are removed because they are often handled incorrectly in
     the data creation process. Additional notes and translations are
@@ -298,7 +299,7 @@ merged_df = merge(records_df, matched_df=matched_df)</code>
         <p><bold>Robust author similarities</bold>: The most substantial
         format variation is observed in the author field, requiring
         robust similarity measures. This is particularly challenging for
-        non-Western names, which are are not supported well by current
+        non-Western names, which are not supported well by current
         <ext-link ext-link-type="uri" xlink:href="https://tp.libguides.com/c.php?g=920621&amp;p=6640859">citation
         style conventions</ext-link>, or name-parsing software (see
         <ext-link ext-link-type="uri" xlink:href="https://github.com/derek73/python-nameparser/issues/83">nameparser</ext-link>).
@@ -348,16 +349,16 @@ First-letters similarity    : 1.0</preformat>
         as replacements in the preprocessing step, effectively
         increasing the average Jaro-Winkler similarity between journals
         and their translated titles from 0.45 to 1.0. This leads to a
-        sbustantial improvement in false negatives.</p>
+        substantial improvement in false negatives.</p>
       </list-item>
       <list-item>
         <p><bold>Handling missing values</bold>: While values author,
         title, and container_title fields are rarely missing, there can
-        be missing values in the other fields, such as the volume, doi,
+        be missing values in the other fields, such as the volume, DOI,
         or abstract. Similarity measures typically return insufficient
         results when only one value is missing. For instance, when one
-        paper contains a doi and the other does not, the similarity
-        would be zero, as it would be the case for different dois. We
+        paper contains a DOI and the other does not, the similarity
+        would be zero, as it would be the case for different DOIs. We
         distinguish these cases based on a
         <monospace>non_contradictory()</monospace> function, which is
         robust against missing values, and indicates whether non-missing
@@ -403,7 +404,7 @@ First-letters similarity    : 1.0</preformat>
     et al., 2021</xref>). This is, to the best of our knowledge, the
     most comprehensive evaluation of bibliographic duplicate detection
     algorithms to date. We completed over 3,000 iterations to evaluate
-    and improve BibDedupe based on these dataset.</p>
+    and improve BibDedupe based on these datasets.</p>
     <p>The efforts involved tuning the preprocessing, blocking, and
     matching steps, vetting different similarity measures, and
     validating the false positives and negatives based on the definition
@@ -412,7 +413,7 @@ First-letters similarity    : 1.0</preformat>
     unit tests to ensure consistency, and understand how changes in the
     code affect each step. Runtime was optimized by implementing and
     evaluating different approaches to parallel processing, such as
-    processing numpy-arrays vs. splitting dataframes horizontally. As a
+    processing NumPy-arrays vs. splitting dataframes horizontally. As a
     result, the depression dataset with approx. 80,000 records is
     processed in under 10 minutes with 8 CPUs.</p>
     <table-wrap>
