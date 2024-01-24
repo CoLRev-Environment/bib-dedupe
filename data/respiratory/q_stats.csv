@@ -1,0 +1,37 @@
+,FP
+"(ENTRYTYPE_1 == ""inproceedings"" & ENTRYTYPE_2 == ""inproceedings"" & container_title > 0.6 & title > 0.9 & author > 0.8 & year > 0.9)",0
+(author == 1 & title == 1 & container_title == 1 & year == 1 & number == 1 & (pages_1 == '' | pages_2 == '') & (volume == 1 | volume == 0)),0
+(author == 1 & title == 1 & container_title == 1 & year == 1 & number == 1 & (volume_1 == '' | volume_2 == '') & (pages == 1 | pages == 0)),0
+(author == 1 & title == 1 & container_title == 1 & year == 1 & pages == 1 & (volume_1 == '' | volume_2 == '') & (number_1 == '' | number_2 == '')),0
+(author > 0.7 & title > 0.85 & container_title > 0.99 & volume > 0.99 & number > 0.99 & pages > 0.99),0
+(author > 0.7 & title > 0.99 & container_title > 0.99 & volume > 0.99 & number > 0.99 & year > 0.99 & abstract > 0.99),0
+(author > 0.7 & title > 0.99 & container_title > 0.99 & volume > 0.99 & number > 0.99 & year > 0.99 & doi > 0.99),0
+(author > 0.8 & title > 0.99 & container_title > 0.99 & doi > 0.99),0
+(author > 0.85 & title > 0.99 & container_title > 0.99 & volume > 0.99 & pages > 0.99),0
+(author > 0.9 & title > 0.9 & abstract > 0.9 & isbn > 0.99),0
+(author > 0.9 & title > 0.9 & container_title > 0.6 & number > 0.8 & pages > 0.8 & abstract > 0.9),0
+(author > 0.9 & title > 0.9 & container_title > 0.6 & number > 0.9 & pages > 0.9),0
+(author > 0.9 & title > 0.9 & container_title > 0.6 & volume > 0.8 & number > 0.8 & abstract > 0.9),0
+(author > 0.9 & title > 0.9 & container_title > 0.6 & volume > 0.8 & pages > 0.8 & abstract > 0.9),0
+(author > 0.9 & title > 0.9 & container_title > 0.6 & volume > 0.9 & pages > 0.9),0
+(author > 0.9 & title > 0.9 & container_title > 0.7 & abstract > 0.9),0
+(author > 0.9 & title > 0.9 & container_title > 0.75 & number > 0.8 & pages > 0.8 & abstract > 0.8),0
+(author > 0.9 & title > 0.9 & container_title > 0.75 & volume > 0.8 & number > 0.8 & abstract > 0.8),0
+(author > 0.9 & title > 0.9 & container_title > 0.75 & volume > 0.8 & pages > 0.8 & abstract > 0.8),0
+(author > 0.9 & title > 0.9 & doi > 0.99),0
+(author > 0.9 & title > 0.9 & number > 0.8 & pages > 0.8 & abstract > 0.9),0
+(author > 0.9 & title > 0.9 & number > 0.9 & pages > 0.9 & isbn > 0.99),0
+(author > 0.9 & title > 0.9 & volume > 0.8 & number > 0.8 & abstract > 0.9),0
+(author > 0.9 & title > 0.9 & volume > 0.8 & pages > 0.8 & abstract > 0.9 & isbn > 0.99),0
+(author > 0.9 & title > 0.9 & volume > 0.8 & pages > 0.8 & abstract > 0.9),0
+(author > 0.9 & title > 0.9 & volume > 0.9 & number > 0.9 & isbn > 0.99),0
+(author > 0.9 & title > 0.95 & container_title > 0.8 & volume > 0.85 & abstract > 0.95),0
+(author > 0.9 & title > 0.95 & container_title > 0.9 & number > 0.8 & pages > 0.8),0
+(author > 0.9 & title > 0.95 & container_title > 0.9 & volume > 0.8 & number > 0.8),0
+(author > 0.9 & title > 0.95 & container_title > 0.9 & volume > 0.8 & pages > 0.8),0
+(author > 0.9 & title > 0.95 & volume > 0.8 & pages > 0.8 & isbn > 0.99),0
+(author > 0.95 & title_partial_ratio > 0.8 & container_title > 0.99 & doi > 0.99),0
+(author > 0.99 & title > 0.7 & container_title > 0.99 & volume > 0.99 & number > 0.99 & pages > 0.99 & year > 0.99),0
+"(author > 0.99 & title > 0.99 & container_title > 0.99 & volume > 0.99 & year > 0.99 & number_1 == """" & number_2 == """")",0
+(author > 0.99 & title_partial_ratio > 0.7 & container_title > 0.99 & year > 0.99 & volume > 0.99 & number > 0.99 & doi > 0.99),0
+(title > 0.99 & container_title > 0.99 & volume > 0.99 & number > 0.99 & pages > 0.99 & year > 0.99 & doi > 0.99),0
