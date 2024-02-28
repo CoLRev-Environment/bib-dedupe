@@ -19,7 +19,7 @@ Features
 Installation
 ------------
 
-BibDedupe is available on `PyPI <https://pypi.org/project/bib-dedupe/>`_, and can be installed via pip:
+BibDedupe is available on `PyPI <https://pypi.org/project/bib-dedupe/>`_, and can be installed via pip (see `installation instructions <installation>`):
 
 .. code-block:: bash
 
@@ -27,6 +27,8 @@ BibDedupe is available on `PyPI <https://pypi.org/project/bib-dedupe/>`_, and ca
 
 Getting Started
 ---------------
+
+The BibDedupe library can be used in different ways, including `Python scripts <installation#starting-bib-dedupe>`, Jupyter notebooks, or in other Python packages. In a basic setup, the library can be used as follows:
 
 .. code-block:: python
 
@@ -67,6 +69,7 @@ For advanced use cases, it is also possible to complete and customize each step 
    :maxdepth: 2
    :caption: Contents:
 
+   installation
    usage
    evaluation
    api
