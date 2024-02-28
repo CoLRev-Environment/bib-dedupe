@@ -19,7 +19,7 @@ Features
 Installation
 ------------
 
-BibDedupe is available on `PyPI <https://pypi.org/project/bib-dedupe/>`_, and can be installed via pip (see `installation instructions <installation>`):
+BibDedupe is available on `PyPI <https://pypi.org/project/bib-dedupe/>`_, and can be installed via pip (see `installation instructions`_):
 
 .. code-block:: bash
 
@@ -28,7 +28,7 @@ BibDedupe is available on `PyPI <https://pypi.org/project/bib-dedupe/>`_, and ca
 Getting Started
 ---------------
 
-The BibDedupe library can be used in different ways, including `Python scripts <installation#starting-bib-dedupe>`, Jupyter notebooks, or in other Python packages. In a basic setup, the library can be used as follows:
+The BibDedupe library can be used in different ways, including `Python scripts`_, Jupyter notebooks, or in other Python packages. In a basic setup, the library can be used as follows:
 
 .. code-block:: python
 
@@ -63,6 +63,9 @@ For advanced use cases, it is also possible to complete and customize each step 
    merged_df = merge(records_df, matches=matches)
 
 
+.. _installation instructions: installation
+
+.. _Python scripts: installation#starting-bib-dedupe
 
 .. toctree::
    :hidden:

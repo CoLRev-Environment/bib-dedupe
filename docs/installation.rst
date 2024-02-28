@@ -3,7 +3,7 @@ Installation
 
 This guide provides instructions for installing the `bib-dedupe` library on different platforms, including Windows, MacOS, and Linux. Follow the steps for your operating system.
 
-Checking Python Installation
+Installing Python
 ----------------------------
 
 **Windows:**
@@ -71,19 +71,19 @@ Starting bib-dedupe
 
 After installation, you can start using `bib-dedupe` in a Python script, Jupyter notebook, or another Python package. To use `bib-dedupe` in a Python script, you can create a new file (e.g., `deduplication.py`) with the following content:
 
-```python
-import pandas as pd
-from bib_dedupe.bib_dedupe import merge
+.. code-block:: python
 
-# Load your bibliographic dataset into a pandas DataFrame
-records_df = pd.read_csv("records.csv")
+   import pandas as pd
+   from bib_dedupe.bib_dedupe import merge
 
-# Get the merged_df
-merged_df = merge(records_df)
+   # Load your bibliographic dataset into a pandas DataFrame
+   records_df = pd.read_csv("records.csv")
 
-merged_df.to_csv("merged_records.csv", index=False)
+   # Get the merged_df
+   merged_df = merge(records_df)
 
-```
+   merged_df.to_csv("merged_records.csv", index=False)
+
 
 Replace `records.csv` with the path to your bibliographic dataset. Run the script using the following command:
 
