@@ -37,6 +37,8 @@ Fields used by BibDeduper
      - **Definition**
    * - **ID**
      - A unique ID
+   * - **ENTRYTYPE**
+     - The type of publication (e.g., article, book, inproceedings)
    * - **author**
      - The author(s) of the publication
    * - **title**

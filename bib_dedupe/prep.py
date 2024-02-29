@@ -121,7 +121,11 @@ def __general_prep(records_df: pd.DataFrame) -> pd.DataFrame:
     if ID not in records_df.columns:
         records_df.loc[:, ID] = range(1, len(records_df) + 1)
 
-    assert all(f in records_df.columns for f in REQUIRED_FIELDS)
+    if ENTRYTYPE not in records_df.columns:
+        records_df[ENTRYTYPE] = "article"
+
+    missing_fields = [f for f in REQUIRED_FIELDS if f not in records_df.columns]
+    assert len(missing_fields) == 0, f"Missing required fields: {missing_fields}"
 
     for column in records_df.columns:
         records_df[column] = records_df[column].replace(
@@ -188,6 +192,9 @@ def prep(records_df: pd.DataFrame, *, cpu: int = -1) -> pd.DataFrame:
     Returns:
         The prepared records dataframe.
     """
+    if not records_df["ID"].is_unique:
+        raise ValueError("ID column in records_df must be unique.")
+
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     verbose_print.print(f"Loaded {records_df.shape[0]:,} records")
     verbose_print.print(f"Prep started at {now}")

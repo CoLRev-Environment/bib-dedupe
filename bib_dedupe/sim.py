@@ -14,6 +14,7 @@ from bib_dedupe.constants.fields import ABSTRACT
 from bib_dedupe.constants.fields import AUTHOR
 from bib_dedupe.constants.fields import CONTAINER_TITLE
 from bib_dedupe.constants.fields import DOI
+from bib_dedupe.constants.fields import ID
 from bib_dedupe.constants.fields import NUMBER
 from bib_dedupe.constants.fields import PAGE_RANGES_ADJACENT
 from bib_dedupe.constants.fields import PAGES
@@ -455,11 +456,47 @@ def calculate_similarities(
         pd.DataFrame: DataFrame with calculated similarities.
     """
 
+    required_columns = [
+        f"{col}_1"
+        for col in [
+            ID,
+            "author_full",
+            TITLE,
+            YEAR,
+            ABSTRACT,
+            AUTHOR,
+            CONTAINER_TITLE,
+            DOI,
+            NUMBER,
+            PAGES,
+            VOLUME,
+        ]
+    ] + [
+        f"{col}_2"
+        for col in [
+            ID,
+            "author_full",
+            TITLE,
+            YEAR,
+            ABSTRACT,
+            AUTHOR,
+            CONTAINER_TITLE,
+            DOI,
+            NUMBER,
+            PAGES,
+            VOLUME,
+        ]
+    ]
+    missing_columns = list(
+        filter(lambda col: col not in pairs_df.columns, required_columns)
+    )
+    if missing_columns:
+        raise ValueError(f"Missing required columns: {', '.join(missing_columns)}")
+
     verbose_print.print(
         "Sim started at " + datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     )
     start_time = time.time()
-
     df_split = np.array_split(pairs_df, 8)
 
     with concurrent.futures.ProcessPoolExecutor(max_workers=8) as executor:

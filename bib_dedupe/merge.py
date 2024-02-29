@@ -135,6 +135,9 @@ def merge(
     pd.DataFrame: The DataFrame with duplicate records merged.
     """
 
+    if not records_df["ID"].is_unique:
+        raise ValueError("ID column in records_df must be unique.")
+
     for duplicate_ids in duplicate_id_sets:
         if not set(duplicate_ids).issubset(set(records_df["ID"].tolist())):
             raise ValueError("Not all duplicate IDs are in the records DataFrame.")
