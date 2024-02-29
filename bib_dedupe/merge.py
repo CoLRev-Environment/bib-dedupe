@@ -21,6 +21,9 @@ def percent_upper_chars(input_string: str) -> float:
 def default_merge_function_title(titles: list) -> str:
     """Default merge function for title field"""
 
+    if len([title for title in titles if not (pd.isnull(title) or title == "")]) <= 1:
+        return titles[0]
+
     best_title = titles[0]
 
     # Note : avoid switching titles
@@ -44,6 +47,12 @@ def default_merge_function_title(titles: list) -> str:
 def default_merge_function_author(authors: list) -> str:
     """Default merge function for author field"""
 
+    if (
+        len([author for author in authors if not (pd.isnull(author) or author == "")])
+        <= 1
+    ):
+        return authors[0]
+
     best_author = authors[0]
 
     best_author_upper = percent_upper_chars(best_author)
@@ -59,6 +68,22 @@ def default_merge_function_author(authors: list) -> str:
 
 def default_merge_function_container_title(journals: list) -> str:
     """Default merge function for container-title field"""
+
+    if (
+        len(
+            [
+                journal
+                for journal in journals
+                if not (pd.isnull(journal) or journal == "")
+            ]
+        )
+        <= 1
+    ):
+        return journals[0]
+
+    journals = [
+        journal for journal in journals if not (pd.isnull(journal) or journal == "")
+    ]
 
     best_journal = journals[0]
 
@@ -80,11 +105,20 @@ def default_merge_function_container_title(journals: list) -> str:
 def default_merge_function_year(years: list) -> str:
     """Default merge function for year field"""
     # max() to select published version when merging with forthcoming
+    years = [str(year) for year in years if not (pd.isnull(year) or year == "")]
+
+    if not any(year.isdigit() for year in years):
+        return ""
     return str(max(int(year) for year in years if year.isdigit()))
 
 
 def default_merge_function_pages(pages: list) -> str:
     """Default merge function for pages field"""
+
+    if len([page for page in pages if not (pd.isnull(page) or page == "")]) <= 1:
+        return pages[0]
+
+    pages = [page for page in pages if not (pd.isnull(page) or page == "")]
 
     best_pages = pages[0]
     for page in pages[1:]:
@@ -156,11 +190,13 @@ def merge(
         for key, value in DEFAULT_MERGE_FUNCTIONS.items():
             if key not in merge_functions:
                 verbose_print.print(
-                    f"For {key} add {merge_functions[key].__name__}()", level=2
+                    f"For {key} add {DEFAULT_MERGE_FUNCTIONS[key].__name__}()", level=2
                 )
                 merge_functions[key] = value
 
+    non_duplicate_ids = set(records_df["ID"].tolist())
     for duplicate_ids in duplicate_id_sets:
+        non_duplicate_ids -= set(duplicate_ids)
         # Apply custom merge functions
         for column, merge_func in merge_functions.items():
             if column in records_df.columns:
@@ -173,7 +209,22 @@ def merge(
                     records_df["ID"].isin(duplicate_ids), column
                 ] = merged_value
 
+    # NOTE: merge_functions must return string. cannot assign object to pandas cell!
+    for non_duplicate_id in non_duplicate_ids:
+        for column, merge_func in merge_functions.items():
+            if column in records_df.columns:
+                if column != "nr_intext_citations":
+                    continue
+                value = records_df.loc[
+                    records_df["ID"] == non_duplicate_id, column
+                ].tolist()
+                merged_value = merge_func(value)
+                records_df.loc[
+                    records_df["ID"] == non_duplicate_id, column
+                ] = merged_value
+
     to_drop = [o for ol in duplicate_id_sets for o in ol[1:]]
 
     merged_df = records_df[~records_df["ID"].isin(to_drop)]
+
     return merged_df

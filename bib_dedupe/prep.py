@@ -77,6 +77,9 @@ def prepare_df_split(split_df: pd.DataFrame) -> pd.DataFrame:
     split_df.replace(
         to_replace={
             "UNKNOWN": "",
+            "n/a": "",
+            "N/A": "",
+            "NA": "",
             "&amp;": "and",
             " & ": " and ",
             " + ": " and ",
