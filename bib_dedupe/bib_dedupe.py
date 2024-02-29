@@ -13,6 +13,8 @@ import bib_dedupe.merge
 import bib_dedupe.prep
 import bib_dedupe.sim
 from bib_dedupe import verbose_print
+import pkg_resources
+from pathlib import Path
 
 
 def prep(
@@ -160,3 +162,23 @@ def merge(
         duplicate_id_sets = bib_dedupe.cluster.get_connected_components(matched_df)
 
     return bib_dedupe.merge.merge(records_df, duplicate_id_sets=duplicate_id_sets)
+
+
+def load_example_data(dataset: str) -> pd.DataFrame:
+    """
+    Loads the records from the specified dataset.
+
+    Args:
+        dataset (str): The name of the dataset (e.g., stroke, cardiac, depression).
+
+    Returns:
+        pd.DataFrame: The loaded records dataframe.
+    """
+
+    try:
+        file_path = pkg_resources.resource_filename(__name__, f"../data/{dataset}/records_pre_merged.csv")
+        df = pd.read_csv(file_path)
+    except FileNotFoundError:
+        raise ValueError(f"Dataset '{dataset}' not found.")
+
+    return df

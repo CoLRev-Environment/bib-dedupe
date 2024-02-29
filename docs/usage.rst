@@ -65,3 +65,25 @@ Search updates
 -----------------------
 
 When updating a literature search, the `old_search` can be assumed to have no duplicates. To exclude a set of papers from deduplication, it is possible to pass a corresponding label to the `search_set` column.
+
+
+Example data
+-----------------------
+
+Data from the `example datasets`_ can be loaded as follows:
+
+.. code-block:: python
+
+  from bib_dedupe.bib_dedupe import merge
+  from bib_dedupe.bib_dedupe import load_example_data
+
+  # Load example dataset
+  records_df = load_example_data("stroke")
+
+  # Get the merged_df
+  merged_df = merge(records_df)
+
+  # Save as csv
+  merged_df.to_csv("merged.csv", index=False)
+
+.. _example datasets: https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data
