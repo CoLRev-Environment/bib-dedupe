@@ -5,6 +5,7 @@ from __future__ import annotations
 import typing
 
 import pandas as pd
+import pkg_resources
 
 import bib_dedupe.block
 import bib_dedupe.match
@@ -13,8 +14,6 @@ import bib_dedupe.merge
 import bib_dedupe.prep
 import bib_dedupe.sim
 from bib_dedupe import verbose_print
-import pkg_resources
-from pathlib import Path
 
 
 def prep(
@@ -176,7 +175,9 @@ def load_example_data(dataset: str) -> pd.DataFrame:
     """
 
     try:
-        file_path = pkg_resources.resource_filename(__name__, f"../data/{dataset}/records_pre_merged.csv")
+        file_path = pkg_resources.resource_filename(
+            __name__, f"data/{dataset}/records_pre_merged.csv"
+        )
         df = pd.read_csv(file_path)
     except FileNotFoundError:
         raise ValueError(f"Dataset '{dataset}' not found.")

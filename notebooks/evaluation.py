@@ -30,7 +30,7 @@ def get_dataset_labels() -> list:
     """
     Get the directory names in data
     """
-    data_path = Path(__file__).parent.parent / "data"
+    data_path = Path(__file__).parent.parent / "bib_dedupe/data"
     return [
         dir.name
         for dir in data_path.iterdir()

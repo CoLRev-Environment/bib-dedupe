@@ -37,7 +37,7 @@ Installing Python
 
 2. Install Python:
    - Use your distribution's package manager to install Python 3.8 or newer. For example, on Ubuntu or Debian-based systems, you can use:
-   
+
    .. code-block:: bash
 
       sudo apt update
