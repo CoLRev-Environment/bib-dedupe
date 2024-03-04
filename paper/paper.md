@@ -77,7 +77,7 @@ Comparisons between platforms are not so relevant once users have decided for a 
 -->
 
 Open-source research software for duplicate identification is scarce, and to-date, peer-reviewed software is non-existent in this area.
-In the Python ecosystem, the only library we found is *ASReview Datatools*, provided by the team behind the *ASReview* screening tool [@VanDeSchootetAl2021].
+In the Python ecosystem, the only library I found is *ASReview Datatools*, provided by the team behind the *ASReview* screening tool [@VanDeSchootetAl2021].
 Our evaluations show that this library introduces a considerable number of false positives, and cannot be used for meta-analyses.
 R users or Python users willing to switch the ecosystem, may use ASySD [@Hair2023], a recently published R package with a Shiny web interface.
 The code of this package resembles BibDedupe, but it does not achieve zero-false-positives, uses a relatively small test dataset from medicine (n=1845) in the unit tests, and was not evaluated in the peer review process.
@@ -138,7 +138,7 @@ merged_df = merge(records_df, matched_df=matched_df)
 
 <!-- ## Duplicate definition -->
 
-We define duplicates as potentially differing bibliographic representations of the same real-world record [cf. @RathboneEtAl2015].
+I define duplicates as potentially differing bibliographic representations of the same real-world record [cf. @RathboneEtAl2015].
 This conceptual definition is operationalized as follows.
 The following are considered **duplicates**:
 
@@ -192,14 +192,14 @@ This is a common technique in deduplication where only records within the same b
 <!-- This significantly reduces the number of comparisons needed and improves the efficiency of the deduplication process. -->
 
 BibDedupe relies on a comprehensive set of blocking rules to avoid false negatives in this step.
-After the set of blocking rules is applied, we remove pairs not sharing a minimum number of words in the titles, effectively reducing the number of pairs by 50-95% without losing true pairs.
+After the set of blocking rules is applied, pairs not sharing a minimum number of words in the titles are removed, effectively reducing the number of pairs by 50-95% without losing true pairs.
 This leads to a more efficient matching step.
 
 ## Matching
 
 The matching function selects duplicates or potential duplicates from the list of blocked record pairs.
 Potential duplicates, also known as "maybe cases", are marked separately for manual verification.
-To achieve accurate and interpretable matching, we specified an array of human-readable conditions, which are based on pre-calculated and context-specific similarities between fields.
+To achieve accurate and interpretable matching, I specified an array of human-readable conditions, which are based on pre-calculated and context-specific similarities between fields.
 
 <!--
 Similarities (details):
@@ -207,9 +207,9 @@ Deduplication: continuous, additive, and context-agnostic similarity functions a
 In the specific context of bibliographic duplicates, it is essential to rationalize whether variation in meta-data can be explained by systems processing the same original record (including manuscript production systems, academic databases, or reference managers), or whether it can be explained by different publications.
 -->
 The conditions and similarity functions account for bibliographic errors commonly introduced between duplicates.
-We summarize the key design decisions of BibDedupe, which differ from other approaches (notably ASySD):
+I summarize the key design decisions of BibDedupe, which differ from other approaches (notably ASySD):
 
-- **Robust author similarities**: The most substantial format variation is observed in the author field, requiring robust similarity measures. This is particularly challenging for non-Western names, which are not supported well by current [citation style conventions](https://tp.libguides.com/c.php?g=920621&p=6640859), or name-parsing software (see [nameparser](https://github.com/derek73/python-nameparser/issues/83)). Given that Chinese authors are leading in many research output and impact rankings [@BrainardNormile2022], this is a limitation. After testing multiple similarity measures, we found that the agreement between capital or beginning-of-word letters provided the most robust measure of author similarity, suggesting that common similarity measures like Jaro-Winkler are less appropriate in this case. We briefly illustrate this with an example of non-Western names that were erroneously abbreviated:
+- **Robust author similarities**: The most substantial format variation is observed in the author field, requiring robust similarity measures. This is particularly challenging for non-Western names, which are not supported well by current [citation style conventions](https://tp.libguides.com/c.php?g=920621&p=6640859), or name-parsing software (see [nameparser](https://github.com/derek73/python-nameparser/issues/83)). Given that Chinese authors are leading in many research output and impact rankings [@BrainardNormile2022], this is a limitation. After testing multiple similarity measures, I found that the agreement between capital or beginning-of-word letters provided the most robust measure of author similarity, suggesting that common similarity measures like Jaro-Winkler are less appropriate in this case. I briefly illustrate this with an example of non-Western names that were erroneously abbreviated:
 
 <!--
 Yet, it is evident that this is the same author team, with systematic errors in the abbreviation of non-Western names.
@@ -235,15 +235,15 @@ pico: ...
 
 - **Translations of container titles**: Given the nested data structure, in which papers are contained in journals, proceedings, or other containers, accurate matching is required for the field of container titles. To accomplish this, BibDedupe uses a list of approx. 1,300 translated journal names as replacements in the preprocessing step, effectively increasing the average Jaro-Winkler similarity between journals and their translated titles from 0.45 to 1.0. This leads to a substantial improvement in false negatives.
 
-- **Handling missing values**: While values author, title, and container_title fields are rarely missing, there can be missing values in the other fields, such as the volume, DOI, or abstract. Similarity measures typically return insufficient results when only one value is missing. For instance, when one paper contains a DOI and the other does not, the similarity would be zero, as it would be the case for different DOIs. We distinguish these cases based on a `non_contradictory()` function, which is robust against missing values, and indicates whether non-missing values differ between records.
+- **Handling missing values**: While values author, title, and container_title fields are rarely missing, there can be missing values in the other fields, such as the volume, DOI, or abstract. Similarity measures typically return insufficient results when only one value is missing. For instance, when one paper contains a DOI and the other does not, the similarity would be zero, as it would be the case for different DOIs. I distinguish these cases based on a `non_contradictory()` function, which is robust against missing values, and indicates whether non-missing values differ between records.
 
 <!--
 Note: there were no improvements in accuracy when handling misplaced values (volume/number/pages) explicitly.
 In addition, we check for misplaced values between selected fields, including the volume, number, and pages. Such misplacements were observed in the datasets, and it is plausible to assume that humans and machines perform worse in distinguishing whether a digit represents the volume or number of a paper, given that the other fields often have discernible patterns. -->
 
-We note that global IDs (like DOIs) contribute to duplicate identification, but neither are identical DOIs considered a sufficient condition for a duplicate, nor are distinct DOIs considered a sufficient condition for non-duplicates.
+I note that global IDs (like DOIs) contribute to duplicate identification, but neither are identical DOIs considered a sufficient condition for a duplicate, nor are distinct DOIs considered a sufficient condition for non-duplicates.
 This is confirmed by the data.
-For the iterative tuning, we designed diagnostic utilities to assess which conditions match for selected (FP/FN) cases.
+For the iterative tuning, I designed diagnostic utilities to assess which conditions match for selected (FP/FN) cases.
 
 ## Merging
 
@@ -259,13 +259,13 @@ For instance, proper capitalization is preferred when one record has author or t
 
 ## Evaluation
 
-To evaluate BibDedupe, we collected 10 datasets comprising over 160,000 records and 34,900 duplicates [@Hair2023;@RathboneEtAl2015;@WagnerPresterPare2021].
+To evaluate BibDedupe, I collected 10 datasets comprising over 160,000 records and 34,900 duplicates [@Hair2023;@RathboneEtAl2015;@WagnerPresterPare2021].
 This is, to the best of our knowledge, the most comprehensive evaluation of bibliographic duplicate detection algorithms to date.
-We completed over 3,000 iterations to evaluate and improve BibDedupe based on these datasets.
+I completed over 3,000 iterations to evaluate and improve BibDedupe based on these datasets.
 
 The efforts involved tuning the preprocessing, blocking, and matching steps, vetting different similarity measures, and validating the false positives and negatives based on the definition of (non)-duplicates.
-We carefully reviewed the conditions to combine and generalize narrowly defined cases.
-In addition, we implemented unit tests to ensure consistency, and understand how changes in the code affect each step.
+I carefully reviewed the conditions to combine and generalize narrowly defined cases.
+In addition, I implemented unit tests to ensure consistency, and understand how changes in the code affect each step.
 Runtime was optimized by implementing and evaluating different approaches to parallel processing, such as processing NumPy-arrays vs. splitting dataframes horizontally.
 As a result, the depression dataset with approx. 80,000 records is processed in under 10 minutes with 8 CPUs.
 
@@ -314,7 +314,7 @@ SRA-DM (Hair et al. 2021)  | 1735 | 12794 | 3329 | 76253 | 0.02 | 0.98 | 0.79 | 
 BibDedupe provides duplicate identification functionality, which performs with zero false positives on a dataset comprising over 160,000 records.
 It builds on carefully crafted rules and high-quality training data to ensure effectiveness, transparency, and reproducibility.
 The evaluation runs automatically and provides a solid foundation for continuous improvements and additions of datasets.
-We intend to incorporate additional datasets and continue refining the rules and procedures.
+I intend to incorporate additional datasets and continue refining the rules and procedures.
 
 <!--
 going forward, BibDedupe will adopt an approach similar to GROBID, and focus on high-quality training and evaluation data (https://grobid.readthedocs.io/en/latest/Principles/#training-data-qualitat-statt-quantitat)

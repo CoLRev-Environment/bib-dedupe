@@ -156,7 +156,7 @@ a Creative Commons Attribution 4.0 International License (CC BY
   reduce efficiency.</p>
   <p>Open-source research software for duplicate identification is
   scarce, and to-date, peer-reviewed software is non-existent in this
-  area. In the Python ecosystem, the only library we found is
+  area. In the Python ecosystem, the only library I found is
   <italic>ASReview Datatools</italic>, provided by the team behind the
   <italic>ASReview</italic> screening tool
   (<xref alt="Van De Schoot et al., 2021" rid="ref-VanDeSchootetAl2021" ref-type="bibr">Van
@@ -208,7 +208,7 @@ merged_df = merge(records_df, matched_df=matched_df)</code>
 </sec>
 <sec id="implementation">
   <title>Implementation</title>
-  <p>We define duplicates as potentially differing bibliographic
+  <p>I define duplicates as potentially differing bibliographic
   representations of the same real-world record (cf.
   <xref alt="Rathbone et al., 2015" rid="ref-RathboneEtAl2015" ref-type="bibr">Rathbone
   et al., 2015</xref>). This conceptual definition is operationalized as
@@ -278,21 +278,21 @@ merged_df = merge(records_df, matched_df=matched_df)</code>
     are compared for potential duplication. </p>
     <p>BibDedupe relies on a comprehensive set of blocking rules to
     avoid false negatives in this step. After the set of blocking rules
-    is applied, we remove pairs not sharing a minimum number of words in
-    the titles, effectively reducing the number of pairs by 50-95%
-    without losing true pairs. This leads to a more efficient matching
-    step.</p>
+    is applied, pairs not sharing a minimum number of words in the
+    titles are removed, effectively reducing the number of pairs by
+    50-95% without losing true pairs. This leads to a more efficient
+    matching step.</p>
   </sec>
   <sec id="matching">
     <title>Matching</title>
     <p>The matching function selects duplicates or potential duplicates
     from the list of blocked record pairs. Potential duplicates, also
     known as “maybe cases”, are marked separately for manual
-    verification. To achieve accurate and interpretable matching, we
+    verification. To achieve accurate and interpretable matching, I
     specified an array of human-readable conditions, which are based on
     pre-calculated and context-specific similarities between fields.</p>
     <p>The conditions and similarity functions account for bibliographic
-    errors commonly introduced between duplicates. We summarize the key
+    errors commonly introduced between duplicates. I summarize the key
     design decisions of BibDedupe, which differ from other approaches
     (notably ASySD):</p>
     <list list-type="bullet">
@@ -308,12 +308,12 @@ merged_df = merge(records_df, matched_df=matched_df)</code>
         and impact rankings
         (<xref alt="Brainard &amp; Normile, 2022" rid="ref-BrainardNormile2022" ref-type="bibr">Brainard
         &amp; Normile, 2022</xref>), this is a limitation. After testing
-        multiple similarity measures, we found that the agreement
-        between capital or beginning-of-word letters provided the most
-        robust measure of author similarity, suggesting that common
-        similarity measures like Jaro-Winkler are less appropriate in
-        this case. We briefly illustrate this with an example of
-        non-Western names that were erroneously abbreviated:</p>
+        multiple similarity measures, I found that the agreement between
+        capital or beginning-of-word letters provided the most robust
+        measure of author similarity, suggesting that common similarity
+        measures like Jaro-Winkler are less appropriate in this case. I
+        briefly illustrate this with an example of non-Western names
+        that were erroneously abbreviated:</p>
       </list-item>
     </list>
     <preformat>Author string 1: &quot;Chen J. M.Gong X. Q.Zhong J. G.Chen S. C.Zhang G. Y.&quot;
@@ -359,18 +359,18 @@ First-letters similarity    : 1.0</preformat>
         or abstract. Similarity measures typically return insufficient
         results when only one value is missing. For instance, when one
         paper contains a DOI and the other does not, the similarity
-        would be zero, as it would be the case for different DOIs. We
+        would be zero, as it would be the case for different DOIs. I
         distinguish these cases based on a
         <monospace>non_contradictory()</monospace> function, which is
         robust against missing values, and indicates whether non-missing
         values differ between records.</p>
       </list-item>
     </list>
-    <p>We note that global IDs (like DOIs) contribute to duplicate
+    <p>I note that global IDs (like DOIs) contribute to duplicate
     identification, but neither are identical DOIs considered a
     sufficient condition for a duplicate, nor are distinct DOIs
     considered a sufficient condition for non-duplicates. This is
-    confirmed by the data. For the iterative tuning, we designed
+    confirmed by the data. For the iterative tuning, I designed
     diagnostic utilities to assess which conditions match for selected
     (FP/FN) cases.</p>
   </sec>
@@ -395,7 +395,7 @@ First-letters similarity    : 1.0</preformat>
   </sec>
   <sec id="evaluation">
     <title>Evaluation</title>
-    <p>To evaluate BibDedupe, we collected 10 datasets comprising over
+    <p>To evaluate BibDedupe, I collected 10 datasets comprising over
     160,000 records and 34,900 duplicates
     (<xref alt="Hair et al., 2023" rid="ref-Hair2023" ref-type="bibr">Hair
     et al., 2023</xref>;
@@ -404,13 +404,13 @@ First-letters similarity    : 1.0</preformat>
     <xref alt="Wagner et al., 2021" rid="ref-WagnerPresterPare2021" ref-type="bibr">Wagner
     et al., 2021</xref>). This is, to the best of our knowledge, the
     most comprehensive evaluation of bibliographic duplicate detection
-    algorithms to date. We completed over 3,000 iterations to evaluate
+    algorithms to date. I completed over 3,000 iterations to evaluate
     and improve BibDedupe based on these datasets.</p>
     <p>The efforts involved tuning the preprocessing, blocking, and
     matching steps, vetting different similarity measures, and
     validating the false positives and negatives based on the definition
-    of (non)-duplicates. We carefully reviewed the conditions to combine
-    and generalize narrowly defined cases. In addition, we implemented
+    of (non)-duplicates. I carefully reviewed the conditions to combine
+    and generalize narrowly defined cases. In addition, I implemented
     unit tests to ensure consistency, and understand how changes in the
     code affect each step. Runtime was optimized by implementing and
     evaluating different approaches to parallel processing, such as
@@ -558,7 +558,7 @@ First-letters similarity    : 1.0</preformat>
   training data to ensure effectiveness, transparency, and
   reproducibility. The evaluation runs automatically and provides a
   solid foundation for continuous improvements and additions of
-  datasets. We intend to incorporate additional datasets and continue
+  datasets. I intend to incorporate additional datasets and continue
   refining the rules and procedures.</p>
 </sec>
 </body>
@@ -624,7 +624,7 @@ First-letters similarity    : 1.0</preformat>
       <year iso-8601-date="2008">2008</year>
       <volume>11</volume>
       <issue>1</issue>
-      <pub-id pub-id-type="doi">10.1177/109442810629663</pub-id>
+      <pub-id pub-id-type="doi">10.1177/1094428106296638</pub-id>
       <fpage>79</fpage>
       <lpage>95</lpage>
     </element-citation>
