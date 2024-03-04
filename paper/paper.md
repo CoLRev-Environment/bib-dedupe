@@ -260,6 +260,7 @@ For instance, proper capitalization is preferred when one record has author or t
 ## Evaluation
 
 To evaluate BibDedupe, I collected 10 datasets comprising over 160,000 records and 34,900 duplicates [@Hair2023;@RathboneEtAl2015;@WagnerPresterPare2021].
+The results are displayed in Table 1.
 This is, to the best of our knowledge, the most comprehensive evaluation of bibliographic duplicate detection algorithms to date.
 I completed over 3,000 iterations to evaluate and improve BibDedupe based on these datasets.
 
@@ -278,19 +279,38 @@ The datasets were checked according to the above-stated definition.
 comprehensively analyzed error cases
 -->
 
-**Package** | **FP** | **TP** | **FN** | **TN** | **FP rate** | **Specificity** | **Sensitivity** | **F1**
-:-----------|-------:|-------:|-------:|-------:|------------:|----------------:|----------------:|-------:
-BibDedupe   | 0      | 35035  | 227    | 125537 | 0           | 1.0             | 0.99            | 0.997
-asreview    | 5596   | 29749  | 5469   | 119972 | 0.04        | 0.96            | 0.84            | 0.84
+\begin{table}[htbp]
+\centering
+\caption{Comparison of BibDedupe and ASReview}
+\label{bib_dedupe_asreview_results}
+\begin{tabular}{|l|r|r|r|r|r|r|r|}
+\hline
+\textbf{Package} & \textbf{FP} & \textbf{TP} & \textbf{FN} & \textbf{TN} & \textbf{Specificity} & \textbf{Sensitivity} & \textbf{F1} \\ \hline
+BibDedupe       & 0           & 35.035      & 227          & 125.537      & 1.0                  & 0.99                 & 0.997       \\ \hline
+asreview        & 5.596       & 29.749      & 5.469        & 119.972      & 0.96                 & 0.84                 & 0.84        \\ \hline
+\multicolumn{8}{|l|}{\textbf{Abbreviations} FP: False positives, TP: True positives,} \\
+\multicolumn{8}{|l|}{FN: False negatives, TN: True negatives} \\ \hline
+\end{tabular}
+\end{table}
 
-Given that ASySD and other tools were evaluated on a subset of the datasets contained in our evaluation [@Hair2023], it is instructive to re-print the results for comparison.
 
-**Package** | **FP** | **TP** | **FN** | **TN** | **FP rate** | **Specificity** | **Sensitivity** | **F1**
-:-----------|-------:|-------:|-------:|-------:|------------:|----------------:|----------------:|-------:
-Endnote  | 11 | 12466 | 3657 | 77977 | 0.0 | 1.0 | 0.77 | 0.87
-Human    | 54 | 14693 | 1430 | 77934 | 0.0 | 1.0 | 0.91 | 0.95
-ASySD    | 80 | 15664 | 459  | 77908 | 0.0 | 1.0 | 0.97 | 0.98
-SRA-DM   | 1735 | 12794 | 3329 | 76253 | 0.02 | 0.98 | 0.79 | 0.83
+Given that ASySD and other tools were evaluated on a subset of the datasets contained in our evaluation [@Hair2023], it is instructive to re-print the results for comparison (see Table 2).
+
+\begin{table}[htbp]
+\centering
+\caption{Comparison of other deduplication packages}
+\label{other_results}
+\begin{tabular}{|l|r|r|r|r|r|r|r|}
+\hline
+\textbf{Package} & \textbf{FP} & \textbf{TP} & \textbf{FN} & \textbf{TN} & \textbf{Specificity} & \textbf{Sensitivity} & \textbf{F1} \\ \hline
+Endnote & 11 & 12,466 & 3,657 & 77,977 & 1.0 & 0.77 & 0.87 \\ \hline
+Human & 54 & 14,693 & 1,430 & 77,934 & 1.0 & 0.91 & 0.95 \\ \hline
+ASySD & 80 & 15,664 & 459 & 77,908 & 1.0 & 0.97 & 0.98 \\ \hline
+SRA-DM & 1,735 & 12,794 & 3,329 & 76,253 & 0.98 & 0.79 & 0.83 \\ \hline
+\multicolumn{8}{|l|}{\textbf{Abbreviations} FP: False positives, TP: True positives,} \\
+\multicolumn{8}{|l|}{FN: False negatives, TN: True negatives} \\ \hline
+\end{tabular}
+\end{table}
 
 <!--
 

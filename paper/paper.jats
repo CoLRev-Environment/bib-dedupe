@@ -402,10 +402,11 @@ First-letters similarity    : 1.0</preformat>
     <xref alt="Rathbone et al., 2015" rid="ref-RathboneEtAl2015" ref-type="bibr">Rathbone
     et al., 2015</xref>;
     <xref alt="Wagner et al., 2021" rid="ref-WagnerPresterPare2021" ref-type="bibr">Wagner
-    et al., 2021</xref>). This is, to the best of our knowledge, the
-    most comprehensive evaluation of bibliographic duplicate detection
-    algorithms to date. I completed over 3,000 iterations to evaluate
-    and improve BibDedupe based on these datasets.</p>
+    et al., 2021</xref>). The results are displayed in Table 1. This is,
+    to the best of our knowledge, the most comprehensive evaluation of
+    bibliographic duplicate detection algorithms to date. I completed
+    over 3,000 iterations to evaluate and improve BibDedupe based on
+    these datasets.</p>
     <p>The efforts involved tuning the preprocessing, blocking, and
     matching steps, vetting different similarity measures, and
     validating the false positives and negatives based on the definition
@@ -417,137 +418,133 @@ First-letters similarity    : 1.0</preformat>
     processing NumPy-arrays vs. splitting dataframes horizontally. As a
     result, the depression dataset with approx. 80,000 records is
     processed in under 10 minutes with 8 CPUs.</p>
-    <table-wrap>
-      <table>
-        <colgroup>
-          <col width="12%" />
-          <col width="8%" />
-          <col width="8%" />
-          <col width="8%" />
-          <col width="8%" />
-          <col width="13%" />
-          <col width="17%" />
-          <col width="17%" />
-          <col width="8%" />
-        </colgroup>
-        <thead>
-          <tr>
-            <th align="left"><bold>Package</bold></th>
-            <th align="right"><bold>FP</bold></th>
-            <th align="right"><bold>TP</bold></th>
-            <th align="right"><bold>FN</bold></th>
-            <th align="right"><bold>TN</bold></th>
-            <th align="right"><bold>FP rate</bold></th>
-            <th align="right"><bold>Specificity</bold></th>
-            <th align="right"><bold>Sensitivity</bold></th>
-            <th align="right"><bold>F1</bold></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td align="left">BibDedupe</td>
-            <td align="right">0</td>
-            <td align="right">35035</td>
-            <td align="right">227</td>
-            <td align="right">125537</td>
-            <td align="right">0</td>
-            <td align="right">1.0</td>
-            <td align="right">0.99</td>
-            <td align="right">0.997</td>
-          </tr>
-          <tr>
-            <td align="left">asreview</td>
-            <td align="right">5596</td>
-            <td align="right">29749</td>
-            <td align="right">5469</td>
-            <td align="right">119972</td>
-            <td align="right">0.04</td>
-            <td align="right">0.96</td>
-            <td align="right">0.84</td>
-            <td align="right">0.84</td>
-          </tr>
-        </tbody>
-      </table>
-    </table-wrap>
+    <boxed-text id="bib_dedupe_asreview_results">
+      <table-wrap>
+        <caption>
+          <p>Comparison of BibDedupe and ASReview</p>
+        </caption>
+        <table>
+          <thead>
+            <tr>
+              <th align="left"><bold>Package</bold></th>
+              <th align="right"><bold>FP</bold></th>
+              <th align="right"><bold>TP</bold></th>
+              <th align="right"><bold>FN</bold></th>
+              <th align="right"><bold>TN</bold></th>
+              <th align="right"><bold>Specificity</bold></th>
+              <th align="right"><bold>Sensitivity</bold></th>
+              <th align="right"><bold>F1</bold></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td align="left">BibDedupe</td>
+              <td align="right">0</td>
+              <td align="right">35.035</td>
+              <td align="right">227</td>
+              <td align="right">125.537</td>
+              <td align="right">1.0</td>
+              <td align="right">0.99</td>
+              <td align="right">0.997</td>
+            </tr>
+            <tr>
+              <td align="left">asreview</td>
+              <td align="right">5.596</td>
+              <td align="right">29.749</td>
+              <td align="right">5.469</td>
+              <td align="right">119.972</td>
+              <td align="right">0.96</td>
+              <td align="right">0.84</td>
+              <td align="right">0.84</td>
+            </tr>
+            <tr>
+              <td align="left" colspan="8"><bold>Abbreviations</bold>
+              FP: False positives, TP: True positives,</td>
+            </tr>
+            <tr>
+              <td align="left" colspan="8">FN: False negatives, TN: True
+              negatives</td>
+            </tr>
+          </tbody>
+        </table>
+      </table-wrap>
+    </boxed-text>
     <p>Given that ASySD and other tools were evaluated on a subset of
     the datasets contained in our evaluation
     (<xref alt="Hair et al., 2023" rid="ref-Hair2023" ref-type="bibr">Hair
     et al., 2023</xref>), it is instructive to re-print the results for
-    comparison.</p>
-    <table-wrap>
-      <table>
-        <colgroup>
-          <col width="12%" />
-          <col width="8%" />
-          <col width="8%" />
-          <col width="8%" />
-          <col width="8%" />
-          <col width="13%" />
-          <col width="17%" />
-          <col width="17%" />
-          <col width="8%" />
-        </colgroup>
-        <thead>
-          <tr>
-            <th align="left"><bold>Package</bold></th>
-            <th align="right"><bold>FP</bold></th>
-            <th align="right"><bold>TP</bold></th>
-            <th align="right"><bold>FN</bold></th>
-            <th align="right"><bold>TN</bold></th>
-            <th align="right"><bold>FP rate</bold></th>
-            <th align="right"><bold>Specificity</bold></th>
-            <th align="right"><bold>Sensitivity</bold></th>
-            <th align="right"><bold>F1</bold></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td align="left">Endnote</td>
-            <td align="right">11</td>
-            <td align="right">12466</td>
-            <td align="right">3657</td>
-            <td align="right">77977</td>
-            <td align="right">0.0</td>
-            <td align="right">1.0</td>
-            <td align="right">0.77</td>
-            <td align="right">0.87</td>
-          </tr>
-          <tr>
-            <td align="left">Human</td>
-            <td align="right">54</td>
-            <td align="right">14693</td>
-            <td align="right">1430</td>
-            <td align="right">77934</td>
-            <td align="right">0.0</td>
-            <td align="right">1.0</td>
-            <td align="right">0.91</td>
-            <td align="right">0.95</td>
-          </tr>
-          <tr>
-            <td align="left">ASySD</td>
-            <td align="right">80</td>
-            <td align="right">15664</td>
-            <td align="right">459</td>
-            <td align="right">77908</td>
-            <td align="right">0.0</td>
-            <td align="right">1.0</td>
-            <td align="right">0.97</td>
-            <td align="right">0.98</td>
-          </tr>
-          <tr>
-            <td align="left">SRA-DM</td>
-            <td align="right">1735</td>
-            <td align="right">12794</td>
-            <td align="right">3329</td>
-            <td align="right">76253</td>
-            <td align="right">0.02</td>
-            <td align="right">0.98</td>
-            <td align="right">0.79</td>
-            <td align="right">0.83</td>
-          </tr>
-        </tbody>
-      </table>
-    </table-wrap>
+    comparison (see Table 2).</p>
+    <boxed-text id="other_results">
+      <table-wrap>
+        <caption>
+          <p>Comparison of other deduplication packages</p>
+        </caption>
+        <table>
+          <thead>
+            <tr>
+              <th align="left"><bold>Package</bold></th>
+              <th align="right"><bold>FP</bold></th>
+              <th align="right"><bold>TP</bold></th>
+              <th align="right"><bold>FN</bold></th>
+              <th align="right"><bold>TN</bold></th>
+              <th align="right"><bold>Specificity</bold></th>
+              <th align="right"><bold>Sensitivity</bold></th>
+              <th align="right"><bold>F1</bold></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td align="left">Endnote</td>
+              <td align="right">11</td>
+              <td align="right">12,466</td>
+              <td align="right">3,657</td>
+              <td align="right">77,977</td>
+              <td align="right">1.0</td>
+              <td align="right">0.77</td>
+              <td align="right">0.87</td>
+            </tr>
+            <tr>
+              <td align="left">Human</td>
+              <td align="right">54</td>
+              <td align="right">14,693</td>
+              <td align="right">1,430</td>
+              <td align="right">77,934</td>
+              <td align="right">1.0</td>
+              <td align="right">0.91</td>
+              <td align="right">0.95</td>
+            </tr>
+            <tr>
+              <td align="left">ASySD</td>
+              <td align="right">80</td>
+              <td align="right">15,664</td>
+              <td align="right">459</td>
+              <td align="right">77,908</td>
+              <td align="right">1.0</td>
+              <td align="right">0.97</td>
+              <td align="right">0.98</td>
+            </tr>
+            <tr>
+              <td align="left">SRA-DM</td>
+              <td align="right">1,735</td>
+              <td align="right">12,794</td>
+              <td align="right">3,329</td>
+              <td align="right">76,253</td>
+              <td align="right">0.98</td>
+              <td align="right">0.79</td>
+              <td align="right">0.83</td>
+            </tr>
+            <tr>
+              <td align="left" colspan="8"><bold>Abbreviations</bold>
+              FP: False positives, TP: True positives,</td>
+            </tr>
+            <tr>
+              <td align="left" colspan="8">FN: False negatives, TN: True
+              negatives</td>
+            </tr>
+          </tbody>
+        </table>
+      </table-wrap>
+    </boxed-text>
   </sec>
 </sec>
 <sec id="ongoing-improvements">
