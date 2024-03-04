@@ -151,9 +151,12 @@ The following are considered **duplicates**:
 
 The following are considered **non-duplicates**:
 
+- Papers reporting on the same study if they are published separately (e.g., involving different stages of the study such as pilots and protocols, or differences in outcomes, interventions, or populations)
 - A conference paper and its extended journal publication
 - A journal paper and a reprint in another journal
-- Papers reporting on the same study if they are published separately (e.g., involving different stages of the study such as pilots and protocols, or differences in outcomes, interventions, or populations)
+
+It is noted that the focus is on duplicates of bibliographic *records*.
+The linking of multiple records reporting results from the *same study* is typically done in a separate step after full-text retrieval, using information from the full-text document, querying dedicated registers, and potentially corresponding with the authors [see @HigginsEtAl2023 sections 4.6.2 and 4.6.2].
 
 These clarifications are necessary for the evaluation dataset, and for users to understand what will (not) be considered a duplicate.
 The rationale is that cases of duplicates are rarely or never cited as separate items in a reference section, while non-duplicates can in principle be cited separately.

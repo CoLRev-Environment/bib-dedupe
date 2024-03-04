@@ -236,18 +236,26 @@ merged_df = merge(records_df, matched_df=matched_df)</code>
   <p>The following are considered <bold>non-duplicates</bold>:</p>
   <list list-type="bullet">
     <list-item>
-      <p>A conference paper and its extended journal publication</p>
-    </list-item>
-    <list-item>
-      <p>A journal paper and a reprint in another journal</p>
-    </list-item>
-    <list-item>
       <p>Papers reporting on the same study if they are published
       separately (e.g., involving different stages of the study such as
       pilots and protocols, or differences in outcomes, interventions,
       or populations)</p>
     </list-item>
+    <list-item>
+      <p>A conference paper and its extended journal publication</p>
+    </list-item>
+    <list-item>
+      <p>A journal paper and a reprint in another journal</p>
+    </list-item>
   </list>
+  <p>It is noted that the focus is on duplicates of bibliographic
+  <italic>records</italic>. The linking of multiple records reporting
+  results from the <italic>same study</italic> is typically done in a
+  separate step after full-text retrieval, using information from the
+  full-text document, querying dedicated registers, and potentially
+  corresponding with the authors (see
+  <xref alt="Higgins et al., 2023, sec. 4.6.2" rid="ref-HigginsEtAl2023" ref-type="bibr">Higgins
+  et al., 2023, sec. 4.6.2</xref> and 4.6.2).</p>
   <p>These clarifications are necessary for the evaluation dataset, and
   for users to understand what will (not) be considered a duplicate. The
   rationale is that cases of duplicates are rarely or never cited as
@@ -830,6 +838,23 @@ First-letters similarity    : 1.0</preformat>
       <year iso-8601-date="2022">2022</year>
       <volume>379</volume>
       <pub-id pub-id-type="doi">10.1136/bmj-2022-072428</pub-id>
+    </element-citation>
+  </ref>
+  <ref id="ref-HigginsEtAl2023">
+    <element-citation publication-type="book">
+      <person-group person-group-type="author">
+        <name><surname>Higgins</surname><given-names>JPT</given-names></name>
+        <name><surname>Thomas</surname><given-names>J</given-names></name>
+        <name><surname>Chandler</surname><given-names>J</given-names></name>
+        <name><surname>Cumpston</surname><given-names>M</given-names></name>
+        <name><surname>Li</surname><given-names>T</given-names></name>
+        <name><surname>Page</surname><given-names>MJ</given-names></name>
+        <name><surname>Welch</surname><given-names>VA</given-names></name>
+      </person-group>
+      <source>Cochrane handbook for systematic reviews of interventions version 6.4 (updated august 2023)</source>
+      <publisher-name>Cochrane</publisher-name>
+      <year iso-8601-date="2023">2023</year>
+      <uri>www.training.cochrane.org/handbook</uri>
     </element-citation>
   </ref>
 </ref-list>
