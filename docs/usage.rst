@@ -86,4 +86,13 @@ Data from the `example datasets`_ can be loaded as follows:
   # Save as csv
   merged_df.to_csv("merged.csv", index=False)
 
+
+Import file formats
+-----------------------
+
+BibDedupe can process any bibliographic data set once it is in a pandas DataFrame, and contains the columns listed above.
+Given that each database follows its own schema with slightly different column names, import functionality must be customized to the specific database.
+We are working on corresponding import functions as part of the `CoLRev project <https://github.com/CoLRev-Environment/colrev>`_.
+Once the import functions are available, they will be described here (see this `issue <https://github.com/CoLRev-Environment/bib-dedupe/issues/16>`_ for more information).
+
 .. _example datasets: https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data
