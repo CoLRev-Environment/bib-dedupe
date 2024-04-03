@@ -5,27 +5,27 @@ It is possible to complete and customize each step individually:
 
 .. code-block:: python
 
-   import pandas as pd
-   from bib_dedupe.bib_dedupe import prep, block, match, merge, export_maybe, import_maybe
+  import pandas as pd
+  from bib_dedupe.bib_dedupe import prep, block, match, merge, export_maybe, import_maybe
 
-   # Load your bibliographic dataset into a pandas DataFrame
-   records_df = pd.read_csv("records.csv")
+  # Load your bibliographic dataset into a pandas DataFrame
+  records_df = pd.read_csv("records.csv")
 
   # Preproces records
-   records_df = prep(records_df)
+  records_df = prep(records_df)
 
-   # Block records
-   blocked_df = block(records_df)
+  # Block records
+  blocked_df = block(records_df)
 
-   # Identify matches
-   matched_df = match(blocked_df)
+  # Identify matches
+  matched_df = match(blocked_df)
 
-   # Check maybe cases
-   export_maybe(matched_df, records_df, matches)
-   matches = import_maybe(matches)
+  # Check maybe cases
+  export_maybe(matched_df, records_df)
+  matched_df = import_maybe(matched_df)
 
-   # Merge
-   merged_df = merge(records_df, matches=matches)
+  # Merge
+  merged_df = merge(records_df, matched_df=matched_df)
 
 Fields used by BibDeduper
 

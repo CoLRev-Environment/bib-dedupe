@@ -135,6 +135,7 @@ def cluster(
 def merge(
     records_df: pd.DataFrame,
     *,
+    matched_df: typing.Optional[pd.DataFrame] = None,
     duplicate_id_sets: typing.Optional[list] = None,
     verbosity_level: typing.Optional[int] = None,
 ) -> pd.DataFrame:
@@ -153,6 +154,9 @@ def merge(
     """
     if verbosity_level is not None:
         verbose_print.verbosity_level = verbosity_level
+
+    if matched_df:
+        duplicate_id_sets = bib_dedupe.cluster.get_connected_components(matched_df)
 
     if not duplicate_id_sets:
         prep_df = prep(records_df)

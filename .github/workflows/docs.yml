@@ -19,5 +19,6 @@ jobs:
       run: |
           pip install bib_dedupe
           pip install furo
+          pip install sphinx-copybutton
     - id: deployment
       uses: sphinx-notes/pages@v3
