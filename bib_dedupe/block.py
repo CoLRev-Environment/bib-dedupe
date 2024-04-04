@@ -209,13 +209,13 @@ def block(records_df: pd.DataFrame) -> pd.DataFrame:
     Returns:
     pd.DataFrame: The dataframe after blocking operation.
     """
-
+    INSTRUCTION = "(please run prep(records_df) and pass the prepared df)"
     assert (
         "author_full" in records_df.columns
-    ), "Column 'author_full' not found in records_df (please pass the prepared df)"
+    ), f"Column 'author_full' not found in records_df {INSTRUCTION}"
     assert (
         "container_title" in records_df.columns
-    ), "Column 'container_title' not found in records_df (please pass the prepared df)"
+    ), f"Column 'container_title' not found in records_df {INSTRUCTION}"
 
     verbose_print.print(
         "Block started at " + datetime.now().strftime("%Y-%m-%d %H:%M:%S")
