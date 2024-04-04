@@ -21,7 +21,7 @@ It is possible to complete and customize each step individually:
   matched_df = match(blocked_df)
 
   # Check maybe cases
-  export_maybe(matched_df, records_df)
+  export_maybe(records_df, matched_df=matched_df)
   matched_df = import_maybe(matched_df)
 
   # Merge

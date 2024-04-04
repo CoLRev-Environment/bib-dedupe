@@ -75,9 +75,9 @@ def match(
 
 
 def export_maybe(
-    matched_df: pd.DataFrame,
     records_df: pd.DataFrame,
     *,
+    matched_df: pd.DataFrame,
     verbosity_level: typing.Optional[int] = None,
 ) -> None:
     """
