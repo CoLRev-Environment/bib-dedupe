@@ -56,7 +56,7 @@ block_fields_list = [
 
 
 def create_pairs_for_block_fields(
-    records_df: pd.DataFrame, block_fields: list
+    records_df: pd.DataFrame, block_fields: set
 ) -> pd.DataFrame:
     """
     Create pairs for block fields.
@@ -91,7 +91,7 @@ def create_pairs_for_block_fields(
     pairs["block_rule"] = "-".join(block_fields)
 
     pairs["require_title_overlap"] = False
-    if not set(block_fields).intersection({TITLE_SHORT, DOI, PAGES}):
+    if not block_fields.intersection({TITLE_SHORT, DOI, PAGES}):
         pairs["require_title_overlap"] = True
 
     verbose_print.print(
@@ -101,7 +101,7 @@ def create_pairs_for_block_fields(
     return pairs
 
 
-def calculate_pairs(records_df: pd.DataFrame, block_fields: list) -> pd.DataFrame:
+def calculate_pairs(records_df: pd.DataFrame, block_fields: set) -> pd.DataFrame:
     """
     Calculate pairs for deduplication.
 
@@ -222,12 +222,14 @@ def block(records_df: pd.DataFrame, cpu: int = -1) -> pd.DataFrame:
     )
     start_time = time.time()
 
-    pairs_df = pd.DataFrame(columns=["ID1", "ID2"])
+    pairs_df = pd.DataFrame(columns=["ID1", "ID2", "require_title_overlap"])
+    pairs_df = pairs_df.astype({"ID1": str, "ID2": str, "require_title_overlap": bool})
     if cpu == 1:
-        pairs_df = pd.concat(
-            [pairs_df, calculate_pairs(records_df, block_fields_list)],
-            ignore_index=True,
-        )
+        for field in block_fields_list:
+            pairs_df = pd.concat(
+                [pairs_df, calculate_pairs(records_df, field)],
+                ignore_index=True,
+            )
 
     else:
         pool = multiprocessing.Pool()
