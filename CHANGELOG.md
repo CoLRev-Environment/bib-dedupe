@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0).
 ### Fixed
 -->
 
+## 0.7.2 - 2024-04-12
+
+- block: prevent type/FutureWarning
+
 ## 0.7.1 - 2024-04-12
 
 - Docs: add setup and installation instructions.
