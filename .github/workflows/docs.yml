@@ -15,10 +15,17 @@ jobs:
       pages: write
       id-token: write
     steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
     - name: Install dependencies
       run: |
-          pip install bib_dedupe
-          pip install furo
-          pip install sphinx-copybutton
+        pip install --upgrade pip
+        pip install .[with-data,dev]
     - id: deployment
       uses: sphinx-notes/pages@v3
+      with:
+        requirements_path: ./docs/doc_requirements.txt
