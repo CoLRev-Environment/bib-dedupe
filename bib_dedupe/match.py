@@ -135,8 +135,8 @@ def __get_maybe_pairs(pairs: pd.DataFrame, true_pairs: pd.DataFrame) -> pd.DataF
     return maybe_pairs
 
 
-def match(pairs: pd.DataFrame) -> pd.DataFrame:
-    pairs = bib_dedupe.sim.calculate_similarities(pairs)
+def match(pairs: pd.DataFrame, cpu: int = -1) -> pd.DataFrame:
+    pairs = bib_dedupe.sim.calculate_similarities(pairs, cpu=cpu)
 
     verbose_print.print(
         "Match started at " + datetime.now().strftime("%Y-%m-%d %H:%M:%S")

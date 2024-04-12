@@ -443,9 +443,7 @@ def process_df_split(split_df: pd.DataFrame) -> pd.DataFrame:
     return split_df
 
 
-def calculate_similarities(
-    pairs_df: pd.DataFrame,
-) -> pd.DataFrame:
+def calculate_similarities(pairs_df: pd.DataFrame, cpu: int) -> pd.DataFrame:
     """
     Calculate similarities between pairs of data in a DataFrame.
 
@@ -497,12 +495,15 @@ def calculate_similarities(
         "Sim started at " + datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     )
     start_time = time.time()
-    df_split = np.array_split(pairs_df, 8)
+    if cpu == 1:
+        pairs_df = process_df_split(pairs_df)
+    else:
+        df_split = np.array_split(pairs_df, 8)
 
-    with concurrent.futures.ProcessPoolExecutor(max_workers=8) as executor:
-        results = executor.map(process_df_split, df_split)
+        with concurrent.futures.ProcessPoolExecutor(max_workers=8) as executor:
+            results = executor.map(process_df_split, df_split)
 
-    pairs_df = pd.concat(list(results))
+        pairs_df = pd.concat(list(results))
 
     end_time = time.time()
     verbose_print.print(f"Sim completed after: {end_time - start_time:.2f} seconds")

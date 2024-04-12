@@ -17,7 +17,10 @@ from bib_dedupe import verbose_print
 
 
 def prep(
-    records_df: pd.DataFrame, *, verbosity_level: typing.Optional[int] = None
+    records_df: pd.DataFrame,
+    *,
+    verbosity_level: typing.Optional[int] = None,
+    cpu: int = -1,
 ) -> pd.DataFrame:
     """Preprocesses records for deduplication.
 
@@ -30,11 +33,14 @@ def prep(
     """
     if verbosity_level is not None:
         verbose_print.verbosity_level = verbosity_level
-    return bib_dedupe.prep.prep(records_df)
+    return bib_dedupe.prep.prep(records_df, cpu=cpu)
 
 
 def block(
-    records_df: pd.DataFrame, *, verbosity_level: typing.Optional[int] = None
+    records_df: pd.DataFrame,
+    *,
+    verbosity_level: typing.Optional[int] = None,
+    cpu: int = -1,
 ) -> pd.DataFrame:
     """
     Blocks pairs of records for deduplication.
@@ -49,13 +55,16 @@ def block(
     if verbosity_level is not None:
         verbose_print.verbosity_level = verbosity_level
 
-    pairs_df = bib_dedupe.block.block(records_df)
+    pairs_df = bib_dedupe.block.block(records_df, cpu=cpu)
 
     return pairs_df
 
 
 def match(
-    pairs_df: pd.DataFrame, *, verbosity_level: typing.Optional[int] = None
+    pairs_df: pd.DataFrame,
+    *,
+    verbosity_level: typing.Optional[int] = None,
+    cpu: int = -1,
 ) -> pd.DataFrame:
     """
     Identifies true/maybe matches from the given pairs based on similarity scores.
@@ -71,7 +80,7 @@ def match(
     if verbosity_level is not None:
         verbose_print.verbosity_level = verbosity_level
 
-    return bib_dedupe.match.match(pairs_df)
+    return bib_dedupe.match.match(pairs_df, cpu=cpu)
 
 
 def export_maybe(

@@ -195,7 +195,7 @@ def reduce_non_overlapping_titles(pairs_df: pd.DataFrame) -> pd.DataFrame:
     return pairs_df
 
 
-def block(records_df: pd.DataFrame) -> pd.DataFrame:
+def block(records_df: pd.DataFrame, cpu: int = -1) -> pd.DataFrame:
     """
     Perform blocking operation on the given dataframe.
 
@@ -223,15 +223,21 @@ def block(records_df: pd.DataFrame) -> pd.DataFrame:
     start_time = time.time()
 
     pairs_df = pd.DataFrame(columns=["ID1", "ID2"])
+    if cpu == 1:
+        pairs_df = pd.concat(
+            [pairs_df, calculate_pairs(records_df, block_fields_list)],
+            ignore_index=True,
+        )
 
-    pool = multiprocessing.Pool()
-    results = pool.starmap(
-        calculate_pairs, [(records_df, field) for field in block_fields_list]
-    )
-    pool.close()
-    pool.join()
+    else:
+        pool = multiprocessing.Pool()
+        results = pool.starmap(
+            calculate_pairs, [(records_df, field) for field in block_fields_list]
+        )
+        pool.close()
+        pool.join()
 
-    pairs_df = pd.concat(results, ignore_index=True)
+        pairs_df = pd.concat(results, ignore_index=True)
 
     # title overlap is only required when there is no blocked pair that requires it.
     pairs_df["require_title_overlap"] = pairs_df.groupby(["ID1", "ID2"])[

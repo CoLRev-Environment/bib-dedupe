@@ -209,10 +209,13 @@ def prep(records_df: pd.DataFrame, *, cpu: int = -1) -> pd.DataFrame:
 
     records_df = __general_prep(records_df)
     cpu = determine_cpu_count(cpu, records_df.shape[0])
-    df_split = np.array_split(records_df, cpu)
-    with concurrent.futures.ProcessPoolExecutor(max_workers=cpu) as executor:
-        results = executor.map(prepare_df_split, df_split)
-    records_df = pd.concat(list(results))
+    if cpu == 1:
+        records_df = prepare_df_split(records_df)
+    else:
+        df_split = np.array_split(records_df, cpu)
+        with concurrent.futures.ProcessPoolExecutor(max_workers=cpu) as executor:
+            results = executor.map(prepare_df_split, df_split)
+        records_df = pd.concat(list(results))
     records_df = records_df.assign(
         author_first=records_df[AUTHOR].str.split().str[0],
         title_short=records_df[TITLE].apply(lambda x: " ".join(x.split()[:10])),
