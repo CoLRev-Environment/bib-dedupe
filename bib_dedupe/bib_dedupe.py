@@ -2,10 +2,11 @@
 """Module for deduplicating bibliographic records"""
 from __future__ import annotations
 
+import os
 import typing
 
 import pandas as pd
-import pkg_resources
+import requests
 
 import bib_dedupe.block
 import bib_dedupe.match
@@ -176,9 +177,20 @@ def merge(
     return bib_dedupe.merge.merge(records_df, duplicate_id_sets=duplicate_id_sets)
 
 
+def _download_file_from_github(url: str, local_path: str) -> None:
+    raw_url = url.replace("github.com", "raw.githubusercontent.com").replace(
+        "/blob", ""
+    )
+    response = requests.get(raw_url, stream=True)
+    with open(local_path, "wb") as file:
+        for chunk in response.iter_content(chunk_size=1024):
+            if chunk:
+                file.write(chunk)
+
+
 def load_example_data(dataset: str) -> pd.DataFrame:
     """
-    Loads the records from the specified dataset.
+    Retrieves the dataset from GitHub and loads the records as a DataFrame.
 
     Args:
         dataset (str): The name of the dataset (e.g., stroke, cardiac, depression).
@@ -187,12 +199,14 @@ def load_example_data(dataset: str) -> pd.DataFrame:
         pd.DataFrame: The loaded records dataframe.
     """
 
+    local_path = f"{dataset}.csv"
+    url = f"https://github.com/CoLRev-Environment/bib-dedupe/blob/main/data/{dataset}/records_pre_merged.csv"
+
+    if not os.path.exists(local_path):
+        _download_file_from_github(url, local_path)
+
     try:
-        file_path = pkg_resources.resource_filename(
-            __name__, f"data/{dataset}/records_pre_merged.csv"
-        )
-        df = pd.read_csv(file_path)
+        df = pd.read_csv(local_path)
     except FileNotFoundError:
         raise ValueError(f"Dataset '{dataset}' not found.")
-
     return df
