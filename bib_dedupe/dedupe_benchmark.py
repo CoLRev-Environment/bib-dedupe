@@ -406,22 +406,21 @@ class DedupeBenchmarker:
                 results[FN] += nr_in_merged_df - 1
                 results[TP] += len(true_merged_id_set) - nr_in_merged_df
 
-        specificity = results[TN] / (results[TN] + results[FP])
-        sensitivity = results[TP] / (results[TP] + results[FN])
-
         results[FP_RATE] = results[FP] / (results[FP] + results[TN])
 
-        results[SPECIFICITY] = specificity
-        results[SENSITIVITY] = sensitivity
+        results[SPECIFICITY] = results[TN] / (results[TN] + results[FP])
+        results[SENSITIVITY] = results[TP] / (results[TP] + results[FN])
         if (results[TP] + results[FP]) > 0:
             results[PRECISION] = results[TP] / (results[TP] + results[FP])
+        else:
+            results[PRECISION] = 0.0
+        if (results[PRECISION] + results[SENSITIVITY]) > 0:
             results[F1] = (
                 2
                 * (results[PRECISION] * results[SENSITIVITY])
                 / (results[PRECISION] + results[SENSITIVITY])
             )
         else:
-            results[PRECISION] = 0.0
             results[F1] = 0.0
 
         results["dataset"] = Path(self.benchmark_path).name
