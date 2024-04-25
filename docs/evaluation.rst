@@ -1,13 +1,55 @@
 Evaluation
 ====================================
 
-Bib-dedupe is continuously evaluated against other Python libraries (currently the `asreview datatools <https://github.com/asreview/asreview-datatools>`_) for duplicate removal in bibliographic datasets.
-Complementary data from Hair et al. (2021) is added to the overview.
-The notebooks are available for the `evaluation <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/notebooks/evaluation.ipynb>`_, and the datasets are available in the `data <data>`_ section.
-A summary of the evaluation is available in the `README.md <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/notebooks/README.md>`_, aggregated summaries are exported to `current_results.md <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/output/current_results.md>`_, and detailed results are exported to a `csv file <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/output/evaluation.csv>`_.
+We run a continuous evaluation of tools for duplicate removal in bibliographic datasets.
+The `datasets <#datasets>`_ and `tools <#tools>`_ are summarized below.
+The `evaluation notebook <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/notebooks/evaluation.ipynb>`_ is executed by a `GitHub workflow <https://github.com/CoLRev-Environment/bib-dedupe/actions/workflows/evaluate.yml>`_ on a weekly basis.
+Detailed results are exported to a `csv file <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/output/evaluation.csv>`_, and aggregated summaries are exported to `current_results.md <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/output/current_results.md>`_, 
 
 .. image:: _static/evaluation_total.png
    :alt: Evaluation
+
+Note: Complementary data from Hair et al. (2021) is added to the overview.
+
+.. _tools:
+
+Tools
+-------------------
+
+Tools are ranked according to false-positive rate. The lower the false-positive rate, the better the tool.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 20 20 10 40
+
+   * - Tool
+     - Type
+     - Rank
+     - Comment
+   * - `BibDedupe <https://github.com/CoLRev-Environment/bib-dedupe>`_
+     - Python library
+     - 1
+     - 
+   * - `ASReview Data Dedup <https://github.com/asreview/asreview-datatools>`_
+     - Python library
+     - 2
+     - 
+   * - `ASySD <https://github.com/camaradesuk/ASySD>`_
+     - R package
+     - TBD
+      - 
+   * - Endnote
+     - Local software (proprietary)
+     - -
+     - No programmatic access, automated evaluation not possible
+   * - Covidence (proprietary)
+     - Web-based software (proprietary)
+     - -
+     - No programmatic access, automated evaluation not possible
+
+
+
+.. _datasets:
 
 Datasets
 -------------------
@@ -17,38 +59,38 @@ Datasets
    :widths: 40 20 40
 
    * - Dataset and reference
-     - Size
+     - Size (n)
      - Status
-   * - `digital_work [5] <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/digital_work>`_
-     - n=7,159
-     - Included
    * - `cytology_screening [4] <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/cytology_screening>`_
-     - n=1,856
+     - 1,856
      - Included (based on `OSF <https://osf.io/dyvnj/>`_)
    * - `haematology [4] <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/haematology>`_
-     - n=1,415
+     - 1,415
      - Included (based on `OSF <https://osf.io/dyvnj/>`_)
    * - `respiratory [4] <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/respiratory>`_
-     - n=1,988
+     - 1,988
      - Included (based on `OSF <https://osf.io/dyvnj/>`_)
    * - `stroke [4] <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/stroke>`_
-     - n=1,292
+     - 1,292
      - Included (based on `OSF <https://osf.io/dyvnj/>`_)
    * - `cardiac [2] <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/cardiac>`_
-     - n=8,948
+     - 8,948
      - Included (based on `OSF <https://osf.io/c9evs/>`_)
    * - `depression [2] <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/depression>`_
-     - n=79,880
+     - 79,880
      - Included (based on `OSF <https://osf.io/c9evs/>`_)
    * - `diabetes [2] <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/diabetes>`_
-     - n=1,845
+     - 1,845
      - Included (based on `OSF <https://osf.io/c9evs/>`_)
    * - `neuroimaging [2] <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/neuroimaging>`_
-     - n=3,438
+     - 3,438
      - Included (based on `OSF <https://osf.io/c9evs/>`_)
    * - `srsr [2] <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/srsr>`_
-     - n=53,001
+     - 53,001
      - Included (based on `OSF <https://osf.io/c9evs/>`_)
+   * - `digital_work [5] <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/digital_work>`_
+     - 7,159
+     - Included
    * - Kwon et al. 2015 [3]
      -
      - Requested: 2023-11-14
@@ -56,9 +98,29 @@ Datasets
      -
      - Requested: 2023-11-14
 
-The datasets may have applied a different understanding of duplicates. We double-checked borderline cases to make sure that the duplicate pairs in the data correspond to our definition.
 
-Definitions
+Duplicate definition
+----------------------------------
+
+Duplicates are defined as potentially differing bibliographic representations of the same real-world record (Rathbone et al. 2015,[4]).
+This conceptual definition is operationalized as follows.
+The following are considered **duplicates**:
+
+- Papers referring to the same record (per definition)
+- Paper versions, including the author's original, submitted, accepted, proof, and corrected versions
+- Papers that are continuously updated (e.g., versions of Cochrane reviews)
+- Papers with different DOIs if they refer to the same record (e.g., redundantly registered DOIs for online and print versions)
+
+The following are considered **non-duplicates**:
+
+- Papers reporting on the same study if they are published separately (e.g., involving different stages of the study such as pilots and protocols, or differences in outcomes, interventions, or populations)
+- A conference paper and its extended journal publication
+- A journal paper and a reprint in another journal
+
+It is noted that the focus is on duplicates of bibliographic *records*.
+The linking of multiple records reporting results from the *same study* is typically done in a separate step after full-text retrieval, using information from the full-text document, querying dedicated registers, and potentially corresponding with the authors [see Higgins et al. sections 4.6.2 and 4.6.2].
+
+The datasets may have applied a different understanding of duplicates. We double-checked borderline cases to make sure that the duplicate pairs in the data correspond to our definition.
 
 - Rathbone et al. (2015) [4]: "A duplicate record was defined as being the same bibliographic record (irrespective of how the citation details were reported, e.g. variations in page numbers, author details, accents used or abridged titles). Where further reports from a single study were published, these were not classed as duplicates as they are multiple reports which can appear across or within journals. Similarly, where the same study was reported in both journal and conference proceedings, these were treated as separate bibliographic records."
 
@@ -67,8 +129,8 @@ Definitions
 .. note::
    The `SYNERGY <https://github.com/asreview/synergy-dataset>`_ datasets are not useful to evaluate duplicate identification algorithms because they only contain IDs, and the associated metadata would have no variance.
 
-Dataset model and confusion matrix
-----------------------------------
+Evaluation: Dataset model and confusion matrix
+---------------------------------------------------
 
 Record list before de-duplication
 
