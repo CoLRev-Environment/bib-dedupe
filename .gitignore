@@ -1,9 +1,8 @@
 bib_dedupe/__pycache__/
-tests/__pycache__/
-notebooks/.ipynb_checkpoints/
-data/**/matches_FN_list_remaining.csv
+bib_dedupe/constants/__pycache__
 bib_dedupe/constants/__pycache__/
-docs/_build
+tests/__pycache__/
+data/**/matches_FN_list_remaining.csv
 data/cytology_screening/maybe_pairs.csv
 data/depression/maybe_pairs.csv
 data/diabetes/maybe_pairs.csv
@@ -14,5 +13,8 @@ data/respiratory/maybe_pairs.csv
 data/srsr/maybe_pairs.csv
 data/stroke/maybe_pairs.csv
 data/cardiac/maybe_pairs.csv
+docs/_build
 notebooks/__pycache__/
-bib_dedupe/constants/__pycache__
+notebooks/.ipynb_checkpoints/
+notebooks/.local/
+notebooks/.config/

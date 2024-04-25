@@ -2,102 +2,108 @@ Evaluation
 ====================================
 
 We run a continuous evaluation of tools for duplicate removal in bibliographic datasets.
-The `datasets <#datasets>`_ and `tools <#tools>`_ are summarized below.
 The `evaluation notebook <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/notebooks/evaluation.ipynb>`_ is executed by a `GitHub workflow <https://github.com/CoLRev-Environment/bib-dedupe/actions/workflows/evaluate.yml>`_ on a weekly basis.
-Detailed results are exported to a `csv file <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/output/evaluation.csv>`_, and aggregated summaries are exported to `current_results.md <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/output/current_results.md>`_, 
+Detailed results are exported to a `csv file <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/output/evaluation.csv>`_, and aggregated summaries are exported to `current_results.md <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/output/current_results.md>`_.
 
 .. image:: _static/evaluation_total.png
    :alt: Evaluation
 
 Note: Complementary data from Hair et al. (2021) is added to the overview.
 
-.. _tools:
-
-Tools
--------------------
-
 Tools are ranked according to false-positive rate. The lower the false-positive rate, the better the tool.
 
 .. list-table::
    :header-rows: 1
-   :widths: 20 20 10 40
+   :widths: 10 30 20 40
 
-   * - Tool
+   * - Rank
+     - Tool
      - Type
-     - Rank
      - Comment
-   * - `BibDedupe <https://github.com/CoLRev-Environment/bib-dedupe>`_
+   * - 1
+     - `BibDedupe <https://github.com/CoLRev-Environment/bib-dedupe>`_
      - Python library
-     - 1
-     - 
-   * - `ASReview Data Dedup <https://github.com/asreview/asreview-datatools>`_
-     - Python library
-     - 2
-     - 
-   * - `ASySD <https://github.com/camaradesuk/ASySD>`_
+     - NA
+   * - 2
+     - `ASySD <https://github.com/camaradesuk/ASySD>`_
      - R package
-     - TBD
-      - 
-   * - Endnote
+     - NA
+   * - 3
+     - `ASReview Data Dedup <https://github.com/asreview/asreview-datatools>`_
+     - Python library
+     - NA
+   * - NA
+     - Endnote
      - Local software (proprietary)
-     - -
-     - No programmatic access, automated evaluation not possible
-   * - Covidence (proprietary)
+     - No programmatic access (prevents automated evaluation)
+   * - NA
+     - Covidence
      - Web-based software (proprietary)
-     - -
-     - No programmatic access, automated evaluation not possible
+     - No programmatic access (prevents automated evaluation)
 
-
-
-.. _datasets:
 
 Datasets
 -------------------
 
 .. list-table::
    :header-rows: 1
-   :widths: 40 20 40
+   :widths: 20 20 20 40
 
-   * - Dataset and reference
+   * - Dataset
+     - Reference
      - Size (n)
      - Status
-   * - `cytology_screening [4] <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/cytology_screening>`_
+   * - `cytology_screening <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/cytology_screening>`_
+     - [4]
      - 1,856
      - Included (based on `OSF <https://osf.io/dyvnj/>`_)
-   * - `haematology [4] <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/haematology>`_
+   * - `haematology <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/haematology>`_
+     - [4]
      - 1,415
      - Included (based on `OSF <https://osf.io/dyvnj/>`_)
-   * - `respiratory [4] <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/respiratory>`_
+   * - `respiratory <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/respiratory>`_
+     - [4]
      - 1,988
      - Included (based on `OSF <https://osf.io/dyvnj/>`_)
-   * - `stroke [4] <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/stroke>`_
+   * - `stroke <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/stroke>`_
+     - [4]
      - 1,292
      - Included (based on `OSF <https://osf.io/dyvnj/>`_)
-   * - `cardiac [2] <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/cardiac>`_
+   * - `cardiac <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/cardiac>`_
+     - [2]
      - 8,948
      - Included (based on `OSF <https://osf.io/c9evs/>`_)
-   * - `depression [2] <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/depression>`_
+   * - `depression <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/depression>`_
+     - [2]
      - 79,880
      - Included (based on `OSF <https://osf.io/c9evs/>`_)
-   * - `diabetes [2] <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/diabetes>`_
+   * - `diabetes <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/diabetes>`_
+     - [2]
      - 1,845
      - Included (based on `OSF <https://osf.io/c9evs/>`_)
-   * - `neuroimaging [2] <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/neuroimaging>`_
+   * - `neuroimaging <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/neuroimaging>`_
+     - [2]
      - 3,438
      - Included (based on `OSF <https://osf.io/c9evs/>`_)
-   * - `srsr [2] <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/srsr>`_
+   * - `srsr <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/srsr>`_
+     - [2]
      - 53,001
      - Included (based on `OSF <https://osf.io/c9evs/>`_)
-   * - `digital_work [5] <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/digital_work>`_
+   * - `digital_work <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data/digital_work>`_
+     - [5]
      - 7,159
      - Included
-   * - Kwon et al. 2015 [3]
-     -
+   * - TBD
+     - [1]
+     - NA
      - Requested: 2023-11-14
-   * - Borissov et al. 2022 [1]
-     -
+   * - TBD
+     - [3]
+     - NA
      - Requested: 2023-11-14
 
+.. note::
+   The `SYNERGY <https://github.com/asreview/synergy-dataset>`_ datasets are not useful to evaluate duplicate identification algorithms because they only contain IDs, and the associated metadata would have no variance.
 
 Duplicate definition
 ----------------------------------
@@ -125,9 +131,6 @@ The datasets may have applied a different understanding of duplicates. We double
 - Rathbone et al. (2015) [4]: "A duplicate record was defined as being the same bibliographic record (irrespective of how the citation details were reported, e.g. variations in page numbers, author details, accents used or abridged titles). Where further reports from a single study were published, these were not classed as duplicates as they are multiple reports which can appear across or within journals. Similarly, where the same study was reported in both journal and conference proceedings, these were treated as separate bibliographic records."
 
 - Borissov et al. (2022) [1]: "Following a standardized definition [6, 7, 9], we defined one or more duplicates as an existing unique record having the same title, authors, journal, DOI, year, issue, volume, and page number range metadata."
-
-.. note::
-   The `SYNERGY <https://github.com/asreview/synergy-dataset>`_ datasets are not useful to evaluate duplicate identification algorithms because they only contain IDs, and the associated metadata would have no variance.
 
 Evaluation: Dataset model and confusion matrix
 ---------------------------------------------------
