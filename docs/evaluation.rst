@@ -32,11 +32,11 @@ Tools are ranked according to false-positive rate. The lower the false-positive 
      - NA
    * - NA
      - Endnote
-     - Local software (proprietary)
+     - Proprietary software (local)
      - No programmatic access (prevents automated evaluation)
    * - NA
      - Covidence
-     - Web-based software (proprietary)
+     - Proprietary software (web-based)
      - No programmatic access (prevents automated evaluation)
 
 Datasets
