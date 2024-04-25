@@ -5,16 +5,12 @@ We run a continuous evaluation of tools for duplicate removal in bibliographic d
 The `evaluation notebook <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/notebooks/evaluation.ipynb>`_ is executed by a `GitHub workflow <https://github.com/CoLRev-Environment/bib-dedupe/actions/workflows/evaluate.yml>`_ on a weekly basis.
 Detailed results are exported to a `csv file <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/output/evaluation.csv>`_, and aggregated summaries are exported to `current_results.md <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/output/current_results.md>`_.
 
-.. image:: _static/evaluation_total.png
-   :alt: Evaluation
-
-Note: Complementary data from Hair et al. (2021) is added to the overview.
 
 Tools are ranked according to false-positive rate. The lower the false-positive rate, the better the tool.
 
 .. list-table::
    :header-rows: 1
-   :widths: 10 30 20 40
+   :widths: 8 23 23 36
 
    * - Rank
      - Tool
@@ -41,6 +37,10 @@ Tools are ranked according to false-positive rate. The lower the false-positive 
      - Web-based software (proprietary)
      - No programmatic access (prevents automated evaluation)
 
+.. image:: _static/evaluation_total.png
+   :alt: Evaluation
+
+Note: Complementary data from Hair et al. (2021) is added to the overview.
 
 Datasets
 -------------------
