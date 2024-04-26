@@ -5,7 +5,7 @@
 
 <!-- [![License](https://img.shields.io/github/license/CoLRev-Ecosystem/bib-dedupe.svg)](https://github.com/CoLRev-Environment/bib-dedupe/releases/) -->
 [![status](https://joss.theoj.org/papers/b954027d06d602c106430e275fe72130/status.svg)](https://joss.theoj.org/papers/b954027d06d602c106430e275fe72130)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/bib-dedupe)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/bib-dedupe)<br>
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/CoLRev-Environment/bib-dedupe/.github%2Fworkflows%2Ftests.yml?label=tests)](https://github.com/CoLRev-Environment/bib-dedupe/actions/workflows/tests.yml)
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/CoLRev-Environment/bib-dedupe/.github%2Fworkflows%2Fdocs.yml?label=docs)](https://github.com/CoLRev-Environment/bib-dedupe/actions/workflows/docs.yml)

@@ -43,12 +43,12 @@ jobs:
       - name: Run Evaluation
         run: |
           poetry run jupyter nbconvert --execute notebooks/evaluation.ipynb --to notebook --inplace
-          poetry run python notebooks/evaluation.py
 
       - name: Commit and push changes
         run: |
           git config --global user.name "bib-dedupe evaluator"
           git config --global user.email "youremail@example.com"
           git add output/*
+          git add docs/*
           git commit -m "Update evaluation ($(date +'%Y-%m-%d-%H-%M'))"
           git push origin main
