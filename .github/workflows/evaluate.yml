@@ -49,6 +49,6 @@ jobs:
           git config --global user.name "bib-dedupe evaluator"
           git config --global user.email "youremail@example.com"
           git add output/*
-          git add docs/*
+          git add docs/_static/evaluation_total.png*
           git commit -m "Update evaluation ($(date +'%Y-%m-%d-%H-%M'))"
           git push origin main
