@@ -73,13 +73,14 @@ def export_maybe(
         for i in duplicate_id_cluster
         if i != duplicate_id_cluster[0]
     }
-    maybe_df = matched_df[matched_df[DUPLICATE_LABEL] == MAYBE]
-    maybe_df[f"{ID}_1"] = (
+    maybe_df = matched_df.loc[matched_df[DUPLICATE_LABEL] == MAYBE].copy()
+    maybe_df.loc[:, f"{ID}_1"] = (
         maybe_df[f"{ID}_1"].map(duplicate_id_dict).fillna(maybe_df[f"{ID}_1"])
     )
-    maybe_df[f"{ID}_2"] = (
+    maybe_df.loc[:, f"{ID}_2"] = (
         maybe_df[f"{ID}_2"].map(duplicate_id_dict).fillna(maybe_df[f"{ID}_2"])
     )
+
     maybe_df = maybe_df.drop_duplicates(subset=[f"{ID}_1", f"{ID}_2"])
 
     maybe_id_pairs = maybe_df[[f"{ID}_1", f"{ID}_2"]].values.tolist()
