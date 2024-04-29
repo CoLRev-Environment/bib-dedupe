@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bib-dedupe"
-version = "0.7.3"
+version = "0.7.4"
 description = "Identify and merge duplicates in bibliographic records"
 authors = ["Gerit Wagner <gerit.wagner@uni-bamberg.de>"]
 license = "MIT"
@@ -38,8 +38,6 @@ ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = [
-    "requests.*",
-    "yaml.*",
     "pkg_resources.*",
 ]
 ignore_missing_imports = true
@@ -57,7 +55,6 @@ omit = [
 [tool.coverage.run]
 omit = [
     "/usr/*", # omit everything in /usr
-    "*crossrefapi/crossref/*",
     "/tmp/*",
     "tests/*",
 ]
@@ -69,6 +66,5 @@ line-length = 160
 "**/{tests,docs}/*" = ["E501"]
 
 [build-system]
-# requires = ["poetry>=1.2.0b1"]
 requires = ["poetry-core>=1.0.0", "cython<3.0"]
 build-backend = "poetry.core.masonry.api"

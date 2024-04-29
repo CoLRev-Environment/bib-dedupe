@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0).
 ### Fixed
 -->
 
+## 0.7.4 - 2024-04-29
+
+- Add [ASySD](https://github.com/camaradesuk/ASySD) to the evaluation
+- Update docs for evaluation
+- Prevent SettingWithCopyWarning in maybe_cases and zero-division in precision
+
 ## 0.7.3 - 2024-04-16
 
 - Load example datasets on demand to avoid large package size (potentially causes errors during installation [1](https://github.com/CoLRev-Environment/colrev/actions/runs/8711093539/job/23894441546))
