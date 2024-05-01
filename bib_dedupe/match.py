@@ -84,7 +84,7 @@ def __print_details(pairs: pd.DataFrame) -> None:
 
 
 def __get_true_pairs(pairs: pd.DataFrame) -> pd.DataFrame:
-    true_pairs = pairs.query("|".join(DUPLICATE_CONDITIONS))
+    true_pairs = pairs.query("|".join(DUPLICATE_CONDITIONS), engine="python")
     true_pairs = true_pairs.query("~(" + " | ".join(NON_DUPLICATE_CONDITIONS) + ")")
     true_pairs = true_pairs.drop_duplicates()
 
