@@ -68,7 +68,7 @@ def __print_details(pairs: pd.DataFrame) -> None:
 
     verbose_print.print("Merge conditions that matched:")
     for duplicate_condition in DUPLICATE_CONDITIONS:
-        if pairs.query(duplicate_condition).shape[0] > 0:
+        if pairs.query(duplicate_condition, engine="python").shape[0] > 0:
             verbose_print.print(f"{GREEN}{duplicate_condition}{END}")
         else:
             verbose_print.print(f"{duplicate_condition}")
@@ -77,7 +77,7 @@ def __print_details(pairs: pd.DataFrame) -> None:
     verbose_print.print(pairs)
     verbose_print.print("Non-merge conditions that matched:")
     for non_duplicate_condition in NON_DUPLICATE_CONDITIONS:
-        if pairs.query(non_duplicate_condition).shape[0] != 0:
+        if pairs.query(non_duplicate_condition, engine="python").shape[0] != 0:
             verbose_print.print(f"{RED}{non_duplicate_condition}{END}")
         else:
             verbose_print.print(non_duplicate_condition)
@@ -85,7 +85,9 @@ def __print_details(pairs: pd.DataFrame) -> None:
 
 def __get_true_pairs(pairs: pd.DataFrame) -> pd.DataFrame:
     true_pairs = pairs.query("|".join(DUPLICATE_CONDITIONS), engine="python")
-    true_pairs = true_pairs.query("~(" + " | ".join(NON_DUPLICATE_CONDITIONS) + ")")
+    true_pairs = true_pairs.query(
+        "~(" + " | ".join(NON_DUPLICATE_CONDITIONS) + ")", engine="python"
+    )
     true_pairs = true_pairs.drop_duplicates()
 
     # Add a label column to each dataframe
