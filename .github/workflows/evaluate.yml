@@ -42,7 +42,7 @@ jobs:
 
       - name: Run Evaluation
         run: |
-          poetry run jupyter nbconvert --execute notebooks/evaluation.ipynb --to notebook --inplace
+          poetry run python notebooks/evaluation.py
 
       - name: Commit and push changes
         run: |

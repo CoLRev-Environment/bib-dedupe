@@ -24,4 +24,4 @@ unique_citations <- dedup_citations$unique
 unique_citations$ID <- unique_citations$duplicate_id
 
 # Save unique_citations to CSV
-write.csv(unique_citations, file = "asysd_merged_df.csv", row.names = FALSE)
+write.csv(unique_citations, file = "notebooks/asysd_merged_df.csv", row.names = FALSE)

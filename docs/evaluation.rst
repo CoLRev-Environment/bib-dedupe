@@ -5,7 +5,7 @@ Evaluation
    :alt: Evaluation
 
 We run a continuous evaluation of tools for duplicate removal in bibliographic datasets.
-The `evaluation notebook <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/notebooks/evaluation.ipynb>`_ is executed by a `GitHub workflow <https://github.com/CoLRev-Environment/bib-dedupe/actions/workflows/evaluate.yml>`_ on a weekly basis.
+The `evaluation script <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/notebooks/evaluation.py>`_ is executed by a `GitHub workflow <https://github.com/CoLRev-Environment/bib-dedupe/actions/workflows/evaluate.yml>`_ on a weekly basis.
 Detailed results are exported to a `csv file <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/output/evaluation.csv>`_, and aggregated summaries are exported to `current_results.md <https://github.com/CoLRev-Environment/bib-dedupe/tree/main/output/current_results.md>`_.
 
 Tools are ranked according to false-positive rate. The lower the false-positive rate, the better the tool.

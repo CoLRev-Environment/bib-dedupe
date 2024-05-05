@@ -2,11 +2,19 @@
 """Utils for evaluation"""
 from __future__ import annotations
 
-import datetime
+import subprocess
+from datetime import datetime
 from pathlib import Path
 
+import evaluation
 import pandas as pd
+from asreview.data import ASReviewData
 
+from bib_dedupe.bib_dedupe import block
+from bib_dedupe.bib_dedupe import cluster
+from bib_dedupe.bib_dedupe import match
+from bib_dedupe.bib_dedupe import merge
+from bib_dedupe.bib_dedupe import prep
 from bib_dedupe.constants.fields import ABSTRACT
 from bib_dedupe.constants.fields import AUTHOR
 from bib_dedupe.constants.fields import BOOKTITLE
@@ -24,6 +32,7 @@ from bib_dedupe.constants.fields import PUBLISHER
 from bib_dedupe.constants.fields import TITLE
 from bib_dedupe.constants.fields import VOLUME
 from bib_dedupe.constants.fields import YEAR
+from bib_dedupe.dedupe_benchmark import DedupeBenchmarker
 
 
 def get_dataset_labels() -> list:
@@ -158,10 +167,10 @@ def append_to_output(result: dict, *, package_name: str) -> None:
         None
     """
 
-    output_path = Path("../output/evaluation.csv")
+    output_path = Path("output/evaluation.csv")
 
     result["package"] = package_name
-    current_time = datetime.datetime.now()
+    current_time = datetime.now()
     result["time"] = current_time.strftime("%Y-%m-%d %H:%M")
 
     if not Path(output_path).is_file():
@@ -206,7 +215,7 @@ def append_to_output(result: dict, *, package_name: str) -> None:
     results_df = pd.concat([results_df, result_item_df])
     results_df.to_csv(output_path, index=False)
 
-    output_md_path = Path("../output/current_results.md")
+    output_md_path = Path("output/current_results.md")
     if not output_md_path.is_file():
         output_md_path.touch()
     with open(output_md_path, "w") as f:
@@ -293,3 +302,61 @@ def append_to_output(result: dict, *, package_name: str) -> None:
             dataset_df = dataset_df.sort_values(by=["f1"], ascending=[False])
             f.write(dataset_df.to_markdown(index=False))
             f.write("\n\n")
+
+
+if __name__ == "__main__":
+    for benchmark_path in evaluation.get_dataset_labels():
+        print(f"Dataset: {benchmark_path}")
+
+        dedupe_benchmark = DedupeBenchmarker(
+            benchmark_path=Path(f"data/{benchmark_path}")
+        )
+        records_df = dedupe_benchmark.get_records_for_dedupe()
+
+        # Bib-dedupe
+        timestamp = datetime.now()
+        records_df = prep(records_df)
+        actual_blocked_df = block(records_df)
+        matched_df = match(actual_blocked_df)
+        duplicate_id_sets = cluster(matched_df)
+        merged_df = merge(records_df, duplicate_id_sets=duplicate_id_sets)
+        result = dedupe_benchmark.compare_dedupe_id(
+            records_df=records_df, merged_df=merged_df, timestamp=timestamp
+        )
+        evaluation.append_to_output(result, package_name="bib-dedupe")
+
+        # More detailed comparison for debugging
+        dedupe_benchmark.export_cases(
+            prepared_records_df=records_df,
+            blocked_df=actual_blocked_df,
+            matched_df=matched_df,
+        )
+
+        # ASReview
+        timestamp = datetime.now()
+        asdata = ASReviewData(records_df)
+        merged_df = asdata.drop_duplicates()
+        result = dedupe_benchmark.compare_dedupe_id(
+            records_df=records_df, merged_df=merged_df, timestamp=timestamp
+        )
+        evaluation.append_to_output(result, package_name="asreview")
+
+        # ASySD (R)
+        # temporarily skip (need to combine part1/2)
+        if benchmark_path == "depression":
+            continue
+        timestamp = datetime.now()
+        subprocess.run(
+            [
+                "Rscript",
+                "notebooks/asysd_evaluation.R",
+                f"data/{benchmark_path}/records_pre_merged.csv",
+            ]
+        )
+        merged_df = pd.read_csv("notebooks/asysd_merged_df.csv")
+        result = dedupe_benchmark.compare_dedupe_id(
+            records_df=records_df, merged_df=merged_df, timestamp=timestamp
+        )
+        evaluation.append_to_output(result, package_name="asysd")
+
+        print()
