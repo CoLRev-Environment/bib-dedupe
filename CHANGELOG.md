@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0).
 ### Fixed
 -->
 
+## 0.7.5 - 2024-05-07
+
+- Require Python>=3.9
+- Evaluation: Replace notebook with Python script
+- Fix #25 (inconsistent behavior when `numexpr` is installed)
+
 ## 0.7.4 - 2024-04-29
 
 - Add [ASySD](https://github.com/camaradesuk/ASySD) to the evaluation
