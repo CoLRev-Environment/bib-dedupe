@@ -5,6 +5,21 @@ description = "Identify and merge duplicates in bibliographic records"
 authors = ["Gerit Wagner <gerit.wagner@uni-bamberg.de>"]
 license = "MIT"
 readme = "README.md"
+repository = "https://github.com/CoLRev-Environment/bib-dedupe"
+documentation = "https://colrev-environment.github.io/bib-dedupe/"
+keywords = ["de-duplication", "duplicate", "meta-analysis", "research", "reproducible research", "open science", "literature", "literature review", "systematic review", "systematic literature review"]
+classifiers = [
+   "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering",
+    "Operating System :: OS Independent",
+    "Typing :: Typed",
+]
 
 [[tool.poetry.packages]]
 include = "bib_dedupe"
@@ -13,7 +28,7 @@ include = "bib_dedupe"
 bib-dedupe = "bib_dedupe.cli:main"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 pylint = {version = "3.0.1", optional = true }
 pytest = {version = "^7.2.1", optional = true }
 coverage = {extras = ["toml"], version = "^7.3.2", optional = true }
@@ -31,7 +46,7 @@ with-data = ["pandas", "asreview"]
 dev = ["pylint", "pytest", "coverage", "pytest-skip-slow"]
 
 [tool.mypy]
-python_version = 3.8
+python_version = 3.9
 warn_unused_configs = true
 ignore_missing_imports = true
 
