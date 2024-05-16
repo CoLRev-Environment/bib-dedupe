@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0).
 ### Fixed
 -->
 
+## 0.7.6 - 2024-05-16
+
+- prep: check ID unique after ensuring that ID exists
+
 ## 0.7.5 - 2024-05-07
 
 - Require Python>=3.9
