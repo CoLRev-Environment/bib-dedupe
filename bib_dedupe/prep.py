@@ -123,6 +123,8 @@ def __general_prep(records_df: pd.DataFrame) -> pd.DataFrame:
 
     if ID not in records_df.columns:
         records_df.loc[:, ID] = range(1, len(records_df) + 1)
+    if not records_df[ID].is_unique:
+        raise ValueError("ID column in records_df must be unique.")
 
     if ENTRYTYPE not in records_df.columns:
         records_df[ENTRYTYPE] = "article"
@@ -195,8 +197,6 @@ def prep(records_df: pd.DataFrame, *, cpu: int = -1) -> pd.DataFrame:
     Returns:
         The prepared records dataframe.
     """
-    if not records_df["ID"].is_unique:
-        raise ValueError("ID column in records_df must be unique.")
 
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     verbose_print.print(f"Loaded {records_df.shape[0]:,} records")
