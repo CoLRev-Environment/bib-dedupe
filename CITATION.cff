@@ -1,10 +1,28 @@
-cff-version: 1.2.0
-message: "If you use this software, please cite it as below."
+cff-version: "1.2.0"
 authors:
-- family-names: "Wagner"
-  given-names: "Gerit"
+- family-names: Wagner
+  given-names: Gerit
   orcid: "https://orcid.org/0000-0003-3926-7717"
-title: "BibDedupe: An Open-Source Python Library for Bibliographic Record Deduplication"
-version: 0.8.0
-date-released: 2024-05-20
-url: "https://github.com/CoLRev-Environment/bib-dedupe"
+doi: 10.5281/zenodo.11223590
+message: If you use this software, please cite our article in the
+  Journal of Open Source Software.
+preferred-citation:
+  authors:
+  - family-names: Wagner
+    given-names: Gerit
+    orcid: "https://orcid.org/0000-0003-3926-7717"
+  date-published: 2024-05-22
+  doi: 10.21105/joss.06318
+  issn: 2475-9066
+  issue: 97
+  journal: Journal of Open Source Software
+  publisher:
+    name: Open Journals
+  start: 6318
+  title: "BibDedupe: An Open-Source Python Library for Bibliographic
+    Record Deduplication"
+  type: article
+  url: "https://joss.theoj.org/papers/10.21105/joss.06318"
+  volume: 9
+title: "BibDedupe: An Open-Source Python Library for Bibliographic
+  Record Deduplication"
