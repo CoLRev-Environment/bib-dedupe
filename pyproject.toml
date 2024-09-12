@@ -29,17 +29,17 @@ bib-dedupe = "bib_dedupe.cli:main"
 
 [tool.poetry.dependencies]
 python = "^3.9"
+setuptools = "^69.1.1"
+pandas = "^1.3.4"
+numpy = "^1.19.5"
+rapidfuzz = "^3.5.2"
+number-parser = "^0.3.2"
+tqdm = "^4.66.1"
+requests = "^2.31.0"
 pylint = {version = "3.0.1", optional = true }
 pytest = {version = "^7.2.1", optional = true }
 coverage = {extras = ["toml"], version = "^7.3.2", optional = true }
 asreview = {version = "^1.5", optional = true }
-number-parser = "^0.3.2"
-numpy = "^1.19.5"
-pandas = "^1.3.4"
-rapidfuzz = "^3.5.2"
-tqdm = "^4.66.1"
-setuptools = "^69.1.1"
-requests = "^2.31.0"
 
 [tool.poetry.extras]
 with-data = ["pandas", "asreview"]
