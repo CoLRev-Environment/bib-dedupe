@@ -86,7 +86,9 @@ class DedupeBenchmarker:
                 part1_df = pd.read_csv(str(part1_path))
                 self.records_df = part1_df
                 part2_df = pd.read_csv(str(part2_path))
-                self.records_df = self.records_df.append(part2_df, ignore_index=True)
+                self.records_df = pd.concat(
+                    [self.records_df, part2_df], ignore_index=True
+                )
 
         true_merged_ids_df = pd.read_csv(str(self.merged_record_ids_path))
         self.true_merged_ids = true_merged_ids_df["merged_ids"].str.split(";").tolist()
