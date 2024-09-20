@@ -31,7 +31,10 @@ def test_full() -> None:
         records_df=records_df, merged_df=merged_df, timestamp=timestamp
     )
 
-    assert result["TP"] == 2
+    assert not any(
+        [x for x in duplicate_id_sets if "id_0000728" in x and "id_0000728B" in x]
+    ), "Cannot merge records from same set (id_0000728,id_0000728B)"
+    assert result["TP"] == 3
     assert result["FP"] == 0
     assert result["FN"] == 0
     assert result["TN"] == 6

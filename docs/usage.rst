@@ -58,8 +58,9 @@ Fields used by BibDeduper
    * - **abstract**
      - The abstract
    * - **search_set**
-     - Distinct sets of papers (e.g., old_search), can be empty.
+     - Distinct sets of papers (e.g., old_search), can be empty. \*
 
+\* The `merge()` function ensures that records from the same `search_set` are not merged. The `match()` function ensures that individual pairs (e.g., A-B, B-C) do not come from the same `search_set`. `match()` does not consider transitive relations (i.e., A-C could be from the same `search_set`). The `cluster()` and `get_connected_components()` functions (part of `merge()`) ensure that records are not merged if the component already contains a record from the same `search_set`.
 
 Search updates
 -----------------------

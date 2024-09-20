@@ -24,6 +24,7 @@ from bib_dedupe.constants.fields import MAYBE
 from bib_dedupe.constants.fields import NUMBER
 from bib_dedupe.constants.fields import PAGE_RANGES_ADJACENT
 from bib_dedupe.constants.fields import PAGES
+from bib_dedupe.constants.fields import SEARCH_SET
 from bib_dedupe.constants.fields import TITLE
 from bib_dedupe.constants.fields import VOLUME
 from bib_dedupe.constants.fields import YEAR
@@ -92,8 +93,10 @@ def __get_true_pairs(pairs: pd.DataFrame) -> pd.DataFrame:
 
     # Add a label column to each dataframe
     true_pairs[DUPLICATE_LABEL] = DUPLICATE
-    # Select the ID_1 and ID_2 fields and the new label column
-    true_pairs = true_pairs[[f"{ID}_1", f"{ID}_2", DUPLICATE_LABEL]]
+    # Select the ID_1, SEARCH_SET_1 and ID_2, SEARCH_SET_2 fields and the new label column
+    true_pairs = true_pairs[
+        [f"{ID}_1", f"{SEARCH_SET}_1", f"{SEARCH_SET}_2", f"{ID}_2", DUPLICATE_LABEL]
+    ]
 
     return true_pairs
 
@@ -131,8 +134,10 @@ def __get_maybe_pairs(pairs: pd.DataFrame, true_pairs: pd.DataFrame) -> pd.DataF
 
     # Add a label column to each dataframe
     maybe_pairs[DUPLICATE_LABEL] = MAYBE
-    # Select the ID_1 and ID_2 fields and the new label column
-    maybe_pairs = maybe_pairs[[f"{ID}_1", f"{ID}_2", DUPLICATE_LABEL]]
+    # Select the ID_1, SEARCH_SET_1 and ID_2, SEARCH_SET_2 fields and the new label column
+    maybe_pairs = maybe_pairs[
+        [f"{ID}_1", f"{SEARCH_SET}_1", f"{SEARCH_SET}_2", f"{ID}_2", DUPLICATE_LABEL]
+    ]
 
     return maybe_pairs
 
