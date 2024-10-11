@@ -12,6 +12,36 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.5
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cloc \
+            gdal-bin \
+            gdebi-core \
+            git \
+            libcurl4-openssl-dev \
+            libgdal-dev \
+            libproj-dev \
+            libxml2-dev \
+            ghostscript \
+            imagemagick \
+            xpdf \
+            build-essential \
+            libmysqlclient-dev \
+            libsqlite3-dev
+
+      - name: Install Bundler and Gems
+        run: |
+          gem install bundler
+          cd /notebooks/buhos
+          bundle install
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
