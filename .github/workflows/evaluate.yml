@@ -38,7 +38,7 @@ jobs:
 
       - name: Install Bundler and Gems
         run: |
-          gem install bundler
+          gem install bundler -v 2.3.27
           cd /notebooks/buhos
           bundle install --verbose
 
