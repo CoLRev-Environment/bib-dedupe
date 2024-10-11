@@ -57,7 +57,7 @@ end
 
 # Method to create CanonicalDocument entries from CSV
 def create_canonical_documents_from_csv()
-  puts "Current working directory: #{Dir.pwd}"
+  # puts "Current working directory: #{Dir.pwd}"
   csv_file_path = "notebooks/buhos/records.csv"
   csv_data = CSV.read(csv_file_path, headers: true)
 
@@ -65,7 +65,7 @@ def create_canonical_documents_from_csv()
     doc_data = row.to_hash  # Convert each row to a hash
     document = CanonicalDocument.new(doc_data)
     document.save
-    puts "Document #{document[:id]} saved successfully."
+    # puts "Document #{document[:id]} saved successfully."
   end
 end
 
@@ -94,10 +94,10 @@ if __FILE__ == $0
     puts result.to_json
 
   rescue CSV::MalformedCSVError => e
-    puts "Error reading CSV file: #{e.message}"
+    # puts "Error reading CSV file: #{e.message}"
     exit 1
   rescue NoMethodError => e
-    puts "Error: Invalid method '#{method}' called."
+    # puts "Error: Invalid method '#{method}' called."
     exit 1
   end
 end
