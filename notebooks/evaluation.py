@@ -399,9 +399,13 @@ if __name__ == "__main__":
 
                     # duplicates is [[1, 2], [3, 4]]. I need a df with the IDs (index of duplicates pairs in records_df) and a "duplicate" = "yes" column
                     matched_df = pd.DataFrame(columns=["ID", "duplicate"])
+                    rows_to_add = []
+
                     for pair in duplicates:
-                        matched_df = matched_df.append({"ID": pair[0], "duplicate": "yes"}, ignore_index=True)
-                        matched_df = matched_df.append({"ID": pair[1], "duplicate": "yes"}, ignore_index=True)
+                        rows_to_add.append({"ID": pair[0], "duplicate": "yes"})
+                        rows_to_add.append({"ID": pair[1], "duplicate": "yes"})
+
+                    matched_df = pd.concat([matched_df, pd.DataFrame(rows_to_add)], ignore_index=True)
 
                     duplicate_id_sets = cluster(matched_df)
                     merged_df = merge(records_df, duplicate_id_sets=duplicate_id_sets)
