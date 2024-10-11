@@ -58,7 +58,7 @@ end
 # Method to create CanonicalDocument entries from CSV
 def create_canonical_documents_from_csv()
   puts "Current working directory: #{Dir.pwd}"
-  csv_file_path = "records.csv"
+  csv_file_path = "notebooks/buhos/records.csv"
   csv_data = CSV.read(csv_file_path, headers: true)
 
   csv_data.each do |row|
