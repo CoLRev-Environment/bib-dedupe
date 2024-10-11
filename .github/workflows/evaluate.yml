@@ -39,7 +39,7 @@ jobs:
       - name: Install Bundler and Gems
         run: |
           gem install bundler -v 2.3.27
-          cd /notebooks/buhos
+          cd notebooks/buhos
           bundle install --verbose
 
       - name: Set up Python
