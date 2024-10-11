@@ -374,7 +374,7 @@ if __name__ == "__main__":
 
         
         method_name = "by_metadata"
-        ruby_script_path = 'notebooksbuhos/handle_cli.rb'
+        ruby_script_path = 'notebooks/buhos/handle_cli.rb'
         try:
             
             canonical_documents_json = "records.csv"
