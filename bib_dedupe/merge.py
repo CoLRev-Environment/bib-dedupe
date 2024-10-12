@@ -176,6 +176,9 @@ def merge(
         if not set(duplicate_ids).issubset(set(records_df["ID"].tolist())):
             raise ValueError("Not all duplicate IDs are in the records DataFrame.")
 
+    # Cast all columns in records_df to strings
+    records_df = records_df.astype(str)
+
     if origin_column not in records_df.columns:
         verbose_print.print(f"Add missing origin column ({origin_column})", level=2)
         records_df[origin_column] = records_df["ID"]

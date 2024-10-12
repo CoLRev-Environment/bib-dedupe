@@ -63,6 +63,11 @@ def create_canonical_documents_from_csv()
 
   csv_data.each do |row|
     doc_data = row.to_hash  # Convert each row to a hash
+    # Check if the year field is missing or empty
+    if doc_data['year'].nil? || doc_data['year'].strip.empty?
+      next  # Skip this row
+    end
+
     document = CanonicalDocument.new(doc_data)
     document.save
     # puts "Document #{document[:id]} saved successfully."
