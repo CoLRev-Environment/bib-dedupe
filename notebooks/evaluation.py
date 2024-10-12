@@ -311,7 +311,7 @@ if __name__ == "__main__":
     for benchmark_path in evaluation.get_dataset_labels():
         print(f"Dataset: {benchmark_path}")
 
-        if benchmark_path not in ["stroke", "cytology_screening", "haematology", "respiratory", "diabetes", "digital_work"]:
+        if benchmark_path in ["srsr", "depression"]:
             continue
 
         dedupe_benchmark = DedupeBenchmarker(
@@ -404,10 +404,13 @@ if __name__ == "__main__":
                     rows_to_add = []
 
                     for pair in duplicates:
+                        try:
 
-                        id_1 = records_df.iloc[pair[0]]["ID"]
-                        id_2 = records_df.iloc[pair[1]]["ID"]
-                        rows_to_add.append({f"{ID}_1": id_1, f"{ID}_2": id_2, "search_set_1": "", "search_set_2": "", DUPLICATE_LABEL: DUPLICATE})
+                            id_1 = records_df.iloc[pair[0]]["ID"]
+                            id_2 = records_df.iloc[pair[1]]["ID"]
+                            rows_to_add.append({f"{ID}_1": id_1, f"{ID}_2": id_2, "search_set_1": "", "search_set_2": "", DUPLICATE_LABEL: DUPLICATE})
+                        except IndexError as e:
+                            print(f"An error occurred: {e}")
 
                     matched_df = pd.concat([matched_df, pd.DataFrame(rows_to_add)], ignore_index=True)
 
