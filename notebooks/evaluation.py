@@ -404,8 +404,11 @@ if __name__ == "__main__":
                     rows_to_add = []
 
                     for pair in duplicates:
-                        rows_to_add.append({"ID": pair[0], DUPLICATE_LABEL: DUPLICATE})
-                        rows_to_add.append({"ID": pair[1], DUPLICATE_LABEL: DUPLICATE})
+
+                        id_1 = records_df.iloc[pair[0]]["ID"]
+                        id_2 = records_df.iloc[pair[1]]["ID"]
+                        rows_to_add.append({"ID": id_1, DUPLICATE_LABEL: DUPLICATE})
+                        rows_to_add.append({"ID": id_2, DUPLICATE_LABEL: DUPLICATE})
 
                     matched_df = pd.concat([matched_df, pd.DataFrame(rows_to_add)], ignore_index=True)
 
