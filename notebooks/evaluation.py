@@ -311,7 +311,7 @@ if __name__ == "__main__":
     for benchmark_path in evaluation.get_dataset_labels():
         print(f"Dataset: {benchmark_path}")
 
-        if benchmark_path in ["srsr", "depression"]:
+        if benchmark_path in ["depression"]:
             continue
 
         dedupe_benchmark = DedupeBenchmarker(
