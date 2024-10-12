@@ -34,7 +34,9 @@ from bib_dedupe.constants.fields import TITLE
 from bib_dedupe.constants.fields import VOLUME
 from bib_dedupe.constants.fields import YEAR
 from bib_dedupe.dedupe_benchmark import DedupeBenchmarker
-
+from bib_dedupe.constants.fields import DUPLICATE_LABEL
+from bib_dedupe.constants.fields import DUPLICATE
+from bib_dedupe.constants.fields import ID
 
 def get_dataset_labels() -> list:
     """
@@ -397,13 +399,13 @@ if __name__ == "__main__":
                 try:
                     duplicates = json.loads(result.stdout)  # Convert JSON output to Python dictionary
 
-                    # duplicates is [[1, 2], [3, 4]]. I need a df with the IDs (index of duplicates pairs in records_df) and a "duplicate" = "yes" column
-                    matched_df = pd.DataFrame(columns=["ID", "duplicate"])
+                    # duplicates is [[1, 2], [3, 4]]. I need a df with the IDs (index of duplicates pairs in records_df) and a DUPLICATE_LABEL = DUPLICATE column
+                    matched_df = pd.DataFrame(columns=[ID, DUPLICATE_LABEL])
                     rows_to_add = []
 
                     for pair in duplicates:
-                        rows_to_add.append({"ID": pair[0], "duplicate": "yes"})
-                        rows_to_add.append({"ID": pair[1], "duplicate": "yes"})
+                        rows_to_add.append({"ID": pair[0], DUPLICATE_LABEL: DUPLICATE})
+                        rows_to_add.append({"ID": pair[1], DUPLICATE_LABEL: DUPLICATE})
 
                     matched_df = pd.concat([matched_df, pd.DataFrame(rows_to_add)], ignore_index=True)
 
