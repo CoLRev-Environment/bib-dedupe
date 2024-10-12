@@ -311,7 +311,7 @@ if __name__ == "__main__":
     for benchmark_path in evaluation.get_dataset_labels():
         print(f"Dataset: {benchmark_path}")
 
-        if benchmark_path != "stroke":
+        if benchmark_path not in ["stroke", "cytology_screening", "haematology", "respiratory", "diabetes", "digital_work"]:
             continue
 
         dedupe_benchmark = DedupeBenchmarker(
