@@ -27,8 +27,8 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #
-      
-      
+
+
 module Buhos
 
   # Mixin with constant and methods useful for textual analysis

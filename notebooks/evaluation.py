@@ -21,6 +21,8 @@ from bib_dedupe.constants.fields import AUTHOR
 from bib_dedupe.constants.fields import BOOKTITLE
 from bib_dedupe.constants.fields import CHAPTER
 from bib_dedupe.constants.fields import DOI
+from bib_dedupe.constants.fields import DUPLICATE
+from bib_dedupe.constants.fields import DUPLICATE_LABEL
 from bib_dedupe.constants.fields import EDITOR
 from bib_dedupe.constants.fields import ENTRYTYPE
 from bib_dedupe.constants.fields import ID
@@ -34,9 +36,7 @@ from bib_dedupe.constants.fields import TITLE
 from bib_dedupe.constants.fields import VOLUME
 from bib_dedupe.constants.fields import YEAR
 from bib_dedupe.dedupe_benchmark import DedupeBenchmarker
-from bib_dedupe.constants.fields import DUPLICATE_LABEL
-from bib_dedupe.constants.fields import DUPLICATE
-from bib_dedupe.constants.fields import ID
+
 
 def get_dataset_labels() -> list:
     """
@@ -319,100 +319,103 @@ if __name__ == "__main__":
         )
         records_df = dedupe_benchmark.get_records_for_dedupe()
 
-        # # Bib-dedupe
-        # timestamp = datetime.now()
-        # records_df = prep(records_df)
-        # actual_blocked_df = block(records_df)
-        # matched_df = match(actual_blocked_df)
-        # duplicate_id_sets = cluster(matched_df)
-        # merged_df = merge(records_df, duplicate_id_sets=duplicate_id_sets)
-        # result = dedupe_benchmark.compare_dedupe_id(
-        #     records_df=records_df, merged_df=merged_df, timestamp=timestamp
-        # )
-        # evaluation.append_to_output(result, package_name="bib-dedupe")
+        # Bib-dedupe
+        timestamp = datetime.now()
+        records_df = prep(records_df)
+        actual_blocked_df = block(records_df)
+        matched_df = match(actual_blocked_df)
+        duplicate_id_sets = cluster(matched_df)
+        merged_df = merge(records_df, duplicate_id_sets=duplicate_id_sets)
+        result = dedupe_benchmark.compare_dedupe_id(
+            records_df=records_df, merged_df=merged_df, timestamp=timestamp
+        )
+        evaluation.append_to_output(result, package_name="bib-dedupe")
 
-        # # More detailed comparison for debugging
-        # dedupe_benchmark.export_cases(
-        #     prepared_records_df=records_df,
-        #     blocked_df=actual_blocked_df,
-        #     matched_df=matched_df,
-        # )
+        # More detailed comparison for debugging
+        dedupe_benchmark.export_cases(
+            prepared_records_df=records_df,
+            blocked_df=actual_blocked_df,
+            matched_df=matched_df,
+        )
 
-        # # ASReview
-        # timestamp = datetime.now()
-        # asdata = ASReviewData(records_df)
-        # merged_df = asdata.drop_duplicates()
-        # result = dedupe_benchmark.compare_dedupe_id(
-        #     records_df=records_df, merged_df=merged_df, timestamp=timestamp
-        # )
-        # evaluation.append_to_output(result, package_name="asreview")
+        # ASReview
+        timestamp = datetime.now()
+        asdata = ASReviewData(records_df)
+        merged_df = asdata.drop_duplicates()
+        result = dedupe_benchmark.compare_dedupe_id(
+            records_df=records_df, merged_df=merged_df, timestamp=timestamp
+        )
+        evaluation.append_to_output(result, package_name="asreview")
 
-        # # ASySD (R)
-        # # temporarily skip (need to combine part1/2)
-        # if benchmark_path == "depression":
-        #     continue
-        # timestamp = datetime.now()
-        # subprocess.run(
-        #     [
-        #         "Rscript",
-        #         "notebooks/asysd_evaluation.R",
-        #         f"data/{benchmark_path}/records_pre_merged.csv",
-        #     ]
-        # )
-        # merged_df = pd.read_csv("notebooks/asysd_merged_df.csv")
-        # result = dedupe_benchmark.compare_dedupe_id(
-        #     records_df=records_df, merged_df=merged_df, timestamp=timestamp
-        # )
-        # evaluation.append_to_output(result, package_name="asysd")
+        # ASySD (R)
+        # temporarily skip (need to combine part1/2)
+        if benchmark_path == "depression":
+            continue
+        timestamp = datetime.now()
+        subprocess.run(
+            [
+                "Rscript",
+                "notebooks/asysd_evaluation.R",
+                f"data/{benchmark_path}/records_pre_merged.csv",
+            ]
+        )
+        merged_df = pd.read_csv("notebooks/asysd_merged_df.csv")
+        result = dedupe_benchmark.compare_dedupe_id(
+            records_df=records_df, merged_df=merged_df, timestamp=timestamp
+        )
+        evaluation.append_to_output(result, package_name="asysd")
 
-        # print()
-
+        print()
 
         # Buhos
-
         records_df.to_csv("notebooks/buhos/records.csv", index=False)
-
         timestamp = datetime.now()
-
-        
         method_name = "by_metadata"
-        ruby_script_path = 'notebooks/buhos/handle_cli.rb'
+        ruby_script_path = "notebooks/buhos/handle_cli.rb"
         try:
-            
             canonical_documents_json = "records.csv"
-            print(f"Calling Ruby script: {ruby_script_path} with method: {method_name} and data: {canonical_documents_json}")
-
-            # Call the Ruby script with method_name and JSON string as arguments
-            result = subprocess.run(
-                ['ruby', ruby_script_path, method_name, canonical_documents_json],  # Pass arguments
-                stdout=subprocess.PIPE,  # Capture standard output
-                stderr=subprocess.PIPE,  # Capture standard error
-                text=True  # Ensure the output is returned as a string
+            print(
+                f"Calling Ruby script: {ruby_script_path} with method:"
+                f" {method_name} and data: {canonical_documents_json}"
             )
-
-            # Print the raw output from the Ruby script
+            result = subprocess.run(
+                ["ruby", ruby_script_path, method_name, canonical_documents_json],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
             print("Raw Ruby script output:", result.stdout)
 
-            # Check if the Ruby script ran successfully
             if result.returncode == 0:
-                # Try parsing the output as JSON
                 try:
-                    duplicates = json.loads(result.stdout)  # Convert JSON output to Python dictionary
+                    duplicates = json.loads(result.stdout)
 
-                    # duplicates is [[1, 2], [3, 4]]. I need a df with the IDs (index of duplicates pairs in records_df) and a DUPLICATE_LABEL = DUPLICATE column
-                    matched_df = pd.DataFrame(columns=[f"{ID}_1", f"{ID}_2", DUPLICATE_LABEL])
+                    # duplicates is [[1, 2], [3, 4]]. I need a df with the IDs
+                    # (index of duplicates pairs in records_df) and a DUPLICATE_LABEL = DUPLICATE column
+                    matched_df = pd.DataFrame(
+                        columns=[f"{ID}_1", f"{ID}_2", DUPLICATE_LABEL]
+                    )
                     rows_to_add = []
 
                     for pair in duplicates:
                         try:
-
                             id_1 = records_df.iloc[pair[0]]["ID"]
                             id_2 = records_df.iloc[pair[1]]["ID"]
-                            rows_to_add.append({f"{ID}_1": id_1, f"{ID}_2": id_2, "search_set_1": "", "search_set_2": "", DUPLICATE_LABEL: DUPLICATE})
+                            rows_to_add.append(
+                                {
+                                    f"{ID}_1": id_1,
+                                    f"{ID}_2": id_2,
+                                    "search_set_1": "",
+                                    "search_set_2": "",
+                                    DUPLICATE_LABEL: DUPLICATE,
+                                }
+                            )
                         except IndexError as e:
                             print(f"An error occurred: {e}")
 
-                    matched_df = pd.concat([matched_df, pd.DataFrame(rows_to_add)], ignore_index=True)
+                    matched_df = pd.concat(
+                        [matched_df, pd.DataFrame(rows_to_add)], ignore_index=True
+                    )
 
                     duplicate_id_sets = cluster(matched_df)
                     merged_df = merge(records_df, duplicate_id_sets=duplicate_id_sets)
@@ -428,6 +431,5 @@ if __name__ == "__main__":
 
         except Exception as e:
             print(f"An error occurred: {e}")
-
 
         print()

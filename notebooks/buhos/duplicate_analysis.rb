@@ -38,9 +38,9 @@ module Buhos
       rescue LoadError
         require 'levenshtein'
       end
-      
-      @canonical_documents=cds 
- 
+
+      @canonical_documents=cds
+
     end
     # Returns a list of repeated doi
     def by_doi
