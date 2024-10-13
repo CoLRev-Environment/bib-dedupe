@@ -27,6 +27,10 @@ Tools are ranked according to false-positive rate. The lower the false-positive 
      - R package
      - NA
    * - 3
+     - `Buhos <https://github.com/clbustos/buhos>`_
+     - Web-based (Ruby)
+     - NA
+   * - 4
      - `ASReview Data Dedup <https://github.com/asreview/asreview-datatools>`_
      - Python library
      - NA
