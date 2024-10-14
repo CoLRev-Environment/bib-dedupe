@@ -311,9 +311,6 @@ if __name__ == "__main__":
     for benchmark_path in evaluation.get_dataset_labels():
         print(f"Dataset: {benchmark_path}")
 
-        if benchmark_path in ["srsr", "depression"]:
-            continue
-
         dedupe_benchmark = DedupeBenchmarker(
             benchmark_path=Path(f"data/{benchmark_path}")
         )
@@ -367,6 +364,8 @@ if __name__ == "__main__":
 
         print()
 
+        if benchmark_path in ["srsr", "depression"]:
+            continue
         # Buhos
         records_df.to_csv("notebooks/buhos/records.csv", index=False)
         timestamp = datetime.now()
