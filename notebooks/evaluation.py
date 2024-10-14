@@ -2,6 +2,7 @@
 """Utils for evaluation"""
 from __future__ import annotations
 
+import json
 import subprocess
 from datetime import datetime
 from pathlib import Path
@@ -20,6 +21,8 @@ from bib_dedupe.constants.fields import AUTHOR
 from bib_dedupe.constants.fields import BOOKTITLE
 from bib_dedupe.constants.fields import CHAPTER
 from bib_dedupe.constants.fields import DOI
+from bib_dedupe.constants.fields import DUPLICATE
+from bib_dedupe.constants.fields import DUPLICATE_LABEL
 from bib_dedupe.constants.fields import EDITOR
 from bib_dedupe.constants.fields import ENTRYTYPE
 from bib_dedupe.constants.fields import ID
@@ -308,6 +311,9 @@ if __name__ == "__main__":
     for benchmark_path in evaluation.get_dataset_labels():
         print(f"Dataset: {benchmark_path}")
 
+        if benchmark_path in ["srsr", "depression"]:
+            continue
+
         dedupe_benchmark = DedupeBenchmarker(
             benchmark_path=Path(f"data/{benchmark_path}")
         )
@@ -358,5 +364,72 @@ if __name__ == "__main__":
             records_df=records_df, merged_df=merged_df, timestamp=timestamp
         )
         evaluation.append_to_output(result, package_name="asysd")
+
+        print()
+
+        # Buhos
+        records_df.to_csv("notebooks/buhos/records.csv", index=False)
+        timestamp = datetime.now()
+        method_name = "by_metadata"
+        ruby_script_path = "notebooks/buhos/handle_cli.rb"
+        try:
+            canonical_documents_json = "records.csv"
+            print(
+                f"Calling Ruby script: {ruby_script_path} with method:"
+                f" {method_name} and data: {canonical_documents_json}"
+            )
+            result = subprocess.run(
+                ["ruby", ruby_script_path, method_name, canonical_documents_json],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+            print("Raw Ruby script output:", result.stdout)
+
+            if result.returncode == 0:
+                try:
+                    duplicates = json.loads(result.stdout)
+
+                    # duplicates is [[1, 2], [3, 4]]. I need a df with the IDs
+                    # (index of duplicates pairs in records_df) and a DUPLICATE_LABEL = DUPLICATE column
+                    matched_df = pd.DataFrame(
+                        columns=[f"{ID}_1", f"{ID}_2", DUPLICATE_LABEL]
+                    )
+                    rows_to_add = []
+
+                    for pair in duplicates:
+                        try:
+                            id_1 = records_df.iloc[pair[0]]["ID"]
+                            id_2 = records_df.iloc[pair[1]]["ID"]
+                            rows_to_add.append(
+                                {
+                                    f"{ID}_1": id_1,
+                                    f"{ID}_2": id_2,
+                                    "search_set_1": "",
+                                    "search_set_2": "",
+                                    DUPLICATE_LABEL: DUPLICATE,
+                                }
+                            )
+                        except IndexError as e:
+                            print(f"An error occurred: {e}")
+
+                    matched_df = pd.concat(
+                        [matched_df, pd.DataFrame(rows_to_add)], ignore_index=True
+                    )
+
+                    duplicate_id_sets = cluster(matched_df)
+                    merged_df = merge(records_df, duplicate_id_sets=duplicate_id_sets)
+                    result = dedupe_benchmark.compare_dedupe_id(
+                        records_df=records_df, merged_df=merged_df, timestamp=timestamp
+                    )
+                    evaluation.append_to_output(result, package_name="buhos")
+
+                except json.JSONDecodeError:
+                    print("Error parsing JSON. Raw output returned.")
+            else:
+                print("Ruby script error:", result.stderr)
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
         print()
