@@ -13,9 +13,10 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering",
     "Operating System :: OS Independent",
     "Typing :: Typed",
@@ -28,14 +29,13 @@ include = "bib_dedupe"
 bib-dedupe = "bib_dedupe.cli:main"
 
 [tool.poetry.dependencies]
-python = "^3.9"
-setuptools = "^69.1.1"
-pandas = "^2.2"
-numpy = "<2"
-rapidfuzz = "^3.5.2"
+python = "^3.10"
+pandas = "^2.2.3"
+numpy = "^2.1.2"
+rapidfuzz = "^3.10.0"
 number-parser = "^0.3.2"
 tqdm = "^4.66.1"
-requests = "^2.31.0"
+requests = "^2.32.3"
 pylint = {version = "3.0.1", optional = true }
 pytest = {version = "^7.2.1", optional = true }
 coverage = {extras = ["toml"], version = "^7.3.2", optional = true }
