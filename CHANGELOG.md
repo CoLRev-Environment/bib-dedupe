@@ -17,6 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0).
 ### Fixed
 -->
 
+## 0.9.0 - 2024-10-21
+
+- Updates of dependencies and Python version
+- Updates of evaluations
+- Add Buhos to evaluation
+- Fix: preventing same-source merges (in connected components)
+
 ## 0.8.0 - 2024-05-20
 
 - Release for JOSS

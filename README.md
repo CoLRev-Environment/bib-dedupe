@@ -2,7 +2,6 @@
 
 # BibDedupe
 
-
 <!-- [![License](https://img.shields.io/github/license/CoLRev-Ecosystem/bib-dedupe.svg)](https://github.com/CoLRev-Environment/bib-dedupe/releases/) -->
 [![status](https://joss.theoj.org/papers/b954027d06d602c106430e275fe72130/status.svg)](https://joss.theoj.org/papers/b954027d06d602c106430e275fe72130)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/bib-dedupe)<br>
@@ -37,7 +36,6 @@ Explore the [official documentation](https://colrev-environment.github.io/bib-de
 If you use BibDedupe in your research, please cite it as follows:
 
 Wagner, G. (2024) BibDedupe - An open-source Python library for deduplication of bibliographic records. *Journal of Open Source Software*, 9(97), 6318, [https://doi.org/10.21105/joss.06318](https://doi.org/10.21105/joss.06318).
-
 
 ## Contribution Guidelines
 

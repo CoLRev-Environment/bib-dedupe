@@ -4,7 +4,6 @@ For all releases:
 
 - Collect release notes and update the `CHANGELOG.md`.
 - Update the version in `pyproject.toml`. Check whether other parts of the `pyproject.toml` need to be updated. Check whether dependencies can be removed.
-- Update **version** and **date**  and date in `CITATION.cff`.
 - Commit the changes (`release 0.10.0`).
 - Push to Github. Check whether the installation, tests, and pre-commit hooks pass.
 - Run `git tag -s $VERSION` (format: "0.9.1").
