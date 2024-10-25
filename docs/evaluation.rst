@@ -12,7 +12,7 @@ Tools are ranked according to false-positive rate. The lower the false-positive 
 
 .. list-table::
    :header-rows: 1
-   :widths: 8 23 23 36
+   :widths: 8 25 22 35
 
    * - Rank
      - Tool
@@ -21,31 +21,59 @@ Tools are ranked according to false-positive rate. The lower the false-positive 
    * - 1
      - `BibDedupe <https://github.com/CoLRev-Environment/bib-dedupe>`_
      - Python library
-     - NA
+     - 
+      * 🏅 State-of-the-art (Python)
    * - 2
      - `ASySD <https://github.com/camaradesuk/ASySD>`_
      - R package
-     - NA
-   * - 3
-     - `Buhos <https://github.com/clbustos/buhos>`_
-     - Web-based (Ruby)
-     - NA
+     - 
+      * 🏅 State-of-the-art (R)
    * - 4
      - `ASReview Data Dedup <https://github.com/asreview/asreview-datatools>`_
      - Python library
-     - NA
-   * - NA
-     - Endnote
-     - Proprietary software (local)
-     - No programmatic access (prevents automated evaluation)
+     - 
+      * ☢️ High FP error rate
+   * - 3
+     - `Buhos <https://github.com/clbustos/buhos>`_
+     - Web-based (Ruby)
+     - 
+      * ☢️ High FP error rate
+      * ❓ Evaluation incomplete
+      * ⌛ Long runtime
    * - NA
      - `dedupe.io <https://github.com/dedupeio/dedupe>`_ / `pandas-dedupe <https://github.com/Lyonk71/pandas-dedupe>`_
      - Python library
-     - Requires manual training (not automated/reproducible)
+     - 
+      * 😩 Requires manual training
+      * ❓ Performance not reproducible
+   * - NA
+     - `deduklick <https://systematicreviewsjournal.biomedcentral.com/articles/10.1186/s13643-022-02045-9>`_
+     - Proprietary software
+     - 
+      * ❓ Performance unknown
+      * 🚫 No programmatic access
+      * 🔒 Proprietary code
+   * - NA
+     - `SRA-Dedupe <https://github.com/IEBH/sra-dedupe-ui>`_
+     - Proprietary software
+     - 
+      * ❓ Performance unknown
+      * 🚫 No programmatic access
+   * - NA
+     - Endnote
+     - Proprietary software (local)
+     - 
+      * 😩 Requires manual review
+      * ❓ Performance unknown
+      * 🚫 No programmatic access
+      * 🔒 Proprietary code
    * - NA
      - Covidence
      - Proprietary software (web-based)
-     - No programmatic access (prevents automated evaluation)
+     - 
+      * ❓ Performance unknown
+      * 🚫 No programmatic access
+      * 🔒 Proprietary code
 
 Datasets
 -------------------
