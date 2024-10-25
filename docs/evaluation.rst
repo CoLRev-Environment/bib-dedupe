@@ -39,6 +39,10 @@ Tools are ranked according to false-positive rate. The lower the false-positive 
      - Proprietary software (local)
      - No programmatic access (prevents automated evaluation)
    * - NA
+     - `dedupe.io <https://github.com/dedupeio/dedupe>`_ / `pandas-dedupe <https://github.com/Lyonk71/pandas-dedupe>`_
+     - Python library
+     - Requires manual training (not automated/reproducible)
+   * - NA
      - Covidence
      - Proprietary software (web-based)
      - No programmatic access (prevents automated evaluation)
