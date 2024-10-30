@@ -92,7 +92,7 @@ def set_container_title(records_df: pd.DataFrame) -> None:
         CONTAINER_TITLE,
     ] = records_df[BOOKTITLE]
     records_df.loc[records_df[ENTRYTYPE] == BOOK, CONTAINER_TITLE] = records_df[TITLE]
-    records_df[CONTAINER_TITLE].fillna("", inplace=True)
+    records_df[CONTAINER_TITLE] = records_df[CONTAINER_TITLE].fillna("")
 
 
 def get_container_title_short(ct_array: np.array) -> np.array:

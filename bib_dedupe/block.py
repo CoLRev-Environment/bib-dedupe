@@ -95,7 +95,7 @@ def create_pairs_for_block_fields(
         pairs["require_title_overlap"] = True
 
     verbose_print.print(
-        f"Blocked {str('{:,}'.format(pairs.shape[0])).rjust(8)} pairs with {block_fields}"
+        f"Blocked {str(f'{pairs.shape[0]:,}').rjust(8)} pairs with {block_fields}"
     )
 
     return pairs
@@ -266,7 +266,7 @@ def block(records_df: pd.DataFrame, cpu: int = -1) -> pd.DataFrame:
     )
 
     verbose_print.print(
-        f"Blocked {str('{:,}'.format(pairs_df.shape[0])).rjust(8)} pairs"
+        f"Blocked {str(f'{pairs_df.shape[0]:,}').rjust(8)} pairs"
     )
 
     pairs_df = reduce_non_overlapping_titles(pairs_df)
