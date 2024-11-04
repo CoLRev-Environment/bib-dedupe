@@ -265,9 +265,7 @@ def block(records_df: pd.DataFrame, cpu: int = -1) -> pd.DataFrame:
         suffixes=("", "_2"),
     )
 
-    verbose_print.print(
-        f"Blocked {str(f'{pairs_df.shape[0]:,}').rjust(8)} pairs"
-    )
+    verbose_print.print(f"Blocked {str(f'{pairs_df.shape[0]:,}').rjust(8)} pairs")
 
     pairs_df = reduce_non_overlapping_titles(pairs_df)
     pairs_df = reduce_distinct_sets(pairs_df)

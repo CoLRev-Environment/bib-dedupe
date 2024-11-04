@@ -133,8 +133,10 @@ def __general_prep(records_df: pd.DataFrame) -> pd.DataFrame:
     assert len(missing_fields) == 0, f"Missing required fields: {missing_fields}"
 
     for column in records_df.columns:
-        records_df[column] = records_df[column].replace(
-            ["#NAME?", "UNKNOWN", ""], np.nan
+        records_df[column] = (
+            records_df[column]
+            .replace(["#NAME?", "UNKNOWN", ""], np.nan)
+            .infer_objects(copy=False)
         )
     if records_df[TITLE].isnull().any():
         verbose_print.print(
@@ -145,8 +147,10 @@ def __general_prep(records_df: pd.DataFrame) -> pd.DataFrame:
     # if columns are of type float, we need to avoid casting "3.0" to "30"
     for col in records_df.columns:
         if records_df[col].dtype == float:
-            records_df.loc[:, col] = records_df[col].apply(
-                lambda x: str(int(x)) if x == x else ""
+            records_df[col] = records_df[col].apply(
+                lambda x: str(int(x))
+                if pd.notna(x) and isinstance(x, (int, float))
+                else ""
             )
 
     for optional_field in OPTIONAL_FIELDS:
