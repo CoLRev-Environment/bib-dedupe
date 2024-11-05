@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0).
 ### Fixed
 -->
 
+## 0.10.0 - 2024-11-05
+
+- Fix and silence pandas Future warnings
+- Fix linter messages
+- Extend evaluation table
+
 ## 0.9.0 - 2024-10-21
 
 - Updates of dependencies and Python version
