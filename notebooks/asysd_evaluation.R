@@ -29,7 +29,7 @@ citation_data$record_id <- citation_data$ID
 citation_data <- citation_data[, -which(names(citation_data) == "ID")]
 
 # deduplicate
-dedup_citations <- dedup_citations(citation_data)
+dedup_citations <- dedup_citations(citation_data, user_input=1)
 
 # get unique citation dataframe
 unique_citations <- dedup_citations$unique
