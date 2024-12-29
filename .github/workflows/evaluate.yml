@@ -34,7 +34,10 @@ jobs:
             xpdf \
             build-essential \
             libmysqlclient-dev \
-            libsqlite3-dev
+            libsqlite3-dev \
+            libfontconfig1-dev \
+            libfreetype6-dev \
+            pkg-config
 
       - name: Install Bundler and Gems
         run: |
