@@ -411,7 +411,10 @@ class DedupeBenchmarker:
         results[FP_RATE] = results[FP] / (results[FP] + results[TN])
 
         results[SPECIFICITY] = results[TN] / (results[TN] + results[FP])
-        results[SENSITIVITY] = results[TP] / (results[TP] + results[FN])
+        if results[TP] + results[FN] > 0:
+            results[SENSITIVITY] = results[TP] / (results[TP] + results[FN])
+        else:
+            results[SENSITIVITY] = 0
         if (results[TP] + results[FP]) > 0:
             results[PRECISION] = results[TP] / (results[TP] + results[FP])
         else:
