@@ -296,7 +296,7 @@ class DedupeBenchmarker:
 
         # Note: the following takes long:
         for combination in combinations(all_ids, 2):
-            pair = ";".join(sorted(combination))
+            pair = ";".join(sorted(map(str, combination)))
 
             if pair in blocked_pairs:
                 if pair in ground_truth_pairs:
