@@ -41,6 +41,13 @@ The BibDedupe library can be used in different ways, including `Python scripts`_
    # Get the merged_df
    merged_df = merge(records_df)
 
+.. code-block:: python
+   import colrev.loader.load_utils
+   from pathlib import Path
+
+   # import bib, ris, csv, xlsx, json, ...
+   records_df = colrev.loader.load_utils.load_df(filename=Path("records.bib"))
+
 For advanced use cases, it is also possible to complete and customize each step individually
 
 .. code-block:: python
