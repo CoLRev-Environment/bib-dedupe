@@ -37,7 +37,7 @@ from bib_dedupe.prep_title import prep_title
 from bib_dedupe.prep_volume import prep_volume
 from bib_dedupe.prep_year import prep_year
 
-pd.set_option('future.no_silent_downcasting', True)
+pd.set_option("future.no_silent_downcasting", True)
 
 REQUIRED_FIELDS = [ID, ENTRYTYPE, TITLE, AUTHOR, YEAR]
 OPTIONAL_FIELDS = [
@@ -135,9 +135,8 @@ def __general_prep(records_df: pd.DataFrame) -> pd.DataFrame:
     assert len(missing_fields) == 0, f"Missing required fields: {missing_fields}"
 
     for column in records_df.columns:
-        records_df[column] = (
-            records_df[column]
-            .replace(["#NAME?", "UNKNOWN", ""], np.nan)
+        records_df[column] = records_df[column].replace(
+            ["#NAME?", "UNKNOWN", ""], np.nan
         )
     if records_df[TITLE].isnull().any():
         verbose_print.print(
