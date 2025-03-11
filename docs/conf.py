@@ -1,5 +1,6 @@
 import os
 import sys
+from datetime import datetime
 
 sys.path.insert(0, os.path.abspath("../../bib_dedupe"))
 
@@ -12,7 +13,7 @@ sys.path.insert(0, os.path.abspath("../../bib_dedupe"))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "BibDedupe"
-copyright = "2024, Gerit Wagner"
+copyright = f"{datetime.now().year}, Gerit Wagner"
 author = "Gerit Wagner"
 release = "0.6.0"
 
