@@ -1,9 +1,11 @@
-[tool.poetry]
+[project]
 name = "bib-dedupe"
 version = "0.10.0"
 description = "Identify and merge duplicates in bibliographic records"
-authors = ["Gerit Wagner <gerit.wagner@uni-bamberg.de>"]
-license = "MIT"
+authors = [
+    { name = "Gerit Wagner", email = "gerit.wagner@uni-bamberg.de" },
+]
+license = {text = "MIT"}
 readme = "README.md"
 repository = "https://github.com/CoLRev-Environment/bib-dedupe"
 documentation = "https://colrev-environment.github.io/bib-dedupe/"
@@ -21,29 +23,30 @@ classifiers = [
     "Operating System :: OS Independent",
     "Typing :: Typed",
 ]
+requires-python = ">=3.10"
+dependencies = [
+    "pandas>=2.2.3",
+    "numpy>=2.1.2",
+    "rapidfuzz>=3.10.0",
+]
 
-[[tool.poetry.packages]]
-include = "bib_dedupe"
+[project.optional-dependencies]
+with-data = [
+    "asreview>=1.5",
+]
+dev = [
+    "pylint==3.0.1",
+    "pytest>=7.2.1",
+    "coverage[toml]>=7.3.2",
+    "pytest-skip-slow>=0.0.5",
+]
+docs = [
+    "furo>=2024.8.0",
+    "sphinx-copybutton>=0.5.2",
+]
 
-[tool.poetry.scripts]
+[project.scripts]
 bib-dedupe = "bib_dedupe.cli:main"
-
-[tool.poetry.dependencies]
-python = "^3.10"
-pandas = "^2.2.3"
-numpy = "^2.1.2"
-rapidfuzz = "^3.10.0"
-number-parser = "^0.3.2"
-tqdm = "^4.66.1"
-requests = "^2.32.3"
-pylint = {version = "3.0.1", optional = true }
-pytest = {version = "^7.2.1", optional = true }
-coverage = {extras = ["toml"], version = "^7.3.2", optional = true }
-asreview = {version = "^1.5", optional = true }
-
-[tool.poetry.extras]
-with-data = ["pandas", "asreview"]
-dev = ["pylint", "pytest", "coverage", "pytest-skip-slow"]
 
 [tool.mypy]
 python_version = 3.9
@@ -80,5 +83,5 @@ line-length = 160
 "**/{tests,docs}/*" = ["E501"]
 
 [build-system]
-requires = ["poetry-core>=1.0.0", "cython<3.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
