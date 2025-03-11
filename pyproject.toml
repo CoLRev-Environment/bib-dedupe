@@ -28,7 +28,7 @@ dependencies = [
     "pandas>=2.2.3",
     "numpy>=2.1.2",
     "rapidfuzz>=3.10.0",
-    "number-parse>=0.3.2",
+    "number-parser>=0.3.2",
 ]
 
 [project.optional-dependencies]
