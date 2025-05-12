@@ -92,8 +92,16 @@ Import file formats
 -----------------------
 
 BibDedupe can process any bibliographic data set once it is in a pandas DataFrame, and contains the columns listed above.
-Given that each database follows its own schema with slightly different column names, import functionality must be customized to the specific database.
-We are working on corresponding import functions as part of the `CoLRev project <https://github.com/CoLRev-Environment/colrev>`_.
-Once the import functions are available, they will be described here (see this `issue <https://github.com/CoLRev-Environment/bib-dedupe/issues/16>`_ for more information).
+Import functions are available as part of the `CoLRev project <https://github.com/CoLRev-Environment/colrev>`_.
+
+..
+  Given that each database follows its own schema with slightly different column names, import functionality must be customized to the specific database.
+
+.. code-block:: python
+   import colrev.loader.load_utils
+   from pathlib import Path
+
+   # import bib, ris, csv, xlsx, json, ...
+   records_df = colrev.loader.load_utils.load_df(filename=Path("records.bib"))
 
 .. _example datasets: https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data
