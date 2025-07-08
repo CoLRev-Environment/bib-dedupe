@@ -498,11 +498,10 @@ def calculate_similarities(pairs_df: pd.DataFrame, cpu: int) -> pd.DataFrame:
     if cpu == 1:
         pairs_df = process_df_split(pairs_df)
     else:
-        df_split = np.array_split(pairs_df, 8)
-
+        index_chunks = np.array_split(pairs_df.index, 8)
+        df_split = [pairs_df.loc[idx] for idx in index_chunks]
         with concurrent.futures.ProcessPoolExecutor(max_workers=8) as executor:
             results = executor.map(process_df_split, df_split)
-
         pairs_df = pd.concat(list(results))
 
     end_time = time.time()

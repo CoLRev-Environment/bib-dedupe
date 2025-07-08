@@ -216,7 +216,8 @@ def prep(records_df: pd.DataFrame, *, cpu: int = -1) -> pd.DataFrame:
     if cpu == 1:
         records_df = prepare_df_split(records_df)
     else:
-        df_split = np.array_split(records_df, cpu)
+        index_chunks = np.array_split(records_df.index, cpu)
+        df_split = [records_df.loc[idx] for idx in index_chunks]
         with concurrent.futures.ProcessPoolExecutor(max_workers=cpu) as executor:
             results = executor.map(prepare_df_split, df_split)
         records_df = pd.concat(list(results))
