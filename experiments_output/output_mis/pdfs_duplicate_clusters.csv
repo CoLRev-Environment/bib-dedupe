@@ -1,0 +1,39 @@
+cluster,ID,title,author,number,volume,journal,grobid-version,file,ENTRYTYPE,doi,year,note,__orig_index
+1,0000000544,"EDITOR'S COMMENTS Sandy Slaughter: Outstanding Scholar, Incredible Human Being","Goes, Paulo B and Head, Management",1,39,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/39_1/Goes2015.pdf,article,,,,540
+1,0000000945,EDITOR'S COMMENTS,"Goes, Paulo B and Head, Management",1,37,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/37_1/Goes2013a.pdf,article,,,,941
+2,0000000068,EDITOR'S COMMENTS Continuing and Extending the MIS Quarterly Trifecta Vision,"Burton-Jones, Andrew",1,45,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/45_1/BurtonJones2021.pdf,article,,,,64
+2,001802,EDITOR'S COMMENTS RESEARCH ARTICLE,"Burton-Jones, Andrew and Gray, Peter and Majchrzak, Ann",1,47,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/47_1/ContentServer (1).pdf,article,,,,1776
+3,0000001189,NEXT-GENERATION INFORMATION SYSTEMS THEORIZING: A CALL TO ACTION 1,"Burton-Jones, Andrew and Butler, Brian S and Scott, Susan V and Xu, Sean Xin",1,45,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/45_1/BurtonJonesButlerScottEtAl2021a.pdf,article,10.25300/MISQ/2021/15434,,,1185
+3,001865,NEXT-GENERATION INFORMATION SYSTEMS THEORIZING: A CALL TO ACTION 1,"Burton-Jones, Andrew and Butler, Brian S and Scott, Susan V and Xu, Sean Xin",1,45,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/45_1/Special Issue_ Introduction.pdf,article,10.25300/MISQ/2021/15434,,,1839
+4,001814,EXTRACTING ACTIONABLE INSIGHTS FROM TEXT DATA: A STABLE TOPIC MODEL APPROACH 1,"Yang, Yi and Subramanyam, Ramanath",3,47,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/47_3/retrieve (1).pdf,article,10.25300/MISQ/2022/16957,,,1788
+4,001884,EXTRACTING ACTIONABLE INSIGHTS FROM TEXT DATA: A STABLE TOPIC MODEL APPROACH 1,"Yang, Yi and Subramanyam, Ramanath",3,47,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/47_3/YangSubramanyam2022.pdf,article,10.25300/MISQ/2022/16957,,,1858
+4,001885,EXTRACTING ACTIONABLE INSIGHTS FROM TEXT DATA: A STABLE TOPIC MODEL APPROACH 1,"Yang, Yi and Subramanyam, Ramanath",3,47,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/47_3/yang.pdf,article,10.25300/MISQ/2022/16957,,,1859
+5,001876,ECONOMICS OF ANALYTICS SERVICES ON A MARKETPLACE PLATFORM 1,"Wang, Zhe and Guo, Hong and Liu, Dengpan",2,48,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/48_2/retrieve.pdf,article,10.25300/MISQ/2023/16452,,,1850
+5,001879,ECONOMICS OF ANALYTICS SERVICES ON A MARKETPLACE PLATFORM 1,"Wang, Zhe and Guo, Hong and Liu, Dengpan",2,48,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/48_2/retrieve (18).pdf,article,10.25300/MISQ/2023/16452,,,1853
+6,0000000358,Factors Affecting the Policy for Distributing Computing Resources,"Neumann, Seev and Zviran, Moshe",4,13,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/13_4/NeumannZviran1989.pdf,article,,,,354
+6,0000001707,Factors Affecting the Policy for Distributing Computing Resources,"Neumann, Seev and Zviran, Moshe",4,13,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/13_4/AhituvNeumannZviran1989.pdf,article,,,,1686
+7,0000000007,EDITOR'S COMMENTS,"Rai, Arun",4,44,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/44_4/Rai2020.pdf,article,,,,4
+7,0000000993,EDITOR'S COMMENTS Celebrating 40 Years of MIS Quarterly: MISQ's History and Future Through the Lenses of its Editors-in-Chief,"Rai, Arun",4,40,MIS Quarterly,lfoppiano/grobid:0.7.1,data/pdfs/40_4/Rai2016a.pdf,article,,,,989
+7,0000001728,EDITOR'S COMMENTS Celebrating 40 Years of MIS Quarterly: MISQ's History and Future Through the Lenses of its Editors-in-Chief,"Rai, Arun",4,40,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/40_4/Rai2016a.pdf,article,,,,1706
+7,001864,EDITOR'S COMMENTS Celebrating 40 Years of MIS Quarterly: MISQ's History and Future Through the Lenses of its Editors-in-Chief,"Rai, Arun",,,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/MISQ Celebrating 40 Years.pdf,article,,,,1838
+8,0000000896,EDITOR'S COMMENTS Necessary Changes,"Saunders, Carol",1,30,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/30_1/Saunders2006a.pdf,article,,,,892
+8,0000001384,EDITOR'S COMMENTS,"Saunders, Carol",,30,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/30_SI/Saunders2006.pdf,article,,,,1380
+9,0000001695,The Society for Management Information Systems,"Dougherty, Dougherty and Dougherty and Dougherty, William and Mis",1,1,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/1_1/DoughertyHalbrecht1977.pdf,article,,,,1674
+9,0000001701,The Society for Management Information Systems,"O'reilly, Anthony J F and Mis",1,1,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/1_1/Halbrecht1977.pdf,article,,,,1680
+9,0000001772,The Society for Management Information Systems,"O'reilly, Anthony J F and Mis",1,1,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/1_1/OReillyHalbrecht1977.pdf,article,,,,1748
+10,0000000097,Measuring the Linkage Between Business and Information Technology Objectives,"Reich, Blaize Horner and Benbasat, Izak",1,20,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/20_1/ReichBenbasat1996.pdf,article,,,,93
+10,0000000900,FACTORS THAT INFLUENCE THE SOCIAL DIMENSION OF ALIGNMENT BETWEEN BUSINESS AND INFORMATION TECHNOLOGY OBJECTIVES 1,"Reich, Blaize Horner and Benbasat, Izak",1,24,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/24_1/ReichBenbasat2000.pdf,article,,,,896
+11,0000000172,Instant Quality Control of Large Batch Processing Jobs,"Zelek, Meir",3,11,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/11_3/Zelek1987.pdf,article,,,,168
+11,0000001677,Instant Quality Control of Large Batch Processing Jobs,"Zelek, Meir",3,11,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/11_3/AhituvZelek1987.pdf,article,,,,1656
+12,001866,DIGITIZATION OF TRANSACTION TERMS WITHIN TCE: STRONG SMART CONTRACT AS A NEW MODE OF TRANSACTION GOVERNANCE 1,"Halaburda, Hanna and Levina, Natalia and Min, Semi",2,48,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/48_2/retrieve (1).pdf,article,10.25300/MISQ/2023/17818,,,1840
+12,001871,DIGITIZATION OF TRANSACTION TERMS WITHIN TCE: STRONG SMART CONTRACT AS A NEW MODE OF TRANSACTION GOVERNANCE 1,"Halaburda, Hanna and Levina, Natalia and Min, Semi",2,48,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/48_2/retrieve (19).pdf,article,10.25300/MISQ/2023/17818,,,1845
+13,0000000242,"EDITOR'S COMMENTS MISQ, Inc. or an Online Collective? Is There a Journal Personality and What it Means for Authors","Straub, Detmar",3,34,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/34_3/Straub2010a.pdf,article,,,,238
+13,0000001568,Straub/Editor's Comments,"Straub, Detmar W.",3,32,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/32_3/Straub2006.pdf,article,,,,1563
+14,0000001704,Issues and Opinions,,4,12,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/12_4/BenbasatGoldsteinMead1988.pdf,article,,,,1683
+14,0000001720,Issues and Opinions,,4,12,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/12_4/Dutton1988.pdf,article,,,,1698
+15,0000001723,"Editor's Comments: When Is Enough, Enough?","Gray, Peter and Carter, Pamela and Saunders, Carol",4,30,MIS Quarterly,lfoppiano/grobid:0.7.1,data/pdfs/30_4/Saunders2006c.pdf,article,,,,1701
+15,001863,"EDITOR'S COMMENTS When Is Enough, Enough? 1","Carter, Pamela and Saunders, Carol",,,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/edcommentsv30n4.pdf,article,,,,1837
+16,0000000691,EDITOR’S COMMENTS,"Weber, Ron",1,28,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/28_1/Weber2004.pdf,article,,,,687
+16,0000001654,Weber/Editor's Comments,"Personal, A. and Ihhhbhhhbhhi, View1",1,28,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/28_1/Weber2004a.pdf,article,,,,1635
+17,0000001533,EDITOR'S COMMENTS,"Use and Straub, Detmar",4,36,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/36_4/StraubGiudice2012.pdf,article,,,,1528
+17,0000001663,Editor's Comments Parting Thoughts on My Term of Office as EIC of MISQ (2008-2012),"Straub, Detmar",4,36,MIS Quarterly,lfoppiano/grobid:0.8.1,data/pdfs/36_4/Straub2012a.pdf,article,,,,1644

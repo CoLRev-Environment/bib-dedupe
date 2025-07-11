@@ -1,0 +1,15 @@
+cluster,ID,title,author,number,volume,journal,grobid-version,doi,file,ENTRYTYPE,year,note,__orig_index
+1,0000000402,Discovery paths: exploring emergence and IT evolutionary design in cross-border M&As. Analysing grupo Santander's acquisition of abbey (2004-2009),"Busquets, Javier",2,24,European Journal of Information Systems,lfoppiano/grobid:0.8.1,10.1057/EJIS.2014.38,data/pdfs/24_2/Busquets2015a.pdf,article,2015,,399
+1,0000000869,Discovery paths: exploring emergence and IT evolutionary design in cross-border M&As. Analysing Grupo Santander's acquisition of Abbey (2004-2009),"Busquets, Javier",2,24,European Journal of Information Systems,lfoppiano/grobid:0.8.1,10.1057/EJIS.2015.3,data/pdfs/24_2/Busquets2015_Corrigendum.pdf,article,,Correction,866
+2,0000000397,Information system development activities and inquiring systems: an integrating framework,"Carugati, Andrea",2,17,European Journal of Information Systems,lfoppiano/grobid:0.8.1,10.1057/EJIS.2008.5,data/pdfs/17_2/Carugati2008a.pdf,article,,,394
+2,0000000465,System development activities and inquiring systems: an integrating framework,"Carugati, Andrea",4,17,European Journal of Information Systems,lfoppiano/grobid:0.8.1,10.1057/EJIS.2008.23,data/pdfs/17_4/_System Development Activities.pdf,article,,Correction,462
+3,0000000289,Challenges in learning and improving continuously,"Te'eni, Dov",,,European Journal of Information Systems,lfoppiano/grobid:0.8.1,10.1057/EJIS.2014.37,data/pdfs/Teeni2015b.pdf,article,,,286
+3,0000000659,Challenges in learning and improving continuously,"Te'eni, Dov",1,24,European Journal of Information Systems,lfoppiano/grobid:0.8.1,10.1057/EJIS.2014.37,data/pdfs/24_1/Challenges In Learning And Improving Continuously.pdf,article,,,656
+4,0000000272,ejis$$049p,,2,7,European Journal of Information Systems,lfoppiano/grobid:0.8.1,,data/pdfs/7_2/Book_review_2.pdf,article,,Book review,269
+4,0000000285,ejis$$049p,,2,7,European Journal of Information Systems,lfoppiano/grobid:0.8.1,,data/pdfs/7_2/Book_review.pdf,article,,Book review,282
+5,0000000574,EJIS$$127P,,3,9,European Journal of Information Systems,lfoppiano/grobid:0.8.1,,data/pdfs/9_3/UnknownUNKNOWNz.pdf,article,,Book review,571
+5,0000000704,EJIS$$127P,,3,9,European Journal of Information Systems,lfoppiano/grobid:0.8.1,,data/pdfs/9_3/UnknownUNKNOWNah.pdf,article,,Book review,701
+6,0000000081,EJIS$$121P,,2,9,European Journal of Information Systems,lfoppiano/grobid:0.8.1,,data/pdfs/9_2/UnknownUNKNOWNc.pdf,article,,Book review,78
+6,0000000311,EJIS$$121P,,2,9,European Journal of Information Systems,lfoppiano/grobid:0.8.1,,data/pdfs/9_2/UnknownUNKNOWNp.pdf,article,,Book review,308
+6,0000000359,EJIS$$121P,,2,9,European Journal of Information Systems,lfoppiano/grobid:0.8.1,,data/pdfs/9_2/UnknownUNKNOWNt.pdf,article,,Book review,356
+6,0000000676,EJIS$$121P,,2,9,European Journal of Information Systems,lfoppiano/grobid:0.8.1,,data/pdfs/9_2/UnknownUNKNOWNag.pdf,article,,Book review,673
