@@ -2,57 +2,43 @@
 import warnings
 from pathlib import Path
 from datetime import datetime
+import itertools
 
 import pandas as pd
 from bib_dedupe.bib_dedupe import prep, block, match, cluster, merge
 from bib_dedupe.dedupe_benchmark import DedupeBenchmarker
+from bib_dedupe.constants.fields import ID as FIELD_ID, AUTHOR, TITLE, DOI
 
-# 抑制那些 FutureWarning 和 pandas 链式赋值警告
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=pd.errors.SettingWithCopyWarning)
 
 BASE     = Path(__file__).parent
-DATASETS = ["baseline", "mixed"]
+DATASETS = ["pdf_only", "baseline", "mixed"]
 
 def evaluate(subset: str):
     print(f"\n=== Evaluating {subset} ===")
+    subset_dir = BASE / subset
 
-    # DedupeBenchmarker 会自动加载：
-    #  - records_pre_merged.csv 作为 records_df
-    #  - merged_record_ids.csv 作为真值
-    bench = DedupeBenchmarker(benchmark_path=BASE / subset)
+    bench = DedupeBenchmarker(benchmark_path=subset_dir)
     records_df = bench.get_records_for_dedupe()
     print(f"{datetime.now()}  Loaded {len(records_df)} records")
 
-    # --- 清洗可能的 NaN/float 字段，特别是作者 AUTHOR 字段 ---
-    from bib_dedupe.constants.fields import AUTHOR
     if AUTHOR in records_df.columns:
         records_df[AUTHOR] = records_df[AUTHOR].fillna("").astype(str)
 
-    # 1) prep
     timestamp = datetime.now()
     df1 = prep(records_df)
-
-    # 2) block
     df2 = block(df1)
-
-    # 3) match
     df3 = match(df2)
-
-    # 4) cluster
-    dup_sets = cluster(df3)
-
-    # 5) merge （此时 AUTHOR 列已全是字符串，merge 不会再报 float 长度错误）
+    dup_sets = cluster(df3)   
     merged_df = merge(records_df, duplicate_id_sets=dup_sets)
 
-    # 6) 比对指标
     result = bench.compare_dedupe_id(
         records_df=records_df,
         merged_df=merged_df,
         timestamp=timestamp
     )
 
-    # 打印关键指标
     print(f"\nResults for {subset}:")
     print(f"  TP  = {result['TP']}")
     print(f"  FP  = {result['FP']}")
@@ -62,6 +48,36 @@ def evaluate(subset: str):
     print(f"  Recall (Sensitivity) = {result['sensitivity']:.4f}")
     print(f"  Specificity          = {result['specificity']:.4f}")
     print(f"  F1 Score             = {result['f1']:.4f}")
+
+    pred_pairs = set(itertools.chain.from_iterable(
+        itertools.combinations(cluster, 2) for cluster in dup_sets
+    ))
+    true_pairs = set(itertools.chain.from_iterable(
+        itertools.combinations(tc, 2) for tc in bench.true_merged_ids
+    ))
+    fp_pairs = pred_pairs - true_pairs
+    print(f"{datetime.now()}  Found {len(fp_pairs)} false positive pairs, exporting...")
+
+    df_idx = records_df.set_index(FIELD_ID)
+    rows = []
+    for cid, pair in enumerate(fp_pairs):
+        id1, id2 = sorted(pair)
+        r1, r2 = df_idx.loc[id1], df_idx.loc[id2]
+        rows.append({
+            "cluster_id": cid,
+            "id1": id1,
+            "title1": r1.get(TITLE, ""),
+            "author1": r1.get(AUTHOR, ""),
+            "doi1": r1.get(DOI, ""),
+            "id2": id2,
+            "title2": r2.get(TITLE, ""),
+            "author2": r2.get(AUTHOR, ""),
+            "doi2": r2.get(DOI, ""), 
+        })
+    fp_df = pd.DataFrame(rows)
+    out_fp = subset_dir / "false_positives.csv"
+    fp_df.to_csv(out_fp, index=False, encoding="utf-8")
+    print(f"{datetime.now()}  False positives saved to {out_fp}")
 
 def main():
     for ds in DATASETS:

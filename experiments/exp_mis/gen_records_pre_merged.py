@@ -15,15 +15,14 @@ from pathlib import Path
 import bibtexparser
 import pandas as pd
 
-# mapping from source bib → prefix and source name
 SRC_MAP = {
     "CROSSREF.bib": ("C", "crossref"),
     "DBLP.bib":     ("D", "dblp"),
     "pdfs.bib":     ("P", "pdf"),
 }
 
-if len(sys.argv) != 2 or sys.argv[1] not in ("baseline", "mixed"):
-    print("Usage: python gen_records_pre_merged.py <baseline|mixed>")
+if len(sys.argv) != 2 or sys.argv[1] not in ("baseline", "mixed", "pdf_only"):
+    print("Usage: python gen_records_pre_merged.py <baseline|mixed|pdf_only>")
     sys.exit(1)
 
 subset = sys.argv[1]
@@ -31,28 +30,32 @@ BASE   = Path(__file__).parent
 DATA   = BASE / "mis-quarterly" / "data" / "search"
 OUT    = BASE / subset / "records_pre_merged.csv"
 
+if subset == "baseline":
+    bib_files = ["CROSSREF.bib", "DBLP.bib"]
+elif subset == "mixed":
+    bib_files = ["CROSSREF.bib", "DBLP.bib", "pdfs.bib"]
+elif subset == "pdf_only":
+    bib_files = ["pdfs.bib"]
+else:
+    raise ValueError("Unknown subset")
+
 all_dfs = []
-for bib_file in ["CROSSREF.bib", "DBLP.bib"] + (["pdfs.bib"] if subset=="mixed" else []):
+for bib_file in bib_files:
     path = DATA / bib_file
     prefix, src = SRC_MAP[bib_file]
     with path.open(encoding="utf-8") as fh:
         bib = bibtexparser.load(fh)
-    # each entry is a dict of all fields
     df = pd.DataFrame(bib.entries)
     if df.empty:
         continue
-    # original numeric ID
     df["orig_ID"] = df["ID"]
-    # new prefixed ID
     df["ID"] = df["orig_ID"].apply(lambda rid: f"{prefix}_{rid}")
     df["orig_source"] = src
     all_dfs.append(df)
 
-# concat, preserve column order by putting ID/orig_ID/orig_source up front
 full = pd.concat(all_dfs, ignore_index=True)
 cols = ["ID", "orig_ID", "orig_source"] + [c for c in full.columns if c not in ("ID","orig_ID","orig_source")]
 full = full[cols]
 
-# write out
 full.to_csv(OUT, index=False)
 print(f"Wrote {len(full)} records to {OUT}")
