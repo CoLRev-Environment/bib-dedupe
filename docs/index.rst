@@ -1,5 +1,25 @@
-BibDedupe Documentation
-======================================
+.. raw:: html
+
+    <h1 style="display:none;">BibDedupe Documentation</h1>
+
+.. raw:: html
+
+    <div style="text-align: center;">
+        <img src="https://raw.githubusercontent.com/CoLRev-Environment/bib-dedupe/main/docs/figures/logo.png" alt="BibDedupe logo" width="300"><br><br>
+
+        <img src="https://joss.theoj.org/papers/b954027d06d602c106430e275fe72130/status.svg" alt="JOSS status"
+             onclick="window.open('https://joss.theoj.org/papers/b954027d06d602c106430e275fe72130')">
+        <img src="https://img.shields.io/pypi/pyversions/bib-dedupe" alt="Supported Python versions"
+             onclick="window.open('https://pypi.org/project/bib-dedupe/')">
+        <img src="https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white" alt="pre-commit enabled"
+             onclick="window.open('https://github.com/pre-commit/pre-commit')">
+        <img src="https://img.shields.io/github/actions/workflow/status/CoLRev-Environment/bib-dedupe/.github%2Fworkflows%2Ftests.yml?label=tests" alt="CI tests"
+             onclick="window.open('https://github.com/CoLRev-Environment/bib-dedupe/actions/workflows/tests.yml')">
+        <img src="https://img.shields.io/github/actions/workflow/status/CoLRev-Environment/bib-dedupe/.github%2Fworkflows%2Fdocs.yml?label=docs" alt="Docs build"
+             onclick="window.open('https://github.com/CoLRev-Environment/bib-dedupe/actions/workflows/docs.yml')">
+        <img src="https://img.shields.io/github/actions/workflow/status/CoLRev-Environment/bib-dedupe/.github%2Fworkflows%2Fevaluate.yml?label=continuous%20evaluation" alt="Continuous evaluation"
+             onclick="window.open('https://github.com/CoLRev-Environment/bib-dedupe/actions/workflows/evaluate.yml')">
+    </div><br>
 
 BibDedupe is an open-source **Python library for deduplication of bibliographic records**, tailored for literature reviews.
 Unlike traditional deduplication methods, **BibDedupe** focuses on entity resolution, linking duplicate records instead of simply deleting them.
