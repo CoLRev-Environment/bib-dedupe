@@ -1,5 +1,4 @@
 """Integration tests for the bib-dedupe command line interface."""
-
 from __future__ import annotations
 
 import os
