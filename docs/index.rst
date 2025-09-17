@@ -68,6 +68,32 @@ For advanced use cases, it is also possible to complete and customize each step 
 
 .. _Python scripts: installation#starting-bib-dedupe
 
+Command-line interface
+----------------------
+
+In addition to the Python APIs, BibDedupe provides a `bib-dedupe` console command that orchestrates the full deduplication workflow or individual pipeline stages. Typical usage looks like this:
+
+.. code-block:: bash
+
+   # install once
+   pip install bib-dedupe
+
+   # end-to-end merge
+   bib-dedupe merge -i records.csv -o merged.csv --stats
+
+   # stepwise execution
+   bib-dedupe prep -i records.csv -o records.prep.csv
+   bib-dedupe block -i records.prep.csv -o pairs.csv
+   bib-dedupe match -i pairs.csv -o matches.csv
+
+   # review and apply maybe cases
+   bib-dedupe match -i pairs.csv -o matches.csv --export-maybe --records records.csv
+   # edit the generated maybe_cases.csv, then
+   bib-dedupe import-maybe -i matches.csv -o matches.reviewed.csv
+   bib-dedupe merge -i records.csv -o merged.csv --import-maybe
+
+Refer to :doc:`cli` for a detailed explanation of the available subcommands and options.
+
 .. toctree::
    :hidden:
    :maxdepth: 2
@@ -75,5 +101,6 @@ For advanced use cases, it is also possible to complete and customize each step 
 
    installation
    usage
+   cli
    evaluation
    api
