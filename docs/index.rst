@@ -1,3 +1,8 @@
+
+.. image:: figures/logo.png
+   :alt: BibDedupe logo
+   :align: center
+
 BibDedupe Documentation
 ======================================
 
