@@ -1,8 +1,13 @@
+#! /usr/bin/env python
 """Command-line interface for :mod:`bib_dedupe`."""
 from __future__ import annotations
 
 import argparse
+import ast
+import json
+import re
 import sys
+import typing
 from dataclasses import dataclass
 from importlib import metadata
 from pathlib import Path
@@ -20,6 +25,15 @@ from bib_dedupe.bib_dedupe import match
 from bib_dedupe.bib_dedupe import merge
 from bib_dedupe.bib_dedupe import prep
 
+# --- colrev availability check (exit otherwise) ------------------------------
+try:
+    import colrev.loader.load_utils as _colrev_load
+    import colrev.writer.write_utils as _colrev_write
+
+    _HAS_COLREV = True
+except Exception:  # broad on purpose: any import issue means it's unavailable
+    _HAS_COLREV = False
+
 
 class CLIError(Exception):
     """Raised for command-line usage errors."""
@@ -34,6 +48,20 @@ class RuntimeOptions:
 
 
 DataFrame = pd.DataFrame
+
+
+# ----------------------------- I/O helpers --------------------------------- #
+def read_records_colrev(path: Path) -> DataFrame:
+    """Load bibliographic records via colrev and return a pandas DataFrame."""
+    try:
+        records = _colrev_load.load(filename=str(path))
+    except Exception as exc:
+        raise CLIError(f"Failed to load records via colrev from {path}: {exc}") from exc
+    try:
+        # return pd.DataFrame.from_records(list(records))
+        return pd.DataFrame.from_dict(records, orient="index")
+    except Exception as exc:
+        raise CLIError(f"Failed to convert colrev records to DataFrame: {exc}") from exc
 
 
 def read_df(path: Path) -> DataFrame:
@@ -69,6 +97,139 @@ def _ensure_output_path(path: Path) -> Path:
     return path.with_suffix(".csv")
 
 
+def parse_colrev_origin(value: typing.Any) -> typing.List[str]:
+    """Return a clean list like ['dblp.bib/000591', 'files.bib/000037'] from messy inputs."""
+    # Already a list → normalize & dedupe
+    if isinstance(value, list):
+        seen, out = set(), []
+        for x in value:
+            t = str(x).strip()
+            if t and t not in seen:
+                seen.add(t)
+                out.append(t)
+        return out
+
+    # Not a string → nothing usable
+    if not isinstance(value, str):
+        return []
+
+    s = value.strip()
+    if not s:
+        return []
+
+    # Fix common broken joiners/separators from bib exports
+    s = (
+        s.replace("'];['", ",")
+        .replace("';['", ",")
+        .replace("']['", ",")
+        .replace("];[", ",")
+        .replace("] ; [", ",")
+        .replace(";", ",")
+    )
+
+    # Strip trailing commas
+    while s.endswith(","):
+        s = s[:-1].strip()
+
+    # Repeatedly strip outer quotes/braces/brackets
+    # (handles "'[...]'", "{[...]}", "{{[...]}}", etc.)
+    while len(s) >= 2 and (
+        (s[0] in "'\"" and s[-1] == s[0])
+        or (s[0] == "{" and s[-1] == "}")
+        or (s[0] == "[" and s[-1] == "]")
+    ):
+        s = s[1:-1].strip()
+
+    # Try proper parsers first
+    for parser in (json.loads, ast.literal_eval):
+        try:
+            parsed = parser(s)
+            if isinstance(parsed, list):
+                return parse_colrev_origin(parsed)  # normalize/dedupe
+        except Exception:
+            pass
+
+    # Last-resort: extract tokens that look like "source.bib/000123"
+    candidates = re.findall(r"[A-Za-z0-9._-]+(?:\.bib)?/[A-Za-z0-9._-]+", s)
+    # Dedupe while preserving order
+    seen, out = set(), []
+    for tok in candidates:
+        if tok not in seen:
+            seen.add(tok)
+            out.append(tok)
+    return out
+
+
+def maybe_cast_literal(value):
+    """Parse list/dict-ish strings (incl. BibTeX double-braced) into Python objects."""
+    if not isinstance(value, str):
+        return value
+
+    s = value.strip()
+
+    # Trim a trailing comma (common in .bib exports)
+    if s.endswith(","):
+        s = s[:-1].strip()
+
+    # Unwrap quotes if the whole thing is quoted: "'[... ]'" or '"{ ... }"'
+    if len(s) >= 2 and s[0] in ("'", '"') and s[-1] == s[0]:
+        inner = s[1:-1].strip()
+        # Only unwrap if the inner looks like a literal container
+        if (inner.startswith("[") and inner.endswith("]")) or (
+            inner.startswith("{") and inner.endswith("}")
+        ):
+            s = inner
+
+    # Handle BibTeX-style double braces: {{ ... }}
+    if s.startswith("{{") and s.endswith("}}"):
+        s = s[1:-1].strip()
+
+    # If it doesn't look like a literal, skip work
+    if not (
+        (s.startswith("{") and s.endswith("}"))
+        or (s.startswith("[") and s.endswith("]"))
+    ):
+        return value
+
+    # Safely parse Python literal (handles single quotes etc.). Avoid eval().
+    try:
+        return ast.literal_eval(s)
+    except Exception:
+        return value
+
+
+def write_records_colrev(df: DataFrame, path: Path) -> None:
+    """Persist bibliographic records via colrev writer based on *path* suffix."""
+    output_path = _ensure_output_path(path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        records = df.to_dict(orient="index")
+
+        for rec_id, record in records.items():
+            # Normalize colrev_origin
+            if "colrev_origin" in record:
+                record["colrev_origin"] = parse_colrev_origin(record["colrev_origin"])
+                # keep origin in sync for CoLRev
+                if isinstance(record["colrev_origin"], list):
+                    record["origin"] = record["colrev_origin"]
+
+            for key in list(record.keys()):
+                record[key] = maybe_cast_literal(record[key])
+
+            for key in list(record.keys()):
+                if isinstance(record[key], (list, dict)):
+                    continue
+                if pd.isnull(record[key]) or record[key] == "" or record[key] == "nan":
+                    records[rec_id].pop(key)
+            records[rec_id].pop("origin", None)  # remove 'origin' if present
+
+        _colrev_write.write_file(records, filename=str(output_path))
+    except Exception as exc:
+        raise CLIError(
+            f"Failed to write records via colrev to {output_path}: {exc}"
+        ) from exc
+
+
 def write_df(df: DataFrame, path: Path) -> None:
     """Persist *df* to *path*, inferring the format from the file suffix."""
 
@@ -96,6 +257,7 @@ def write_df(df: DataFrame, path: Path) -> None:
     )
 
 
+# ----------------------------- options helpers ------------------------------ #
 def _resolve_verbosity(args: argparse.Namespace) -> Optional[int]:
     verbosity_level = getattr(args, "verbosity_level", None)
     quiet = getattr(args, "quiet", False)
@@ -128,9 +290,10 @@ def _describe_maybe_cases() -> str:
     return "No maybe cases were exported."
 
 
+# ----------------------------- commands ------------------------------------- #
 def run_merge(args: argparse.Namespace) -> int:
     options = _collect_runtime_options(args)
-    records_df = read_df(Path(args.input))
+    records_df = read_records_colrev(Path(args.input))
     n_input = len(records_df)
 
     matched_df: Optional[DataFrame] = None
@@ -174,14 +337,16 @@ def run_merge(args: argparse.Namespace) -> int:
             records_df,
             duplicate_id_sets=duplicate_id_sets,
             verbosity_level=options.verbosity_level,
+            origin_column="colrev_origin",
         )
     else:
         merged_df = merge(
             records_df,
             verbosity_level=options.verbosity_level,
+            origin_column="colrev_origin",
         )
 
-    write_df(merged_df, Path(args.output))
+    write_records_colrev(merged_df, Path(args.output))
 
     if args.stats:
         stats_lines = [
@@ -203,6 +368,7 @@ def run_merge(args: argparse.Namespace) -> int:
 
 def run_prep(args: argparse.Namespace) -> int:
     options = _collect_runtime_options(args)
+    # prep produces an internal artifact used by block; keep non-colrev IO here
     records_df = read_df(Path(args.input))
     prepared_df = prep(
         records_df, verbosity_level=options.verbosity_level, cpu=options.cpu
@@ -234,7 +400,7 @@ def run_match(args: argparse.Namespace) -> int:
             raise CLIError(
                 "--export-maybe requires --records to provide the original records."
             )
-        records_df = read_df(Path(args.records))
+        records_df = read_records_colrev(Path(args.records))
         export_maybe(
             records_df,
             matched_df=matched_df,
@@ -247,7 +413,7 @@ def run_match(args: argparse.Namespace) -> int:
 
 def run_export_maybe(args: argparse.Namespace) -> int:
     options = _collect_runtime_options(args)
-    records_df = read_df(Path(args.records))
+    records_df = read_records_colrev(Path(args.records))
     matches_df = read_df(Path(args.matches))
     export_maybe(
         records_df,
@@ -279,6 +445,7 @@ def run_version(_: argparse.Namespace) -> int:
     return 0
 
 
+# ----------------------------- CLI wiring ----------------------------------- #
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="bib-dedupe",
@@ -415,6 +582,15 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
+    # Enforce colrev requirement globally (exit otherwise)
+    if not _HAS_COLREV:
+        print(
+            "Error: 'colrev' is required but not installed. "
+            "Please install it (e.g., `pip install colrev`) and retry.",
+            file=sys.stderr,
+        )
+        return 2
+
     parser = build_parser()
     args = parser.parse_args(argv)
 

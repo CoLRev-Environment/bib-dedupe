@@ -14,6 +14,7 @@ import bib_dedupe.maybe_cases
 import bib_dedupe.merge
 import bib_dedupe.prep
 from bib_dedupe import verbose_print
+from bib_dedupe.constants.fields import ORIGIN
 
 
 def prep(
@@ -147,6 +148,7 @@ def merge(
     matched_df: typing.Optional[pd.DataFrame] = None,
     duplicate_id_sets: typing.Optional[list] = None,
     verbosity_level: typing.Optional[int] = None,
+    origin_column: str = ORIGIN,
 ) -> pd.DataFrame:
     """
     Merges duplicate records in the given dataframe.
@@ -173,7 +175,9 @@ def merge(
         matched_df = match(blocked_df)
         duplicate_id_sets = bib_dedupe.cluster.get_connected_components(matched_df)
 
-    return bib_dedupe.merge.merge(records_df, duplicate_id_sets=duplicate_id_sets)
+    return bib_dedupe.merge.merge(
+        records_df, duplicate_id_sets=duplicate_id_sets, origin_column=origin_column
+    )
 
 
 def _download_file_from_github(url: str, local_path: str) -> None:
