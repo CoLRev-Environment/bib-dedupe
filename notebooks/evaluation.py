@@ -9,7 +9,6 @@ from pathlib import Path
 
 import evaluation
 import pandas as pd
-from asreview.data import ASReviewData
 
 from bib_dedupe.bib_dedupe import block
 from bib_dedupe.bib_dedupe import cluster
@@ -336,13 +335,39 @@ if __name__ == "__main__":
         )
 
         # ASReview
+
+        tmp_in = Path("notebooks/asreview_input.csv")
+        tmp_out = Path("notebooks/asreview_dedup.csv")
+        records_df.to_csv(tmp_in, index=False)
+
         timestamp = datetime.now()
-        asdata = ASReviewData(records_df)
-        merged_df = asdata.drop_duplicates()
+        subprocess.run(
+            [
+                "asreview",
+                "data",
+                "dedup",
+                str(tmp_in),
+                "-o",
+                str(tmp_out),
+                "--pid",
+                "DOI",
+            ],
+            check=True,
+        )
+        merged_df = pd.read_csv(tmp_out)
+
         result = dedupe_benchmark.compare_dedupe_id(
             records_df=records_df, merged_df=merged_df, timestamp=timestamp
         )
         evaluation.append_to_output(result, package_name="asreview")
+
+        # timestamp = datetime.now()
+        # asdata = ASReviewData(records_df)
+        # merged_df = asdata.drop_duplicates()
+        # result = dedupe_benchmark.compare_dedupe_id(
+        #     records_df=records_df, merged_df=merged_df, timestamp=timestamp
+        # )
+        # evaluation.append_to_output(result, package_name="asreview")
 
         # ASySD (R)
         # temporarily skip (need to combine part1/2)
