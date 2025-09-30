@@ -48,7 +48,7 @@ BibDedupe is available on `PyPI <https://pypi.org/project/bib-dedupe/>`_, and ca
 Getting Started
 ---------------
 
-The BibDedupe library can be used in different ways, including `Python scripts`_, Jupyter notebooks, or in other Python packages. In a basic setup, the library can be used as follows:
+The BibDedupe library can be used in different ways, including Python scripts, Jupyter notebooks, or in other Python packages. In a basic setup, the library can be used as follows:
 
 .. code-block:: python
 
