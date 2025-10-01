@@ -83,5 +83,6 @@ jobs:
           git add output/*
           git add docs/_static/evaluation_total.png*
           git commit -m "Update evaluation ($(date +'%Y-%m-%d-%H-%M'))"
+          git reset --hard
           git pull origin main --rebase
           git push origin main
