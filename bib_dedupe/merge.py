@@ -133,6 +133,7 @@ def default_merge_function_origin(origins: list) -> str:
     unique_origins = set()
     for origin in origins:
         unique_origins.update(origin.split(";"))
+    unique_origins = {o.strip() for o in unique_origins if o.strip() != ""}
     return ";".join(sorted(unique_origins))
 
 
