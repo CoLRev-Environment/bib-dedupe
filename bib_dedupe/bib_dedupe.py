@@ -165,7 +165,7 @@ def merge(
     if verbosity_level is not None:
         verbose_print.verbosity_level = verbosity_level
 
-    if matched_df:
+    if matched_df is not None:
         duplicate_id_sets = bib_dedupe.cluster.get_connected_components(matched_df)
 
     if not duplicate_id_sets:
