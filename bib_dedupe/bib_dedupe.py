@@ -13,7 +13,6 @@ import bib_dedupe.match
 import bib_dedupe.maybe_cases
 import bib_dedupe.merge
 import bib_dedupe.prep
-import bib_dedupe.sim
 from bib_dedupe import verbose_print
 
 
