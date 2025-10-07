@@ -273,4 +273,7 @@ def block(records_df: pd.DataFrame, cpu: int = -1) -> pd.DataFrame:
     verbose_print.print(f"Blocked pairs reduced to {pairs_df.shape[0]:,} pairs")
     end_time = time.time()
     verbose_print.print(f"Block completed after: {end_time - start_time:.2f} seconds")
+
+    pairs_df.drop(columns=["require_title_overlap"], inplace=True)
+
     return pairs_df
