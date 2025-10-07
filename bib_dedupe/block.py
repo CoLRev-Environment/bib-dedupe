@@ -85,7 +85,9 @@ def create_pairs_for_block_fields(
 
     pairs = (
         non_empty_df.groupby("block_hash", group_keys=True)["ID"]
-        .apply(lambda x: pd.DataFrame(list(combinations(x, 2)), columns=["ID1", "ID2"]))
+        .apply(
+            lambda x: pd.DataFrame(list(combinations(x, 2)), columns=["ID_1", "ID_2"])
+        )
         .reset_index(drop=True)
     )
     pairs["block_rule"] = "-".join(block_fields)
@@ -208,6 +210,23 @@ def block(records_df: pd.DataFrame, cpu: int = -1) -> pd.DataFrame:
 
     Returns:
     pd.DataFrame: The dataframe after blocking operation.
+
+
+    Output table structure (columns, in order):
+        block_rule,
+        ID_1, ENTRYTYPE_1, author_1, year_1, title_1, volume_1, number_1,
+        pages_1, abstract_1, doi_1, series_1, search_set_1, container_title_1,
+        author_full_1, author_first_1, title_short_1, container_title_short_1,
+        ID_2, ENTRYTYPE_2, author_2, year_2, title_2, volume_2, number_2,
+        pages_2, abstract_2, doi_2, series_2, search_set_2, container_title_2,
+        author_full_2, author_first_2, title_short_2, container_title_short_2
+
+    Column meanings:
+    - ID_1 / ID_2: The two record identifiers that form the pair.
+    - block_rule: Name/description of the blocking rule that surfaced this pair;
+        use an empty string if not applicable.
+    - *_1 / *_2: Field values of the left/right record in the pair, respectively.
+        These mirror the original record schema (e.g., author, year, title, etc
     """
     INSTRUCTION = "(please run prep(records_df) and pass the prepared df)"
     assert (
@@ -222,8 +241,10 @@ def block(records_df: pd.DataFrame, cpu: int = -1) -> pd.DataFrame:
     )
     start_time = time.time()
 
-    pairs_df = pd.DataFrame(columns=["ID1", "ID2", "require_title_overlap"])
-    pairs_df = pairs_df.astype({"ID1": str, "ID2": str, "require_title_overlap": bool})
+    pairs_df = pd.DataFrame(columns=["ID_1", "ID_2", "require_title_overlap"])
+    pairs_df = pairs_df.astype(
+        {"ID_1": str, "ID_2": str, "require_title_overlap": bool}
+    )
     if cpu == 1:
         for field in block_fields_list:
             pairs_df = pd.concat(
@@ -242,15 +263,15 @@ def block(records_df: pd.DataFrame, cpu: int = -1) -> pd.DataFrame:
         pairs_df = pd.concat(results, ignore_index=True)
 
     # title overlap is only required when there is no blocked pair that requires it.
-    pairs_df["require_title_overlap"] = pairs_df.groupby(["ID1", "ID2"])[
+    pairs_df["require_title_overlap"] = pairs_df.groupby(["ID_1", "ID_2"])[
         "require_title_overlap"
     ].transform("all")
-    pairs_df = pairs_df.drop_duplicates(subset=["ID1", "ID2"])
+    pairs_df = pairs_df.drop_duplicates(subset=["ID_1", "ID_2"])
 
     pairs_df = pd.merge(
         pairs_df,
         records_df.add_suffix("_1"),
-        left_on="ID1",
+        left_on="ID_1",
         right_on="ID_1",
         how="left",
         suffixes=("", "_1"),
@@ -259,7 +280,7 @@ def block(records_df: pd.DataFrame, cpu: int = -1) -> pd.DataFrame:
     pairs_df = pd.merge(
         pairs_df,
         records_df.add_suffix("_2"),
-        left_on="ID2",
+        left_on="ID_2",
         right_on="ID_2",
         how="left",
         suffixes=("", "_2"),
