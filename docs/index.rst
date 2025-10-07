@@ -17,8 +17,8 @@
              onclick="window.open('https://github.com/CoLRev-Environment/bib-dedupe/actions/workflows/tests.yml')">
         <img src="https://img.shields.io/github/actions/workflow/status/CoLRev-Environment/bib-dedupe/.github%2Fworkflows%2Fdocs.yml?label=docs" alt="Docs build"
              onclick="window.open('https://github.com/CoLRev-Environment/bib-dedupe/actions/workflows/docs.yml')">
-        <img src="https://img.shields.io/github/actions/workflow/status/CoLRev-Environment/bib-dedupe/.github%2Fworkflows%2Fevaluate.yml?label=continuous%20evaluation" alt="Continuous evaluation"
-             onclick="window.open('https://github.com/CoLRev-Environment/bib-dedupe/actions/workflows/evaluate.yml')">
+        <img src="https://img.shields.io/github/actions/workflow/status/CoLRev-Environment/literature-deduplication-benchmarks/actions/workflows/ldd-full.yml?label=continuous%20evaluation" alt="Continuous evaluation"
+             onclick="window.open('https://github.com/CoLRev-Environment/literature-deduplication-benchmarks/actions/workflows/ldd-full.yml')">
     </div><br>
 
 BibDedupe is an open-source **Python library for deduplication of bibliographic records**, tailored for literature reviews.
@@ -95,5 +95,4 @@ For advanced use cases, it is also possible to complete and customize each step 
 
    installation
    usage
-   evaluation
    api

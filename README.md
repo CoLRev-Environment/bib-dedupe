@@ -8,7 +8,7 @@
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/CoLRev-Environment/bib-dedupe/.github%2Fworkflows%2Ftests.yml?label=tests)](https://github.com/CoLRev-Environment/bib-dedupe/actions/workflows/tests.yml)
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/CoLRev-Environment/bib-dedupe/.github%2Fworkflows%2Fdocs.yml?label=docs)](https://github.com/CoLRev-Environment/bib-dedupe/actions/workflows/docs.yml)
-[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/CoLRev-Environment/bib-dedupe/.github%2Fworkflows%2Fevaluate.yml?label=continuous%20evaluation)](https://github.com/CoLRev-Environment/bib-dedupe/actions/workflows/evaluate.yml)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/CoLRev-Environment/literature-deduplication-benchmarks/actions/workflows/ldd-full.yml?label=continuous%20evaluation)](https://github.com/CoLRev-Environment/literature-deduplication-benchmarks/actions/workflows/ldd-full.yml)
 
 </div>
 
