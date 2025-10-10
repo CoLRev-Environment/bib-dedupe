@@ -216,11 +216,14 @@ def prep(records_df: pd.DataFrame, *, cpu: int = -1) -> pd.DataFrame:
     if cpu == 1:
         records_df = prepare_df_split(records_df)
     else:
-        index_chunks = np.array_split(records_df.index, cpu)
-        df_split = [records_df.loc[idx] for idx in index_chunks]
+        n = len(records_df)
+        bounds = np.linspace(0, n, num=cpu + 1, dtype=int)
+        df_split = [records_df.iloc[s:e] for s, e in zip(bounds[:-1], bounds[1:])]
+
         with concurrent.futures.ProcessPoolExecutor(max_workers=cpu) as executor:
             results = executor.map(prepare_df_split, df_split)
         records_df = pd.concat(list(results))
+
     records_df = records_df.assign(
         author_first=records_df[AUTHOR].str.split().str[0],
         title_short=records_df[TITLE].apply(lambda x: " ".join(x.split()[:10])),

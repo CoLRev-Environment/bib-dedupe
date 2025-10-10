@@ -498,11 +498,24 @@ def calculate_similarities(pairs_df: pd.DataFrame, cpu: int) -> pd.DataFrame:
     if cpu == 1:
         pairs_df = process_df_split(pairs_df)
     else:
-        index_chunks = np.array_split(pairs_df.index, 8)
-        df_split = [pairs_df.loc[idx] for idx in index_chunks]
-        with concurrent.futures.ProcessPoolExecutor(max_workers=8) as executor:
-            results = executor.map(process_df_split, df_split)
-        pairs_df = pd.concat(list(results))
+        n = len(pairs_df)
+        if n == 0:
+            return pairs_df.iloc[0:0].copy()
+
+        # cap workers to number of rows; avoid many empty slices
+        workers = max(1, min(cpu, n))
+        idx_chunks = np.array_split(np.arange(n), workers)
+        chunks = [pairs_df.iloc[idx] for idx in idx_chunks if len(idx) > 0]
+
+        with concurrent.futures.ProcessPoolExecutor(max_workers=len(chunks)) as ex:
+            results_iter = ex.map(process_df_split, chunks)
+
+        parts = [r for r in results_iter if isinstance(r, pd.DataFrame) and not r.empty]
+
+        if not parts:
+            return pairs_df.iloc[0:0].copy()
+
+        pairs_df = pd.concat(parts, ignore_index=True)
 
     end_time = time.time()
     verbose_print.print(f"Sim completed after: {end_time - start_time:.2f} seconds")
