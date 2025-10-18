@@ -11,8 +11,10 @@ import pandas as pd
 from bib_dedupe import verbose_print
 from bib_dedupe.constants.fields import ABSTRACT
 from bib_dedupe.constants.fields import AUTHOR
+from bib_dedupe.constants.fields import AUTHOR_FIRST
 from bib_dedupe.constants.fields import BOOKTITLE
 from bib_dedupe.constants.fields import CONTAINER_TITLE
+from bib_dedupe.constants.fields import CONTAINER_TITLE_SHORT
 from bib_dedupe.constants.fields import DOI
 from bib_dedupe.constants.fields import ENTRYTYPE
 from bib_dedupe.constants.fields import ID
@@ -22,6 +24,7 @@ from bib_dedupe.constants.fields import PAGES
 from bib_dedupe.constants.fields import SEARCH_SET
 from bib_dedupe.constants.fields import SERIES
 from bib_dedupe.constants.fields import TITLE
+from bib_dedupe.constants.fields import TITLE_SHORT
 from bib_dedupe.constants.fields import VOLUME
 from bib_dedupe.constants.fields import YEAR
 from bib_dedupe.prep_abstract import prep_abstract
@@ -204,7 +207,8 @@ def prep(records_df: pd.DataFrame, *, cpu: int = -1) -> pd.DataFrame:
 
     if 0 == records_df.shape[0]:
         verbose_print.print("No records to prepare")
-        return {}
+        cols = ALL_FIELDS + [AUTHOR_FIRST, TITLE_SHORT, CONTAINER_TITLE_SHORT]
+        return pd.DataFrame({c: pd.Series(dtype="string") for c in cols})
 
     records_df = __general_prep(records_df)
     cpu = determine_cpu_count(cpu, records_df.shape[0])
