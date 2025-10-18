@@ -138,11 +138,6 @@ def __general_prep(records_df: pd.DataFrame) -> pd.DataFrame:
         records_df[column] = records_df[column].replace(
             ["#NAME?", "UNKNOWN", ""], np.nan
         )
-    if records_df[TITLE].isnull().any():
-        verbose_print.print(
-            "Warning: Some records have empty title field. These records will not be considered."
-        )
-        records_df = records_df.dropna(subset=[TITLE])
 
     # if columns are of type float, we need to avoid casting "3.0" to "30"
     for col in records_df.columns:
