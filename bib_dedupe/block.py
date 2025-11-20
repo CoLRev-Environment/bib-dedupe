@@ -15,10 +15,10 @@ from bib_dedupe.constants.fields import DOI
 from bib_dedupe.constants.fields import NUMBER
 from bib_dedupe.constants.fields import PAGES
 from bib_dedupe.constants.fields import SEARCH_SET
+from bib_dedupe.constants.fields import TITLE
 from bib_dedupe.constants.fields import TITLE_SHORT
 from bib_dedupe.constants.fields import VOLUME
 from bib_dedupe.constants.fields import YEAR
-from bib_dedupe.constants.fields import TITLE
 
 block_fields_list = [
     {AUTHOR_FIRST, YEAR},
@@ -247,7 +247,6 @@ def block(records_df: pd.DataFrame, cpu: int = -1) -> pd.DataFrame:
             "Warning: Some records have empty title field. These records will not be considered."
         )
         records_df = records_df.dropna(subset=[TITLE])
-
 
     pairs_df = pd.DataFrame(columns=["ID_1", "ID_2", "require_title_overlap"])
     pairs_df = pairs_df.astype(

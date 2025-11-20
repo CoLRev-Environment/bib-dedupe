@@ -82,7 +82,7 @@ duplicate_conditions = [
     f"({auXX_ti095_ct095} & {match(VOLUME, NUMBER, PAGES, YEAR)} & {non_contradicting(DOI, ABSTRACT)})",
     # no CONTAINER_TITLE
     f"({au10_ti10_ctNC} & {match(VOLUME, YEAR)} & {non_contradicting(NUMBER, PAGES, DOI, ABSTRACT)})",
-    f"({au10_ti10_ctNC} & {match(YEAR, DOI)} & {non_contradicting(VOLUME, NUMBER, PAGES, ABSTRACT)})", # GROBID
+    f"({au10_ti10_ctNC} & {match(YEAR, DOI)} & {non_contradicting(VOLUME, NUMBER, PAGES, ABSTRACT)})",  # GROBID
     f"({au09_ti09_ctXX} & {match(PAGES, DOI)} & {non_contradicting(VOLUME, NUMBER, ABSTRACT)} & {YEAR} > 0.9)",
     f"({au09_ti09_ctXX} & ({match(NUMBER)} & {non_contradicting(PAGES)} | {non_contradicting(NUMBER)} & {match(PAGES)}) & {non_contradicting(VOLUME, YEAR, DOI, ABSTRACT)})",
     f"({au09_ti09_ctXX} & {match(VOLUME, PAGES)})",
