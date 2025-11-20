@@ -8,6 +8,7 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 
+import bib_dedupe.exception as bib_dedupe_exception
 from bib_dedupe import verbose_print
 from bib_dedupe.constants.fields import ABSTRACT
 from bib_dedupe.constants.fields import AUTHOR
@@ -135,7 +136,8 @@ def __general_prep(records_df: pd.DataFrame) -> pd.DataFrame:
         records_df[ENTRYTYPE] = "article"
 
     missing_fields = [f for f in REQUIRED_FIELDS if f not in records_df.columns]
-    assert len(missing_fields) == 0, f"Missing required fields: {missing_fields}"
+    if len(missing_fields) != 0:
+        raise bib_dedupe_exception.MissingRequiredFieldsError(missing_fields)
 
     for column in records_df.columns:
         records_df[column] = records_df[column].replace(
