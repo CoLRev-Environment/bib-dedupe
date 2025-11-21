@@ -2,16 +2,12 @@
 """Exceptions"""
 from __future__ import annotations
 
-import typing
-from pathlib import Path
-
-from colrev.constants import Colors
-
 
 class BibDedupeException(Exception):
     """
     Base class for all exceptions raised by this package
     """
+
 
 class MissingRequiredFieldsError(BibDedupeException):
     """
