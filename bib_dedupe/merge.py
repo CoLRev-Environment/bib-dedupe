@@ -177,8 +177,7 @@ def merge(
         if not set(duplicate_ids).issubset(set(records_df["ID"].tolist())):
             raise ValueError("Not all duplicate IDs are in the records DataFrame.")
 
-    # Cast all columns in records_df to strings
-    records_df = records_df.astype(str)
+    records_df = records_df.fillna("").astype(str)
 
     if origin_column not in records_df.columns:
         verbose_print.print(f"Add missing origin column ({origin_column})", level=2)
@@ -190,7 +189,6 @@ def merge(
     if merge_functions == DEFAULT_MERGE_FUNCTIONS:
         verbose_print.print("Use DEFAULT_MERGE_FUNCTIONS", level=2)
     else:
-        # Add missing items to merge_function based on DEFAULT_MERGE_FUNCTIONS
         for key, value in DEFAULT_MERGE_FUNCTIONS.items():
             if key not in merge_functions:
                 verbose_print.print(
@@ -199,26 +197,43 @@ def merge(
                 merge_functions[key] = value
 
     non_duplicate_ids = set(records_df["ID"].tolist())
+    rows_to_keep = set()
+    rows_to_drop = set()
+
     for duplicate_ids in duplicate_id_sets:
         non_duplicate_ids -= set(duplicate_ids)
-        # Apply custom merge functions
+
+        duplicate_ids = list(duplicate_ids)
+        sub_df = records_df[records_df["ID"].isin(duplicate_ids)].copy()
+
+        # Determine new ID using custom merge function if provided
+        if "ID" in merge_functions:
+            new_id = merge_functions["ID"](duplicate_ids)
+        else:
+            new_id = duplicate_ids[0]
+
+        # Determine which row to keep based on selected ID
+        row_to_keep = sub_df[sub_df["ID"] == new_id]
+        if row_to_keep.empty:
+            # fallback if custom ID wasn't present
+            new_id = duplicate_ids[0]
+            row_to_keep = sub_df[sub_df["ID"] == new_id]
+
+        rows_to_keep.add(new_id)
+        rows_to_drop.update(set(duplicate_ids) - {new_id})
+
+        # Apply merge functions to all columns
         for column, merge_func in merge_functions.items():
             if column in records_df.columns:
-                values = records_df.loc[
-                    records_df["ID"].isin(duplicate_ids), column
-                ].tolist()
+                values = sub_df[column].tolist()
                 merged_value = merge_func(values)
                 verbose_print.print(f"{column}: {values} -> {merged_value}", level=2)
-                records_df.loc[
-                    records_df["ID"].isin(duplicate_ids), column
-                ] = merged_value
+                records_df.loc[records_df["ID"] == new_id, column] = merged_value
 
-    # NOTE: merge_functions must return string. cannot assign object to pandas cell!
+    # Apply `nr_intext_citations` merge function to non-duplicates if present
     for non_duplicate_id in non_duplicate_ids:
         for column, merge_func in merge_functions.items():
-            if column in records_df.columns:
-                if column != "nr_intext_citations":
-                    continue
+            if column in records_df.columns and column == "nr_intext_citations":
                 value = records_df.loc[
                     records_df["ID"] == non_duplicate_id, column
                 ].tolist()
@@ -227,8 +242,7 @@ def merge(
                     records_df["ID"] == non_duplicate_id, column
                 ] = merged_value
 
-    to_drop = [o for ol in duplicate_id_sets for o in ol[1:]]
-
-    merged_df = records_df[~records_df["ID"].isin(to_drop)]
+    # Drop non-retained duplicates
+    merged_df = records_df[~records_df["ID"].isin(rows_to_drop)]
 
     return merged_df
