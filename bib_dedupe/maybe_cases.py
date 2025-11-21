@@ -110,7 +110,8 @@ def export_maybe(
             group[TITLE].iloc[0],
             group[AUTHOR].iloc[1],
             group[TITLE].iloc[1],
-        )
+        ),
+        include_groups=False,
     )
     maybe_df = maybe_df.merge(
         similarity_scores.rename(SIMILARITY_SCORE),
