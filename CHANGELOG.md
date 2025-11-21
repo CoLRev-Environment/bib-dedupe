@@ -17,6 +17,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0).
 ### Fixed
 -->
 
+## 0.11.0 - 2025-11-21
+
+- Extract evaluation to separate repository (to be published soon)
+- Blocking: cleanup to ensure consistent use of ID_1 and ID_2
+- Refactoring to prevent FutureWarnings by pandas
+- Extend match conditions for records with missing fields (e.g., based on GROBID extraction)
+- Drop records with empty titles in block instead of prep to prevent subtle errors
+- Prevents same-source merges in connected components
+
 ## 0.10.0 - 2024-11-05
 
 - Fix and silence pandas Future warnings
