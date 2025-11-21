@@ -157,12 +157,20 @@ def __general_prep(records_df: pd.DataFrame) -> pd.DataFrame:
         if optional_field not in records_df.columns:
             records_df = records_df.assign(**{optional_field: ""})
 
-    records_df = records_df.drop(
-        labels=list(records_df.columns.difference(ALL_FIELDS)),
-        axis=1,
-    )
-    records_df.loc[:, CONTAINER_TITLE] = ""
-    records_df.loc[:, ALL_FIELDS] = records_df[ALL_FIELDS].astype(str)
+    # ensure the container title exists and is string-typed
+    if CONTAINER_TITLE not in records_df.columns:
+        records_df[CONTAINER_TITLE] = pd.Series(
+            "", index=records_df.index, dtype="string"
+        )
+
+    # keep only the fields of interest
+    records_df = records_df.loc[:, ALL_FIELDS].copy()
+
+    # cast the target columns to pandas StringDtype
+    records_df = records_df.astype({col: "string" for col in ALL_FIELDS}, copy=False)
+
+    # replace pd.NA with empty strings so regex/string ops don't see NAType
+    records_df.loc[:, ALL_FIELDS] = records_df.loc[:, ALL_FIELDS].fillna("")
 
     return records_df
 
