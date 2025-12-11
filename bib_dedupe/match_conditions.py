@@ -83,6 +83,7 @@ duplicate_conditions = [
     # no CONTAINER_TITLE
     f"({au10_ti10_ctNC} & {match(VOLUME, YEAR)} & {non_contradicting(NUMBER, PAGES, DOI, ABSTRACT)})",
     f"({au10_ti10_ctNC} & {match(YEAR, DOI)} & {non_contradicting(VOLUME, NUMBER, PAGES, ABSTRACT)})",  # GROBID
+    f"({au10_ti10_ctNC} & {match(YEAR)} & {non_contradicting(VOLUME, NUMBER, PAGES, DOI, ABSTRACT)})",  # Missing fields
     f"({au09_ti09_ctXX} & {match(PAGES, DOI)} & {non_contradicting(VOLUME, NUMBER, ABSTRACT)} & {YEAR} > 0.9)",
     f"({au09_ti09_ctXX} & ({match(NUMBER)} & {non_contradicting(PAGES)} | {non_contradicting(NUMBER)} & {match(PAGES)}) & {non_contradicting(VOLUME, YEAR, DOI, ABSTRACT)})",
     f"({au09_ti09_ctXX} & {match(VOLUME, PAGES)})",
@@ -98,4 +99,17 @@ non_duplicate_conditions = [
     f"({mismatch(VOLUME, NUMBER, PAGES)})",
     # Editorials: minor differences in volume/number/pages can be meaningful
     f'(title_1.str.contains("editor") & title_1.str.len() < 60 & ( {mismatch(VOLUME)} | {mismatch(NUMBER)} | {mismatch(PAGES)}))',
+
+    # Journal vs. conference/workshop: same title/authors/year but different venue type
+    f'({CONTAINER_TITLE}_1.str.contains("j") & '
+    f' ({CONTAINER_TITLE}_2.str.contains("conf") '
+    f'  | {CONTAINER_TITLE}_2.str.contains("work") '
+    f'  | {CONTAINER_TITLE}_2.str.contains("proc"))) ',
+
+    f'({CONTAINER_TITLE}_2.str.contains("j") & '
+    f' ({CONTAINER_TITLE}_1.str.contains("conf") '
+    f'  | {CONTAINER_TITLE}_1.str.contains("work") '
+    f'  | {CONTAINER_TITLE}_1.str.contains("proc")))'
+
+
 ]
