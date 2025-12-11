@@ -200,7 +200,37 @@ def preprocess_author(authors: str, *, debug: bool) -> str:
     authors = re.sub(r"\d", "", authors)
 
     if ";" in authors:
-        authors = authors.replace(";", " and ")
+        # normalize separators: ";" → " and "
+        semi_normalized = authors.replace(";", " and ")
+        chunks = [c.strip() for c in semi_normalized.split(" and ") if c.strip()]
+
+        # pattern: initials + surname, e.g. "B. Abrahao", "K. S. Cook"
+        def initials_surname_pattern(chunk: str) -> bool:
+            # allow 1–3 initials, then surname (possibly multi-word)
+            return bool(
+                re.match(
+                    r"^([A-Z]\.\s+){1,3}[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*$",
+                    chunk.strip(),
+                )
+            )
+
+        if chunks and all(initials_surname_pattern(c) for c in chunks):
+            out_parts: list[str] = []
+            for c in chunks:
+                # drop dots, split into tokens
+                tokens = c.replace(".", "").split()
+                *initials, surname = tokens
+
+                # ALWAYS: "surname, initials" (with initials separated by spaces)
+                # "B. Abrahao" -> "abrahao, b"
+                # "K. S. Cook" -> "cook, k s"
+                initials_part = " ".join(i.lower() for i in initials)
+                out_parts.append(f"{surname.lower()}, {initials_part}")
+
+            return " and ".join(out_parts)
+
+        # if pattern didn’t match, fall through to existing behavior
+        authors = semi_normalized
 
     # Capitalize von/van/... and add "-" to connect last-names
     authors = re.sub(

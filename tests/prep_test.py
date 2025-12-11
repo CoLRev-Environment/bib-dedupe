@@ -128,6 +128,10 @@ from bib_dedupe.prep import prep_volume
         ("FedotovaI.O.", "fedotova, io"),
         ("Anonymous", ""),
         ("", ""),
+        (
+            "B. Abrahao; P. Parigi; A. Gupta; K. S. Cook",
+            "abrahao, b and parigi, p and gupta, a and cook, k s",
+        ),
     ],
 )
 def test_prep_authors(input_author: str, expected_output: str) -> None:
