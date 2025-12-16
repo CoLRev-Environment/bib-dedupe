@@ -1,10 +1,15 @@
-from typing import Dict, Any, Iterable, Set
+from typing import Any
+from typing import Dict
+from typing import Iterable
+from typing import Set
 
 import pandas as pd
 import pytest
 
 import bib_dedupe.cluster
-from bib_dedupe.bib_dedupe import prep, block, match
+from bib_dedupe.bib_dedupe import block
+from bib_dedupe.bib_dedupe import match
+from bib_dedupe.bib_dedupe import prep
 
 
 def _make_records_df(rec1: Dict[str, Any], rec2: Dict[str, Any]) -> pd.DataFrame:
@@ -14,7 +19,9 @@ def _make_records_df(rec1: Dict[str, Any], rec2: Dict[str, Any]) -> pd.DataFrame
     return pd.DataFrame([rec1_full, rec2_full])
 
 
-def _in_same_cluster(duplicate_id_sets: Iterable[Iterable[str]], a: str, b: str) -> bool:
+def _in_same_cluster(
+    duplicate_id_sets: Iterable[Iterable[str]], a: str, b: str
+) -> bool:
     """Return True if ids `a` and `b` appear together in at least one duplicate cluster."""
     target: Set[str] = {a, b}
     for group in duplicate_id_sets:
@@ -95,7 +102,6 @@ def _in_same_cluster(duplicate_id_sets: Iterable[Iterable[str]], a: str, b: str)
             },
             True,
         ),
-
         # Li et al. 2019 (exact same DOI; abstract formatting differs)
         (
             {
@@ -126,7 +132,6 @@ def _in_same_cluster(duplicate_id_sets: Iterable[Iterable[str]], a: str, b: str)
             },
             True,
         ),
-
         # Adeli & Lewis 2008 (same DOI; multiple IDs/“search_set” variants)
         (
             {
@@ -186,7 +191,6 @@ def _in_same_cluster(duplicate_id_sets: Iterable[Iterable[str]], a: str, b: str)
             },
             True,
         ),
-
         # Sauer & Seuring 2023 (misc vs article representation; same DOI)
         (
             {
@@ -211,7 +215,6 @@ def _in_same_cluster(duplicate_id_sets: Iterable[Iterable[str]], a: str, b: str)
             },
             True,
         ),
-
         # Clark et al. 2025 (misc vs article; same DOI)
         (
             {
@@ -236,9 +239,6 @@ def _in_same_cluster(duplicate_id_sets: Iterable[Iterable[str]], a: str, b: str)
             },
             True,
         ),
-
-
-
         # Add further (bib_record_1, bib_record_2, expected_match) tuples here
     ],
 )
@@ -255,7 +255,8 @@ def test_individual_cases_match(bib_record_1, bib_record_2, expected_match) -> N
     duplicate_id_sets = bib_dedupe.cluster.get_connected_components(matched_df)
     print(duplicate_id_sets)
 
-    actual_match = _in_same_cluster(duplicate_id_sets, bib_record_1["ID"], bib_record_2["ID"])
-
+    actual_match = _in_same_cluster(
+        duplicate_id_sets, bib_record_1["ID"], bib_record_2["ID"]
+    )
 
     assert actual_match == expected_match

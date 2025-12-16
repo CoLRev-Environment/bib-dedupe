@@ -88,10 +88,8 @@ duplicate_conditions = [
     f"({au09_ti09_ctXX} & ({match(NUMBER)} & {non_contradicting(PAGES)} | {non_contradicting(NUMBER)} & {match(PAGES)}) & {non_contradicting(VOLUME, YEAR, DOI, ABSTRACT)})",
     f"({au09_ti09_ctXX} & {match(VOLUME, PAGES)})",
     f"({au09_ti09_ctXX} & {match(PAGES, YEAR)} & {non_contradicting(VOLUME, NUMBER, DOI)})",
-
     # DOI-exact match; when container-titles are non-contradicting (may be missing)
     f"(({match(DOI)} & ~(doi_1 == '' | doi_2 == '')) & ({TITLE} > 0.95) & ({AUTHOR} > 0.9) & ({YEAR} > 0.9)) & {non_contradicting(CONTAINER_TITLE)} ",
-
     # no TITLE
     f"({au10_tiXX_ct10} & {match(VOLUME, NUMBER, PAGES, YEAR)} & {non_contradicting(DOI)} & ({ABSTRACT} > 0.95 | {non_contradicting(ABSTRACT)}))",  # typically for number-mismatches in title
 ]
