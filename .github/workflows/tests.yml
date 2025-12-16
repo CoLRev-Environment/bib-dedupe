@@ -1,11 +1,12 @@
 name: Run Tests
 
 on:
-  - push
-  - pull_request
+  push:
+  pull_request:
 
 jobs:
-  test-full-deps:
+  test:
+    name: Quick tests (${{ matrix.platform }}, py${{ matrix.python-version }})
     strategy:
       matrix:
         platform: [ubuntu-latest, windows-latest]
@@ -13,6 +14,9 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
@@ -32,5 +36,40 @@ jobs:
           git config --global user.email "actions@users.noreply.github.com"
           git config --global url.https://github.com/.insteadOf git://github.com/
 
-      - name: Run tests
-        run: uv run pytest
+      - name: Run tests (excluding full_test.py)
+        run: uv run pytest --ignore=tests/full_test.py
+
+  full-test:
+    name: Full test (${{ matrix.platform }}, py${{ matrix.python-version }})
+    needs: test
+    strategy:
+      matrix:
+        platform: [ubuntu-latest, windows-latest]
+        python-version: ['3.10', '3.11', '3.12', '3.13']
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install uv and dependencies
+        run: |
+          pip install uv
+          uv venv
+          uv pip install -e .[dev] || echo "No dev extra"
+          echo "Dependencies installed successfully"
+
+      - name: Setup git
+        run: |
+          git config --global user.name "CoLRev update"
+          git config --global user.email "actions@users.noreply.github.com"
+          git config --global url.https://github.com/.insteadOf git://github.com/
+
+      - name: Run full_test.py
+        run: uv run pytest -q tests/full_test.py
