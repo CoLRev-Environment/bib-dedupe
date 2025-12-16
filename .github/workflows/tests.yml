@@ -6,7 +6,7 @@ on:
 
 jobs:
   test:
-    name: Unit/fast tests (${{ matrix.platform }}, py${{ matrix.python-version }})
+    name: Quick tests (${{ matrix.platform }}, py${{ matrix.python-version }})
     strategy:
       matrix:
         platform: [ubuntu-latest, windows-latest]
