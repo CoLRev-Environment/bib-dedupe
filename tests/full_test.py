@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from itertools import combinations
 from pathlib import Path
 
@@ -9,7 +10,6 @@ from bib_dedupe.bib_dedupe import block
 from bib_dedupe.bib_dedupe import match
 from bib_dedupe.bib_dedupe import prep
 
-
 ID_COL = "ID"
 
 BENCHMARK_DIR = Path("tests/ldd-full-benchmark")
@@ -17,7 +17,8 @@ BENCHMARK_DIR = Path("tests/ldd-full-benchmark")
 MAX_FP_CASES_TO_PRINT = 50
 MAX_FP_DIAGNOSTICS = 20
 
-def _normalize_groups(groups) -> set[frozenset[str]]:
+
+def _normalize_groups(groups: Iterable[Iterable[str]]) -> set[frozenset[str]]:
     """Convert an iterable of iterables to a set of frozensets of trimmed strings."""
     norm = set()
     for g in groups:
@@ -63,7 +64,9 @@ def _load_records_df(benchmark_path: Path) -> pd.DataFrame:
     if benchmark_path.name == "depression":
         part_paths = sorted(benchmark_path.glob("records_pre_merged_part*.csv"))
         if not part_paths:
-            raise FileNotFoundError(f"No part files found for 'depression' in {benchmark_path}")
+            raise FileNotFoundError(
+                f"No part files found for 'depression' in {benchmark_path}"
+            )
         return pd.concat((pd.read_csv(p) for p in part_paths), ignore_index=True)
 
     return pd.read_csv(benchmark_path / "records_pre_merged.csv")
@@ -109,7 +112,6 @@ def _rerun_pair_with_diagnostics(records_df: pd.DataFrame, a: str, b: str) -> No
 def test_full_benchmark(benchmark_path: Path) -> None:
     print(f"Dataset: {benchmark_path}")
 
-
     try:
         records_df = _load_records_df(benchmark_path)
         _assert_id_column(records_df)
@@ -121,7 +123,9 @@ def test_full_benchmark(benchmark_path: Path) -> None:
         duplicate_id_sets = bib_dedupe.cluster.get_connected_components(matched_df)
         detected_groups = _normalize_groups(g for g in duplicate_id_sets if len(g) > 1)
 
-        expected_groups = _load_expected_groups_from_csv(benchmark_path / "merged_record_ids.csv")
+        expected_groups = _load_expected_groups_from_csv(
+            benchmark_path / "merged_record_ids.csv"
+        )
 
         detected_pairs = _pairs_from_groups(detected_groups)
         expected_pairs = _pairs_from_groups(expected_groups)
@@ -143,7 +147,9 @@ def test_full_benchmark(benchmark_path: Path) -> None:
 
     finally:
         # ---- always print summary stats ----
-        fp_cases = sorted([tuple(sorted(p)) for p in false_positives])[:MAX_FP_CASES_TO_PRINT]
+        fp_cases = sorted([tuple(sorted(p)) for p in false_positives])[
+            :MAX_FP_CASES_TO_PRINT
+        ]
 
         print("\n" + "-" * 80)
         print(f"SUMMARY for dataset: {benchmark_path.name}")

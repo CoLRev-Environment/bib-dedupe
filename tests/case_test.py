@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any
 from typing import Dict
 from typing import Iterable
@@ -10,6 +11,8 @@ import bib_dedupe.cluster
 from bib_dedupe.bib_dedupe import block
 from bib_dedupe.bib_dedupe import match
 from bib_dedupe.bib_dedupe import prep
+
+# flake8: noqa
 
 
 def _make_records_df(rec1: Dict[str, Any], rec2: Dict[str, Any]) -> pd.DataFrame:
@@ -242,7 +245,9 @@ def _in_same_cluster(
         # Add further (bib_record_1, bib_record_2, expected_match) tuples here
     ],
 )
-def test_individual_cases_match(bib_record_1, bib_record_2, expected_match) -> None:
+def test_individual_cases_match(
+    bib_record_1: dict, bib_record_2: dict, expected_match: bool
+) -> None:
     """Check if two BibTeX-like records are deduplicated as expected."""
     records_df = _make_records_df(bib_record_1, bib_record_2)
 
@@ -258,5 +263,7 @@ def test_individual_cases_match(bib_record_1, bib_record_2, expected_match) -> N
     actual_match = _in_same_cluster(
         duplicate_id_sets, bib_record_1["ID"], bib_record_2["ID"]
     )
+    if actual_match == expected_match:
+        Path("EXPORT.csv").unlink()
 
     assert actual_match == expected_match
