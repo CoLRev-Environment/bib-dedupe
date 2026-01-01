@@ -101,13 +101,13 @@ non_duplicate_conditions = [
     f"({mismatch(VOLUME, NUMBER, PAGES)})",
     # Editorials: minor differences in volume/number/pages can be meaningful
     f'(title_1.str.contains("editor") & title_1.str.len() < 60 & ( {mismatch(VOLUME)} | {mismatch(NUMBER)} | {mismatch(PAGES)}))',
-    # Journal vs. conference/workshop: same title/authors/year but different venue type
-    f'({CONTAINER_TITLE}_1.str.contains("j") & '
-    f' ({CONTAINER_TITLE}_2.str.contains("conf") '
-    f'  | {CONTAINER_TITLE}_2.str.contains("work") '
-    f'  | {CONTAINER_TITLE}_2.str.contains("proc"))) ',
-    f'({CONTAINER_TITLE}_2.str.contains("j") & '
-    f' ({CONTAINER_TITLE}_1.str.contains("conf") '
-    f'  | {CONTAINER_TITLE}_1.str.contains("work") '
-    f'  | {CONTAINER_TITLE}_1.str.contains("proc")))',
+    # Journal vs. conference/workshop
+    f'(({CONTAINER_TITLE}_1.str.contains("j") & '
+    f' ~({CONTAINER_TITLE}_1.str.contains("conf") | {CONTAINER_TITLE}_1.str.contains("work") | {CONTAINER_TITLE}_1.str.contains("proc")) ) & '
+    f' ( ({CONTAINER_TITLE}_2.str.contains("conf") | {CONTAINER_TITLE}_2.str.contains("work") | {CONTAINER_TITLE}_2.str.contains("proc")) & '
+    f'  ~{CONTAINER_TITLE}_2.str.contains("j") ))',
+    f'(({CONTAINER_TITLE}_2.str.contains("j") & '
+    f' ~({CONTAINER_TITLE}_2.str.contains("conf") | {CONTAINER_TITLE}_2.str.contains("work") | {CONTAINER_TITLE}_2.str.contains("proc")) ) & '
+    f' ( ({CONTAINER_TITLE}_1.str.contains("conf") | {CONTAINER_TITLE}_1.str.contains("work") | {CONTAINER_TITLE}_1.str.contains("proc")) & '
+    f'  ~{CONTAINER_TITLE}_1.str.contains("j") ))',
 ]
