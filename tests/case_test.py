@@ -65,7 +65,7 @@ def _in_same_cluster(
                 "author": "Smith, John",
                 "title": "Learning-based scheduling for digital work platforms",
                 "year": "2020",
-                "journal": "Journal of Digital Work Studies",
+                "journal": "Journal of Digital Studies",
             },
             {
                 "ENTRYTYPE": "article",
@@ -73,7 +73,7 @@ def _in_same_cluster(
                 "author": "Smith, John",
                 "title": "Learning-based scheduling for digital work platforms",
                 "year": "2020",
-                "journal": "Workshoper of Digital Work Studies",
+                "journal": "Workshop of Digital Studies",
             },
             False,
         ),
