@@ -35,6 +35,7 @@ Features
 * **Continuous Benchmarking**: Continuous integration tests running on GitHub Actions ensure ongoing benchmarking, maintaining the library's reliability and performance across datasets.
 * **Efficient and Parallel Computation**: BibDedupe implements computations efficiently and in parallel, using appropriate data structures and functions for optimal performance.
 
+Regular benchmarks are available `here <https://github.com/CoLRev-Environment/literature-deduplication-benchmarks>`_.
 
 Installation
 ------------
