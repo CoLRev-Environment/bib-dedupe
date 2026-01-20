@@ -59,11 +59,12 @@ au10_ti10_ctNC = f" {match(AUTHOR, TITLE)} & {non_contradicting(CONTAINER_TITLE)
 # - Queries are better for debugging (understanding which conditions do/do not apply)
 #   https://jakevdp.github.io/PythonDataScienceHandbook/03.12-performance-eval-and-query.html
 
+
 duplicate_conditions = [
     # Substantial differences in one of AUTHOR/TITLE/CONTAINER_TITLE
     f"({au07_ti10_ct10} & {match(VOLUME, PAGES)})",
     f"({au07_ti10_ct10} & {non_contradicting(VOLUME, NUMBER, PAGES, YEAR, DOI)})",
-    f"({au10_ti07_ct10} & {non_contradicting(NUMBER, PAGES, YEAR, DOI)})",
+    f"({au10_ti07_ct10} & {non_contradicting(VOLUME, NUMBER, PAGES, YEAR, DOI)})",
     f"({au10_ti10_ct07} & {non_contradicting(VOLUME, NUMBER, PAGES, YEAR, DOI)})",
     # Differences across AUTHOR/TITLE/CONTAINER_TITLE
     f"({au08_ti09_ct09} & {non_contradicting(VOLUME, NUMBER, YEAR, DOI)} & {PAGES} > 0.75 )",
@@ -78,7 +79,7 @@ duplicate_conditions = [
     f'({au095_ti09_ct075} & {both_entrytypes("inproceedings")} & {match(YEAR)})',  # Inproceedings
     f"({au07_ti10_ct10} & {DOI} > 0.9)",  # Updates
     # no AUTHOR
-    f"({auXX_ti095_ct095} & {non_contradicting(VOLUME, NUMBER, PAGES, YEAR, DOI)})",
+    f'({auXX_ti095_ct095} & {non_contradicting(VOLUME, NUMBER, PAGES, YEAR, DOI)}) & {both_entrytypes("article")}',
     f"({auXX_ti095_ct095} & {match(VOLUME, NUMBER, PAGES, YEAR)} & {non_contradicting(DOI, ABSTRACT)})",
     # no CONTAINER_TITLE
     f"({au10_ti10_ctNC} & {match(VOLUME, YEAR)} & {non_contradicting(NUMBER, PAGES, DOI, ABSTRACT)})",
@@ -92,13 +93,26 @@ duplicate_conditions = [
     f"(({match(DOI)} & ~(doi_1 == '' | doi_2 == '')) & ({TITLE} > 0.95) & ({AUTHOR} > 0.9) & ({YEAR} > 0.9)) & {non_contradicting(CONTAINER_TITLE)} ",
     # no TITLE
     f"({au10_tiXX_ct10} & {match(VOLUME, NUMBER, PAGES, YEAR)} & {non_contradicting(DOI)} & ({ABSTRACT} > 0.95 | {non_contradicting(ABSTRACT)}))",  # typically for number-mismatches in title
+    # early_view_vs_final
+    f"({au095_ti09_ct075}"
+    f" & {non_contradicting(DOI)}"
+    f" & ((volume_1 != '' & volume_2 == '') | (volume_2 != '' & volume_1 == ''))"
+    f" & ((number_1 != '' & number_2 == '') | (number_2 != '' & number_1 == '') | {non_contradicting(NUMBER)})"
+    f" & (pages_1.str.match('^1[-–]') | pages_2.str.match('^1[-–]'))"
+    f")",
 ]
 
 non_duplicate_conditions = [
     f"({mismatch(YEAR)} & ~({match(VOLUME)} | {match(NUMBER)} | {match(PAGES)} | {match(DOI)} | {match(CONTAINER_TITLE)}))",
     f'({mismatch(TITLE)} & ({PAGE_RANGES_ADJACENT} == "adjacent" | {PAGE_RANGES_ADJACENT} == "non_overlapping"))',
     f"(~(doi_1 == '' | doi_2 == '') & {DOI} < 0.8 & ~({non_contradicting(AUTHOR, TITLE, YEAR, CONTAINER_TITLE, VOLUME, NUMBER, PAGES)}))",
-    f"({mismatch(VOLUME, NUMBER, PAGES)})",
+    # f"({mismatch(VOLUME, NUMBER, PAGES)})",
+    f"({mismatch(VOLUME, NUMBER, PAGES)}"
+    f" & ~({au095_ti09_ct075}"
+    f"     & ((volume_1 != '' & volume_2 == '') | (volume_2 != '' & volume_1 == ''))"
+    f"     & (pages_1.str.match('^1[-–]') | pages_2.str.match('^1[-–]'))"
+    f"   )"
+    f")",
     # Editorials: minor differences in volume/number/pages can be meaningful
     f'(title_1.str.contains("editor") & title_1.str.len() < 60 & ( {mismatch(VOLUME)} | {mismatch(NUMBER)} | {mismatch(PAGES)}))',
     # Journal vs. conference/workshop
@@ -110,4 +124,14 @@ non_duplicate_conditions = [
     f' ~({CONTAINER_TITLE}_2.str.contains("conf") | {CONTAINER_TITLE}_2.str.contains("work") | {CONTAINER_TITLE}_2.str.contains("proc")) ) & '
     f' ( ({CONTAINER_TITLE}_1.str.contains("conf") | {CONTAINER_TITLE}_1.str.contains("work") | {CONTAINER_TITLE}_1.str.contains("proc")) & '
     f'  ~{CONTAINER_TITLE}_1.str.contains("j") ))',
+    # Inproceedings: more sensitive to year mismatches
+    f'({both_entrytypes("inproceedings")} & {mismatch(YEAR)})',
+    # TODO : we may need to pre-compute this:
+    # https://chatgpt.com/c/695554d0-a548-8332-9921-ec28332246fd
+    # NEW: container title appears inside (either) title => treat as non-duplicate with anything else
+    # (e.g., "Communications of the Association for Information Systems ... Volume 52 Paper 41")
+    # f'(container_title_1 != "" & title_1 != "" & '
+    # f' title_1.str.contains(container_title_1.str.lower(), na=False))'
+    # f' | (container_title_2 != "" & title_2 != "" & '
+    # f' title_2.str.contains(container_title_2.str.lower(), na=False))',
 ]

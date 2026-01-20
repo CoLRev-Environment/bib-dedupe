@@ -132,6 +132,8 @@ def __get_maybe_pairs(pairs: pd.DataFrame, true_pairs: pd.DataFrame) -> pd.DataF
         )
     ]
 
+    # TODO: drop cases from maybe where one contains "part 1", the other "part 2"
+
     # Add a label column to each dataframe
     maybe_pairs[DUPLICATE_LABEL] = MAYBE
     # Select the ID_1, SEARCH_SET_1 and ID_2, SEARCH_SET_2 fields and the new label column

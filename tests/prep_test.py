@@ -370,6 +370,10 @@ De la reperfusion al post-acondicionamiento del miocardio con isquemia prolongad
             "Mode of action of alkylating agents using a ciliate protozoan as a model system: Part III--Effects of metepa on cell division & DNA synthesis in the ciliate Belpharisma intermedium",
             "mode action alkylating agents using ciliate protozoan model system part 3 effects metepa cell division dna synthesis ciliate belpharisma intermedium",
         ),
+        (
+            "Author's personal copy Detection of anomalous bids in procurement auctions",
+            "detection anomalous bids procurement auctions",
+        ),
         # (
         #     "Behavioral effects of acute sublethal exposure to dimethoate on wood mice Apodemus sylvaticus: II--Field studies on radio-tagged mice in a cereal ecosystem",
         #     "behavioral effects acute sublethal exposure dimethoate wood mice apodemus sylvaticus 2 field studies radio tagged mice cereal ecosystem",

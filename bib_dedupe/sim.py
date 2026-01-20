@@ -126,7 +126,7 @@ def sim_title(title_1: str, title_2: str, debug: bool = False) -> float:
     t1 = str(title_1)
     t2 = str(title_2)
 
-    if t1 == "" and t2 == "":
+    if t1 in ["", "book title"] or t2 in ["", "book title"]:
         return 0.0
 
     if t1.replace(" ", "") == t2.replace(" ", "") and t1.replace(" ", "") != "":
@@ -140,6 +140,10 @@ def sim_title(title_1: str, title_2: str, debug: bool = False) -> float:
                 "comment",
                 "response",
                 "reply",
+                "update",
+                "forum",
+                "proposed",
+                "talk",
             ]
         ]
     ):
@@ -314,6 +318,40 @@ def sim_volume(v1_str: str, v2_str: str) -> float:
     return 0.0
 
 
+# def _norm_abstract(text: str) -> str:
+#     text = "" if text is None else str(text)
+
+#     # normalize common patterns
+#     text = re.sub(r"([a-z])\s+(\d)", r"\1\2", text)
+#     text = re.sub(r"([a-z])\s+([a-z])", r"\1\2", text)
+
+#     # remove punctuation (keep letters/numbers/spaces)
+#     text = re.sub(r"[^a-z0-9\s]", " ", text)
+
+#     # collapse whitespace
+#     text = re.sub(r"\s+", " ", text).strip()
+#     return text
+
+
+# def sim_abstract(abstract_1: str, abstract_2: str) -> float:
+#     a1 = _norm_abstract(abstract_1)
+#     a2 = _norm_abstract(abstract_2)
+
+#     if not a1 or not a2:
+#         return 0.0
+
+#     # If one is essentially a prefix/subsequence of the other (truncated abstract),
+#     # partial_ratio will capture it much better than ratio.
+#     s_ratio = fuzz.ratio(a1, a2) / 100.0
+#     s_partial = fuzz.partial_ratio(a1, a2) / 100.0
+
+#     # token_set helps when words are same but order/noise differs
+#     s_token = fuzz.token_set_ratio(a1, a2) / 100.0
+
+#     # take the best signal; you can also blend (see below)
+#     return max(s_ratio, s_partial, s_token)
+
+
 def _norm_abstract(text: str) -> str:
     text = "" if text is None else str(text)
 
@@ -329,22 +367,32 @@ def _norm_abstract(text: str) -> str:
     return text
 
 
-def sim_abstract(abstract_1: str, abstract_2: str) -> float:
-    a1 = _norm_abstract(abstract_1)
-    a2 = _norm_abstract(abstract_2)
+def sim_abstract(a1: str, a2: str) -> float:
+    # a1 = _norm_abstract(a1)
+    # a2 = _norm_abstract(a2)
 
     if not a1 or not a2:
         return 0.0
 
-    # If one is essentially a prefix/subsequence of the other (truncated abstract),
-    # partial_ratio will capture it much better than ratio.
-    s_ratio = fuzz.ratio(a1, a2) / 100.0
-    s_partial = fuzz.partial_ratio(a1, a2) / 100.0
+    # fast path 1: exact match after normalization
+    if a1 == a2:
+        return 1.0
 
-    # token_set helps when words are same but order/noise differs
+    # fast path 2: truncated/prefix abstracts (cheap)
+    if len(a1) > 500 and len(a2) > 500:
+        tail = 100
+        if len(a1) > tail and len(a2) > tail:
+            if a1.startswith(a2[:-tail]) or a2.startswith(a1[:-tail]):
+                return 1.0
+
+    s_ratio = fuzz.ratio(a1, a2) / 100.0
+    if s_ratio == 1.0:
+        return 1.0
+    s_partial = fuzz.partial_ratio(a1, a2) / 100.0
+    if s_partial == 1.0:
+        return 1.0
     s_token = fuzz.token_set_ratio(a1, a2) / 100.0
 
-    # take the best signal; you can also blend (see below)
     return max(s_ratio, s_partial, s_token)
 
 

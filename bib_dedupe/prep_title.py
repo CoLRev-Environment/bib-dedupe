@@ -42,6 +42,13 @@ def remove_erratum_suffix(title: str) -> str:
     return title
 
 
+def remove_authors_personal_copy(title: str) -> str:
+    # Remove "Author's personal copy" at start or end (case-insensitive),
+    # tolerating surrounding punctuation/whitespace.
+    pattern = r"^\s*author s personal copy[\s\-\–—:;,.]*|[\s\-\–—:;,.]*author s personal copy\s*$"
+    return re.sub(pattern, "", title).strip()
+
+
 # flake8: noqa: E501
 # pylint: disable=line-too-long
 def prep_title(title_array: np.array) -> np.array:
@@ -175,8 +182,16 @@ def prep_title(title_array: np.array) -> np.array:
         ]
     )
 
+    # Remove "Author's personal copy" at beginning/end
+    title_array = np.array(
+        [remove_authors_personal_copy(title) for title in title_array]
+    )
+
     # Replace multiple spaces with a single space
     title_array = np.array(
         [re.sub(r"\s+", " ", title).rstrip().lstrip() for title in title_array]
     )
     return title_array
+
+
+# TODO : organize more efficiently, see: https://chatgpt.com/c/6967a4de-d35c-8333-8a3b-8e5f8ea3329c
