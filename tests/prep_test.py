@@ -374,6 +374,7 @@ De la reperfusion al post-acondicionamiento del miocardio con isquemia prolongad
             "Author's personal copy Detection of anomalous bids in procurement auctions",
             "detection anomalous bids procurement auctions",
         ),
+        ("Presenter Information Presenter Information", "")
         # (
         #     "Behavioral effects of acute sublethal exposure to dimethoate on wood mice Apodemus sylvaticus: II--Field studies on radio-tagged mice in a cereal ecosystem",
         #     "behavioral effects acute sublethal exposure dimethoate wood mice apodemus sylvaticus 2 field studies radio tagged mice cereal ecosystem",

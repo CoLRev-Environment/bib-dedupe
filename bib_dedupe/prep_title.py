@@ -49,6 +49,31 @@ def remove_authors_personal_copy(title: str) -> str:
     return re.sub(pattern, "", title).strip()
 
 
+def remove_presenter_information_noise(title: str) -> str:
+    """
+    Remove noisy titles like:
+    - "presenter information"
+    - "presenter information presenter information"
+    And also strip trailing "presenter information" tags.
+    """
+    t = re.sub(r"\s+", " ", title).strip()
+    # collapse repetitions anywhere
+    t = re.sub(
+        r"\bpresenter information\b(?:\s+\bpresenter information\b)+",
+        "presenter information",
+        t,
+        flags=re.IGNORECASE,
+    )
+    # if the whole title is just that phrase -> drop
+    if re.fullmatch(r"presenter information", t, flags=re.IGNORECASE):
+        return ""
+    # strip trailing occurrences as tag-like noise
+    t = re.sub(
+        r"(?:\s*[-–—:;,.]?\s*)presenter information\s*$", "", t, flags=re.IGNORECASE
+    ).strip()
+    return t
+
+
 # flake8: noqa: E501
 # pylint: disable=line-too-long
 def prep_title(title_array: np.array) -> np.array:
@@ -185,6 +210,10 @@ def prep_title(title_array: np.array) -> np.array:
     # Remove "Author's personal copy" at beginning/end
     title_array = np.array(
         [remove_authors_personal_copy(title) for title in title_array]
+    )
+
+    title_array = np.array(
+        [remove_presenter_information_noise(title) for title in title_array]
     )
 
     # Replace multiple spaces with a single space
