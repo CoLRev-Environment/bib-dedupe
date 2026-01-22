@@ -284,17 +284,7 @@
         "colrev_status": "md_processed",
         "author": "Stahl, Bernd Carsten and Elbeltagi, Ibrahim",
         "title": "Cultural Universality Versus Particularity in CMC",
-        "year": "2004",
-        "journal": null,
-        "booktitle": null,
-        "volume": null,
-        "issue": null,
-        "pages": null,
-        "file_name": null,
-        "cited_by": null,
-        "doi": null,
-        "note": null,
-        "abstract": null
+        "year": "2004"
       },
       "record_b": {
         "ENTRYTYPE": "article",
@@ -303,16 +293,7 @@
         "author": "Stahl, Bernd Carsten and Elbeltagi, Ibrahim",
         "title": "Cultural Universality Versus Particularity in CMC",
         "year": "2004",
-        "journal": null,
-        "booktitle": null,
-        "volume": null,
-        "issue": null,
-        "pages": null,
-        "file_name": null,
-        "cited_by": null,
-        "doi": "10.1080/1097198X.2004.10856384",
-        "note": null,
-        "abstract": null
+        "doi": "10.1080/1097198X.2004.10856384"
       },
       "expected_duplicate": true
     },
@@ -326,16 +307,7 @@
         "author": "Stahl, Bernd Carsten and Elbeltagi, Ibrahim",
         "title": "Cultural Universality Versus Particularity in CMC",
         "year": "2004",
-        "journal": null,
-        "booktitle": null,
-        "volume": null,
-        "issue": null,
-        "pages": null,
-        "file_name": null,
-        "cited_by": null,
-        "doi": "10.1080/1097198X.2004.10856384",
-        "note": null,
-        "abstract": null
+        "doi": "10.1080/1097198X.2004.10856384"
       },
       "record_b": {
         "ENTRYTYPE": "article",
@@ -344,16 +316,7 @@
         "author": "Stahl, Bernd-Carsten",
         "title": "Cultural Universality Versus Particularity in CMC",
         "year": "2003",
-        "journal": null,
-        "booktitle": "Americas Conference on Information Systems",
-        "volume": null,
-        "issue": null,
-        "pages": null,
-        "file_name": null,
-        "cited_by": null,
-        "doi": null,
-        "note": null,
-        "abstract": null
+        "booktitle": "Americas Conference on Information Systems"
       },
       "expected_duplicate": false
     },
@@ -367,16 +330,8 @@
         "author": "Standing, Craig and Volpe, Izabela and Standing, Susan and Gururajan, Raj",
         "title": "Making the Most of Virtual Expertise in Telemedicine and Telehealth Environments",
         "year": "2011",
-        "journal": null,
         "booktitle": "Symposium on Dependable Autonomic and Secure Computing",
-        "volume": null,
-        "issue": null,
-        "pages": null,
-        "file_name": null,
-        "cited_by": null,
-        "doi": "10.1109/DASC.2011.166",
-        "note": null,
-        "abstract": null
+        "doi": "10.1109/DASC.2011.166"
       },
       "record_b": {
         "ENTRYTYPE": "article",
@@ -385,16 +340,7 @@
         "author": "Standing, Craig and Gururajan, Raj and Standing, Susan and Cripps, Helen",
         "title": "Making the Most of Virtual Expertise in Telemedicine and Telehealth Environment",
         "year": "2014",
-        "journal": null,
-        "booktitle": null,
-        "volume": null,
-        "issue": null,
-        "pages": null,
-        "file_name": null,
-        "cited_by": null,
-        "doi": "10.1080/10919392.2014.896714",
-        "note": null,
-        "abstract": null
+        "doi": "10.1080/10919392.2014.896714"
       },
       "expected_duplicate": false
     },
@@ -450,16 +396,8 @@
         "author": "Deng, Xuefei and Taylor, Joseph and Moussawi, Sara",
         "title": "Introduction to the Minitrack on Crowdsourcing and Digital Workforce in the Gig Economy",
         "year": "2021",
-        "journal": null,
         "booktitle": "Proceedings of the Annual Hawaii International Conference on System Sciences",
-        "volume": null,
-        "issue": null,
-        "pages": null,
-        "file_name": null,
-        "cited_by": null,
-        "doi": "10.24251/HICSS.2021.510",
-        "note": null,
-        "abstract": null
+        "doi": "10.24251/HICSS.2021.510"
       },
       "record_b": {
         "ENTRYTYPE": "inproceedings",
@@ -468,16 +406,8 @@
         "author": "Deng, Xuefei and Taylor, Joseph and Moussawi, Sara",
         "title": "Introduction to the Minitrack on Crowdsourcing and Digital Workforce in the Gig Economy",
         "year": "2022",
-        "journal": null,
         "booktitle": "Proceedings of the Annual Hawaii International Conference on System Sciences",
-        "volume": null,
-        "issue": null,
-        "pages": null,
-        "file_name": null,
-        "cited_by": null,
-        "doi": "10.24251/HICSS.2022.544",
-        "note": null,
-        "abstract": null
+        "doi": "10.24251/HICSS.2022.544"
       },
       "expected_duplicate": false
     },
@@ -720,15 +650,7 @@
         "author": "Deng, Chaoqun and Ravichandran, Thiagarajan",
         "title": "How Consumers Perceive Trustworthiness of Providers in Sharing Economy - Effects of Photos and Comments on Demand at Airbnb",
         "year": "2017",
-        "journal": null,
         "booktitle": "Americas Conference on Information Systems",
-        "volume": null,
-        "issue": null,
-        "pages": null,
-        "file_name": null,
-        "cited_by": null,
-        "doi": null,
-        "note": null,
         "abstract": "There is limited systematic research that exam..."
       },
       "record_b": {
@@ -738,15 +660,7 @@
         "author": "Deng, Chaoqun and Ravichandran, T.",
         "title": "How Consumers Perceive Trustworthiness of Providers in Sharing Economy: Effects of Photos and Comments on Demand at Airbnb",
         "year": "2017",
-        "journal": null,
         "booktitle": "Amcis 2017 Proceedings",
-        "volume": null,
-        "issue": null,
-        "pages": null,
-        "file_name": null,
-        "cited_by": null,
-        "doi": null,
-        "note": null,
         "abstract": "There is limited systematic research that exam..."
       },
       "expected_duplicate": true
@@ -761,15 +675,7 @@
         "author": "Lei, Yu and Yayla, Ali Alper and Kahai, Surinder",
         "title": "The Unique Challenges of Seller Uncertainty in Sharing Economy-A Decision Making Perspective",
         "year": "2017",
-        "journal": null,
         "booktitle": "Americas Conference on Information Systems",
-        "volume": null,
-        "issue": null,
-        "pages": null,
-        "file_name": null,
-        "cited_by": null,
-        "doi": null,
-        "note": null,
         "abstract": "The goal of this paper is to answer features o..."
       },
       "record_b": {
@@ -779,16 +685,7 @@
         "author": "Lei, Yu and Yayla, Ali Alper and Kahai, Surinder S.",
         "title": "The Unique Challenges of Seller Uncertainty in Sharing Economy-A Decision Making Perspective",
         "year": "2017",
-        "journal": null,
-        "booktitle": "Amcis 2017 Proceedings",
-        "volume": null,
-        "issue": null,
-        "pages": null,
-        "file_name": null,
-        "cited_by": null,
-        "doi": null,
-        "note": null,
-        "abstract": null
+        "booktitle": "Amcis 2017 Proceedings"
       },
       "expected_duplicate": true
     },
