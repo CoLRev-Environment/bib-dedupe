@@ -126,7 +126,7 @@ def sim_title(title_1: str, title_2: str, debug: bool = False) -> float:
     t1 = str(title_1)
     t2 = str(title_2)
 
-    if t1 == "" and t2 == "":
+    if t1 in ["", "book review"] or t2 in ["", "book review"]:
         return 0.0
 
     if t1.replace(" ", "") == t2.replace(" ", "") and t1.replace(" ", "") != "":
@@ -140,6 +140,10 @@ def sim_title(title_1: str, title_2: str, debug: bool = False) -> float:
                 "comment",
                 "response",
                 "reply",
+                "update",
+                "forum",
+                "proposed",
+                "talk",
             ]
         ]
     ):
