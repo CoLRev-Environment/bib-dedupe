@@ -9,6 +9,7 @@ from bib_dedupe.prep import prep_number
 from bib_dedupe.prep import prep_pages
 from bib_dedupe.prep import prep_title
 from bib_dedupe.prep import prep_volume
+from bib_dedupe.prep_schema import fix_schema_misalignments
 
 # flake8: noqa: E501
 # pylint: disable=line-too-long
@@ -499,3 +500,179 @@ def test_prep_abstract(input_abstract: str, expected_output: str) -> None:
 def test_prep_doi(input_doi: str, expected_output: str) -> None:
     result = prep_doi(np.array([input_doi]))
     assert result[0] == expected_output
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        {
+            "id": "vol_issue_no_pagination",
+            "row": {
+                "volume": "7 (1) (no pagination)",
+                "number": "",
+                "pages": "",
+                "year": "",
+            },
+            "expected": {"volume": "7", "number": "1", "pages": "", "year": ""},
+        },
+        {
+            "id": "vol_no_pagination_only",
+            "row": {
+                "volume": "5 (no pagination)",
+                "number": "",
+                "pages": "",
+                "year": "",
+            },
+            "expected": {"volume": "5", "number": "", "pages": "", "year": ""},
+        },
+        {
+            "id": "year_in_volume_no_pagination",
+            "row": {
+                "volume": "2011 (no pagination)",
+                "number": "",
+                "pages": "",
+                "year": "",
+            },
+            "expected": {"volume": "", "number": "", "pages": "", "year": "2011"},
+        },
+        {
+            "id": "year_in_volume_with_issue_no_pagination",
+            "row": {
+                "volume": "2017 (10) (no pagination)",
+                "number": "",
+                "pages": "",
+                "year": "",
+            },
+            "expected": {"volume": "", "number": "10", "pages": "", "year": "2017"},
+        },
+        {
+            "id": "issue_only_no_pagination_in_volume",
+            "row": {
+                "volume": "(4) (no pagination)",
+                "number": "",
+                "pages": "",
+                "year": "",
+            },
+            "expected": {"volume": "", "number": "4", "pages": "", "year": ""},
+        },
+        {
+            "id": "issue_only_no_pagination_in_pages",
+            "row": {
+                "volume": "",
+                "number": "",
+                "pages": "(1) (no pagination)",
+                "year": "",
+            },
+            "expected": {"volume": "", "number": "1", "pages": "", "year": ""},
+        },
+        {
+            "id": "supplement_in_volume_parentheses",
+            "row": {
+                "volume": "8 (SUPPL. 1) (no pagination)",
+                "number": "",
+                "pages": "",
+                "year": "",
+            },
+            "expected": {"volume": "8", "number": "SUPPL.1", "pages": "", "year": ""},
+        },
+        {
+            "id": "supplement_word_form",
+            "row": {
+                "volume": "12 (Supplement 1)",
+                "number": "",
+                "pages": "",
+                "year": "",
+            },
+            "expected": {
+                "volume": "12",
+                "number": "Supplement 1",
+                "pages": "",
+                "year": "",
+            },
+        },
+        {
+            "id": "special_issue_code_s1",
+            "row": {"volume": "52 (S1)", "number": "", "pages": "", "year": ""},
+            "expected": {"volume": "52", "number": "S1", "pages": "", "year": ""},
+        },
+        {
+            "id": "issue_range",
+            "row": {"volume": "7 (2-3)", "number": "", "pages": "", "year": ""},
+            "expected": {"volume": "7", "number": "2-3", "pages": "", "year": ""},
+        },
+        {
+            "id": "alphanumeric_volume",
+            "row": {"volume": "82B (6)", "number": "", "pages": "", "year": ""},
+            "expected": {"volume": "82B", "number": "6", "pages": "", "year": ""},
+        },
+        {
+            "id": "part_marker",
+            "row": {"volume": "42 (4 PART 2)", "number": "", "pages": "", "year": ""},
+            "expected": {"volume": "42", "number": "4 PART 2", "pages": "", "year": ""},
+        },
+        {
+            "id": "pt_marker",
+            "row": {"volume": "187 ( Pt 1)", "number": "", "pages": "", "year": ""},
+            "expected": {"volume": "187", "number": "Pt 1", "pages": "", "year": ""},
+        },
+        {
+            "id": "month_in_parentheses_is_ignored",
+            "row": {
+                "volume": "8 (JAN) (no pagination)",
+                "number": "",
+                "pages": "",
+                "year": "",
+            },
+            "expected": {"volume": "8", "number": "", "pages": "", "year": ""},
+        },
+        {
+            "id": "month_with_year_in_parentheses_is_ignored",
+            "row": {
+                "volume": "6 (FEBRUARY 2012) (no pagination)",
+                "number": "",
+                "pages": "",
+                "year": "",
+            },
+            "expected": {"volume": "6", "number": "", "pages": "", "year": ""},
+        },
+        {
+            "id": "issue_only_monthish_is_dropped",
+            "row": {
+                "volume": "(7 JUL) (no pagination)",
+                "number": "",
+                "pages": "",
+                "year": "",
+            },
+            "expected": {"volume": "", "number": "", "pages": "", "year": ""},
+        },
+        {
+            "id": "no_pagination_alone_is_cleared",
+            "row": {"volume": "(no pagination)", "number": "", "pages": "", "year": ""},
+            "expected": {"volume": "", "number": "", "pages": "", "year": ""},
+        },
+        {
+            "id": "nested_parens_weirdness",
+            "row": {
+                "volume": "18 (2(2)) (no pagination)",
+                "number": "",
+                "pages": "",
+                "year": "",
+            },
+            # We do NOT try to fully interpret "2(2)" – but we should at least keep volume and move token if number empty
+            "expected": {"volume": "18", "number": "2(2)", "pages": "", "year": ""},
+        },
+    ],
+)
+def test_fix_schema_misalignments(case: dict) -> None:
+    import pandas as pd
+
+    split_df = pd.DataFrame([case["row"]])
+
+    # function mutates split_df in-place
+    fix_schema_misalignments(split_df)
+
+    for field, expected_value in case["expected"].items():
+        assert split_df.loc[0, field] == expected_value, (
+            f"{case['id']} failed for field '{field}': "
+            f"expected '{expected_value}', got '{split_df.loc[0, field]}'"
+        )
