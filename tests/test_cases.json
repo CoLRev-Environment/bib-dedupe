@@ -386,52 +386,6 @@
       },
       "expected_duplicate": false
     },
-        {
-      "id": "deng_taylor_moussawi_hicss_2021_vs_2022_minitrack_intro",
-      "note": "Annual HICSS minitrack introductions share title/authors but are different years and different DOIs -> should NOT match.",
-      "record_a": {
-        "ENTRYTYPE": "inproceedings",
-        "ID": "id_0000003",
-        "colrev_status": "md_processed",
-        "author": "Deng, Xuefei and Taylor, Joseph and Moussawi, Sara",
-        "title": "Introduction to the Minitrack on Crowdsourcing and Digital Workforce in the Gig Economy",
-        "year": "2021",
-        "booktitle": "Proceedings of the Annual Hawaii International Conference on System Sciences",
-        "doi": "10.24251/HICSS.2021.510"
-      },
-      "record_b": {
-        "ENTRYTYPE": "inproceedings",
-        "ID": "id_0000004",
-        "colrev_status": "md_processed",
-        "author": "Deng, Xuefei and Taylor, Joseph and Moussawi, Sara",
-        "title": "Introduction to the Minitrack on Crowdsourcing and Digital Workforce in the Gig Economy",
-        "year": "2022",
-        "booktitle": "Proceedings of the Annual Hawaii International Conference on System Sciences",
-        "doi": "10.24251/HICSS.2022.544"
-      },
-      "expected_duplicate": false
-    },
-    {
-      "id": "erroneous_conference_merge_hall_dianne_2020_unknown_vs_hall_gillian_1995",
-      "note": "Same venue, but different authors/years (2020 vs 1995); record_a has UNKNOWN title -> must NOT match.",
-      "record_a": {
-        "ENTRYTYPE": "inproceedings",
-        "ID": "0000006472",
-        "author": "Hall, Dianne and Lee, Kangbok and Han, Sumin and In, Joonhwan",
-        "year": "2020",
-        "title": "UNKNOWN",
-        "booktitle": "Americas Conference on Information Systems"
-      },
-      "record_b": {
-        "ENTRYTYPE": "inproceedings",
-        "ID": "0000005291",
-        "author": "Hall, Gillian",
-        "year": "1995",
-        "title": "Negotiation in Database Schema Integration",
-        "booktitle": "Americas Conference on Information Systems"
-      },
-      "expected_duplicate": false
-    },
     {
       "id": "zhang_2003_vs_pdf_only_unknown_metadata_vol56",
       "note": "Full CAIS article record vs PDF-only/unknown metadata record (no DOI/URL, UNKNOWN title/year) -> must NOT match.",
@@ -506,74 +460,6 @@
         "title": "Tutorial and Workshop Proposal for AMCIS 2009",
         "booktitle": "Americas Conference on Information Systems",
         "year": "2010"
-      },
-      "expected_duplicate": false
-    },
-    {
-      "id": "reynoso_2010_unknown_title_vs_reynoso_2013_spanish_title",
-      "note": "Similar author strings but different years and (one) unknown title vs specific title -> must NOT match.",
-      "record_a": {
-        "ENTRYTYPE": "inproceedings",
-        "ID": "0000005436",
-        "author": "Reynoso, Gómez and Manuel, Juan and Lizbeth, Estela and Andrade, Muñoz and Macías Díaz, Jorge Eduardo",
-        "year": "2010",
-        "title": "UNKNOWN",
-        "booktitle": "Americas Conference on Information Systems"
-      },
-      "record_b": {
-        "ENTRYTYPE": "inproceedings",
-        "ID": "0000009531",
-        "author": "Reynoso, Gómez and Manuel, Juan and Calzada De Luna, Américo C and Lizbeth, Estela and Andrade, Muñoz",
-        "year": "2013",
-        "title": "Medición Experimental del Desempeño de las Aplicaciones Bajo Ambientes de Red",
-        "booktitle": "Americas Conference on Information Systems"
-      },
-      "expected_duplicate": false
-    },
-    {
-      "id": "pare_wagner_prester_jds_2024_vs_2023_online_first",
-      "note": "Likely same article; year/pages differ (online-first vs issue); record_a includes DOI.",
-      "record_a": {
-        "ENTRYTYPE": "article",
-        "ID": "1",
-        "author": "Paré, Guy and Wagner, Gerit and Prester, Julian",
-        "title": "How to develop and frame impactful review articles: key recommendations",
-        "journal": "Journal of Decision Systems",
-        "year": "2024",
-        "volume": "33",
-        "number": "4",
-        "pages": "566--582",
-        "doi": "10.1080/12460125.2023.2197701"
-      },
-      "record_b": {
-        "ENTRYTYPE": "article",
-        "ID": "2",
-        "author": "Paré, Guy and Wagner, Gerit and Prester, Julian",
-        "title": "How to develop and frame impactful review articles: key recommendations",
-        "journal": "Journal of Decision Systems",
-        "year": "2023",
-        "pages": "1--17"
-      },
-      "expected_duplicate": true
-    },
-    {
-      "id": "erroneous_conference_merge_patel_1999_vs_2025",
-      "note": "Clearly different authors/years (1999 vs 2025) but both AMCIS inproceedings -> must NOT match.",
-      "record_a": {
-        "ENTRYTYPE": "inproceedings",
-        "ID": "0000008147",
-        "author": "Patel, Nandish V",
-        "year": "1999",
-        "title": "Developing Tailorable Information Systems through Deferred System's Design",
-        "booktitle": "Americas Conference on Information Systems"
-      },
-      "record_b": {
-        "ENTRYTYPE": "inproceedings",
-        "ID": "011979",
-        "author": "Patel, Nadya Shaznay and Avnit, Karin and Koh, Jeffrey T K V and Lim, Jawn and Tay, Peter and Supian, Hedirman and Kwan, Jeffrey Tzu and Koh, Valino and Chai, Kay",
-        "year": "2025",
-        "title": "UNKNOWN",
-        "booktitle": "Americas Conference on Information Systems"
       },
       "expected_duplicate": false
     },

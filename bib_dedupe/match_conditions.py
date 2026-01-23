@@ -93,13 +93,6 @@ duplicate_conditions = [
     f"(({match(DOI)} & ~(doi_1 == '' | doi_2 == '')) & ({TITLE} > 0.95) & ({AUTHOR} > 0.9) & ({YEAR} > 0.9)) & {non_contradicting(CONTAINER_TITLE)} ",
     # no TITLE
     f"({au10_tiXX_ct10} & {match(VOLUME, NUMBER, PAGES, YEAR)} & {non_contradicting(DOI)} & ({ABSTRACT} > 0.95 | {non_contradicting(ABSTRACT)}))",  # typically for number-mismatches in title
-    # early_view_vs_final
-    f"({au095_ti09_ct075}"
-    f" & {non_contradicting(DOI)}"
-    f" & ((volume_1 != '' & volume_2 == '') | (volume_2 != '' & volume_1 == ''))"
-    f" & ((number_1 != '' & number_2 == '') | (number_2 != '' & number_1 == '') | {non_contradicting(NUMBER)})"
-    f" & (pages_1.str.match('^1[-–]') | pages_2.str.match('^1[-–]'))"
-    f")",
 ]
 
 non_duplicate_conditions = [
@@ -124,8 +117,6 @@ non_duplicate_conditions = [
     f' ~({CONTAINER_TITLE}_2.str.contains("conf") | {CONTAINER_TITLE}_2.str.contains("work") | {CONTAINER_TITLE}_2.str.contains("proc")) ) & '
     f' ( ({CONTAINER_TITLE}_1.str.contains("conf") | {CONTAINER_TITLE}_1.str.contains("work") | {CONTAINER_TITLE}_1.str.contains("proc")) & '
     f'  ~{CONTAINER_TITLE}_1.str.contains("j") ))',
-    # Inproceedings: more sensitive to year mismatches
-    f'({both_entrytypes("inproceedings")} & {mismatch(YEAR)})',
     # TODO : we may need to pre-compute this:
     # https://chatgpt.com/c/695554d0-a548-8332-9921-ec28332246fd
     # NEW: container title appears inside (either) title => treat as non-duplicate with anything else
