@@ -553,6 +553,73 @@
         "pages": "1--17"
       },
       "expected_duplicate": true
+    },
+    {
+      "id": "ejis_1995_book_review_unknown_vs_specific_book_review",
+      "note": "Book review records: one generic ('Book review' with UNKNOWN author), one specific book review -> should not match without extra book-title logic.",
+      "record_a": {
+        "ENTRYTYPE": "article",
+        "ID": "1",
+        "author": "UNKNOWN",
+        "title": "Book review",
+        "journal": "European Journal of Information Systems",
+        "volume": "4",
+        "number": "2",
+        "year": "1995"
+      },
+      "record_b": {
+        "ENTRYTYPE": "article",
+        "ID": "2",
+        "author": "Hammer, Michael and Champy, James",
+        "title": "Book review: Edited by TONY CORNFORD Reengineering the Corporation: A Manifesto for Business Revolution",
+        "journal": "European Journal of Information Systems",
+        "volume": "4",
+        "number": "2",
+        "year": "1995"
+      },
+      "expected_duplicate": false
+    },
+    {
+      "id": "sekar_2024_literature_review_vs_erf_paper",
+      "note": "LR vs ERF paper; related topic but different titles and authorship -> must NOT match.",
+      "record_a": {
+        "ENTRYTYPE": "inproceedings",
+        "ID": "sekar_tech_noteboom_2024_lit_review",
+        "author": "Sekar, Aravindh and Tech, Deb and Noteboom, Cherie",
+        "year": "2024",
+        "title": "Exploring the Impact of Blockchain Integration on Inventory Accuracy and Supply Chain Efficiency -A Literature Review",
+        "booktitle": "Americas Conference on Information Systems"
+      },
+      "record_b": {
+        "ENTRYTYPE": "inproceedings",
+        "ID": "sekar_tech_2024_erf_paper",
+        "author": "Sekar, Aravindh and Tech, Deb",
+        "year": "2024",
+        "title": "Exploratory Study on the Impact of Blockchain Adoption on Inventory Accuracy and Supply Chain Efficiency Emergent Research Forum (ERF) Paper",
+        "booktitle": "Americas Conference on Information Systems"
+      },
+      "expected_duplicate": false
+    },
+    {
+      "id": "powell_1999_two_distinct_pdfs_similar_authors_year",
+      "note": "Same author/year/venue but different titles -> must NOT match.",
+      "record_a": {
+        "ENTRYTYPE": "inproceedings",
+        "ID": "powell_1999_a_proposed_study",
+        "author": "Powell, Anne L",
+        "year": "1999",
+        "title": "A Proposed Study on Commitment in Virtual Teams",
+        "booktitle": "Americas Conference on Information Systems"
+      },
+      "record_b": {
+        "ENTRYTYPE": "inproceedings",
+        "ID": "powell_1999_commitment_virtual_team",
+        "author": "Powell, Anne L",
+        "year": "1999",
+        "title": "Commitment in a Virtual Team",
+        "booktitle": "Americas Conference on Information Systems"
+      },
+      "expected_duplicate": false
     }
   ]
 }
