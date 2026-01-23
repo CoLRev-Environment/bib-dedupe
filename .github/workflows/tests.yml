@@ -27,7 +27,7 @@ jobs:
         run: |
           pip install uv
           uv venv
-          uv pip install -e .[dev] || echo "No dev extra"
+          uv pip install -e .[dev,cli] || echo "No dev extra"
           echo "Dependencies installed successfully"
 
       - name: Setup git
