@@ -6,6 +6,12 @@ entry point. The CLI layers structured subcommands on top of the library
 functions in :mod:`bib_dedupe.bib_dedupe` and aims to provide an ergonomic
 wrapper for common workflows.
 
+To use the cli, install bib-dedupe with the cli option:
+
+.. code-block:: bash
+
+   pip install bib-dedupe[cli]
+
 Quick reference
 ---------------
 

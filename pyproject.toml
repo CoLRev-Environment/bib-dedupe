@@ -2,14 +2,23 @@
 name = "bib-dedupe"
 version = "0.11.0"
 description = "Identify and merge duplicates in bibliographic records"
-authors = [
-    { name = "Gerit Wagner", email = "gerit.wagner@uni-bamberg.de" },
-]
-license = {file = "LICENSE"}
+authors = [{ name = "Gerit Wagner", email = "gerit.wagner@uni-bamberg.de" }]
+license = { file = "LICENSE" }
 readme = "README.md"
-keywords = ["de-duplication", "duplicate", "meta-analysis", "research", "reproducible research", "open science", "literature", "literature review", "systematic review", "systematic literature review"]
+keywords = [
+    "de-duplication",
+    "duplicate",
+    "meta-analysis",
+    "research",
+    "reproducible research",
+    "open science",
+    "literature",
+    "literature review",
+    "systematic review",
+    "systematic literature review",
+]
 classifiers = [
-   "Development Status :: 4 - Beta",
+    "Development Status :: 4 - Beta",
     "License :: OSI Approved :: MIT License",
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
@@ -36,16 +45,15 @@ dependencies = [
 "Documentation" = "https://colrev-environment.github.io/bib-dedupe/"
 
 [project.optional-dependencies]
+cli = ["colrev>=0.15.0"]
+with-data = ["asreview>=1.5", "asreview-datatools"]
 dev = [
     "pylint==3.0.1",
     "pytest>=7.2.1",
     "coverage[toml]>=7.3.2",
     "pytest-skip-slow>=0.0.5",
 ]
-docs = [
-    "sphinx-rtd-theme>=3.0.0",
-    "sphinx-copybutton>=0.5.2",
-]
+docs = ["sphinx-rtd-theme>=3.0.0", "sphinx-copybutton>=0.5.2"]
 
 [project.scripts]
 bib-dedupe = "bib_dedupe.cli:main"
@@ -56,11 +64,7 @@ warn_unused_configs = true
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
-module = [
-    "pkg_resources.*",
-    "requests.*",
-    "requests"
-]
+module = ["pkg_resources.*", "requests.*", "requests"]
 ignore_missing_imports = true
 
 [tool.pylint.'MESSAGES CONTROL']
@@ -68,14 +72,14 @@ disable = ["R0801"]
 
 [tool.coverage.report]
 omit = [
-    "/usr/*", # omit everything in /usr
+    "/usr/*",  # omit everything in /usr
     "/tmp/*",
     "tests/*",
 ]
 
 [tool.coverage.run]
 omit = [
-    "/usr/*", # omit everything in /usr
+    "/usr/*",  # omit everything in /usr
     "/tmp/*",
     "tests/*",
 ]
