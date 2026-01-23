@@ -110,4 +110,6 @@ non_duplicate_conditions = [
     f' ~({CONTAINER_TITLE}_2.str.contains("conf") | {CONTAINER_TITLE}_2.str.contains("work") | {CONTAINER_TITLE}_2.str.contains("proc")) ) & '
     f' ( ({CONTAINER_TITLE}_1.str.contains("conf") | {CONTAINER_TITLE}_1.str.contains("work") | {CONTAINER_TITLE}_1.str.contains("proc")) & '
     f'  ~{CONTAINER_TITLE}_1.str.contains("j") ))',
+    # Inproceedings: more sensitive to year mismatches
+    f'({both_entrytypes("inproceedings")} & {mismatch(YEAR)})',
 ]
