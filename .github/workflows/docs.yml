@@ -27,7 +27,7 @@ jobs:
       run: |
         pip install uv
         uv venv
-        uv pip install -e .[with-data,docs,dev]
+        uv pip install -e .[docs,dev]
         echo "Dependencies installed successfully"
 
     - name: Build documentation

@@ -36,10 +36,6 @@ dependencies = [
 "Documentation" = "https://colrev-environment.github.io/bib-dedupe/"
 
 [project.optional-dependencies]
-with-data = [
-    "asreview>=1.5",
-    "asreview-datatools",
-]
 dev = [
     "pylint==3.0.1",
     "pytest>=7.2.1",

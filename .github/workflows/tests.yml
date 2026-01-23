@@ -30,12 +30,6 @@ jobs:
           uv pip install -e .[dev] || echo "No dev extra"
           echo "Dependencies installed successfully"
 
-      - name: Setup git
-        run: |
-          git config --global user.name "CoLRev update"
-          git config --global user.email "actions@users.noreply.github.com"
-          git config --global url.https://github.com/.insteadOf git://github.com/
-
       - name: Run tests (excluding full_test.py)
         run: uv run pytest --ignore=tests/full_test.py
 
@@ -64,12 +58,6 @@ jobs:
           uv venv
           uv pip install -e .[dev] || echo "No dev extra"
           echo "Dependencies installed successfully"
-
-      - name: Setup git
-        run: |
-          git config --global user.name "CoLRev update"
-          git config --global user.email "actions@users.noreply.github.com"
-          git config --global url.https://github.com/.insteadOf git://github.com/
 
       - name: Run full_test.py
         run: uv run pytest -q tests/full_test.py
