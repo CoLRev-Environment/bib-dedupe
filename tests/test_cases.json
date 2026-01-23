@@ -527,6 +527,32 @@
         "booktitle": "Americas Conference on Information Systems"
       },
       "expected_duplicate": false
+    },
+    {
+      "id": "pare_wagner_prester_jds_2024_vs_2023_online_first",
+      "note": "Likely same article; year/pages differ (online-first vs issue); record_a includes DOI.",
+      "record_a": {
+        "ENTRYTYPE": "article",
+        "ID": "1",
+        "author": "Paré, Guy and Wagner, Gerit and Prester, Julian",
+        "title": "How to develop and frame impactful review articles: key recommendations",
+        "journal": "Journal of Decision Systems",
+        "year": "2024",
+        "volume": "33",
+        "number": "4",
+        "pages": "566--582",
+        "doi": "10.1080/12460125.2023.2197701"
+      },
+      "record_b": {
+        "ENTRYTYPE": "article",
+        "ID": "2",
+        "author": "Paré, Guy and Wagner, Gerit and Prester, Julian",
+        "title": "How to develop and frame impactful review articles: key recommendations",
+        "journal": "Journal of Decision Systems",
+        "year": "2023",
+        "pages": "1--17"
+      },
+      "expected_duplicate": true
     }
   ]
 }
