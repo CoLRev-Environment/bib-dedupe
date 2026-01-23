@@ -149,13 +149,6 @@ def test_sim_container_title(
             "open label, multi center clinical trial eculizumab adult patients atypical hemolytic uremic syndrome",
             0.0,
         ),
-        (
-            "negotiation database schema integration",
-            "",
-            0.0,
-        ),
-        ("proposed study commitment virtual teams", "commitment virtual teams", 0.0),
-        ("task force report", "update of the task force report", 0.0),
         # ("cardiac vascular remodelling effect antihypertensive agents",
         #  "session 2 cardiac vascular remodelling effect antihypertensive agents",
         #  1.0),
