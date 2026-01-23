@@ -620,6 +620,32 @@
         "booktitle": "Americas Conference on Information Systems"
       },
       "expected_duplicate": false
+    },
+    {
+      "id": "omulo_2015_same_doi_title_author_formatting_diff",
+      "note": "Same DOI + identical title/journal/year; author string formatting differs and volume/issue/pagination are inconsistent -> must match.",
+      "record_a": {
+        "ENTRYTYPE": "article",
+        "ID": "id_0031473",
+        "author": "Omulo, S. and Thumbi, S. M. and Njenga, M. K. and Call, D. R.",
+        "year": "2015",
+        "title": "A REVIEW OF 40 YEARS OF ENTERIC ANTIMICROBIAL RESISTANCE RESEARCH IN EASTERN AFRICA: WHAT CAN BE DONE BETTER?",
+        "journal": "Antimicrob Resist Infect Control",
+        "volume": "4 (1) (no pagination)",
+        "doi": "10.1186/s13756-014-0041-4"
+      },
+      "record_b": {
+        "ENTRYTYPE": "article",
+        "ID": "id_0050995",
+        "author": "Omulo Sylvia and Thumbi Samuel M. and Njenga M. Kariuki and Call Douglas R.",
+        "year": "2015",
+        "title": "A REVIEW OF 40 YEARS OF ENTERIC ANTIMICROBIAL RESISTANCE RESEARCH IN EASTERN AFRICA: WHAT CAN BE DONE BETTER?",
+        "journal": "Antimicrob Resist Infect Control",
+        "volume": "4",
+        "doi": "10.1186/s13756-014-0041-4"
+      },
+      "expected_duplicate": true
     }
+
   ]
 }

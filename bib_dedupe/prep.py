@@ -37,9 +37,11 @@ from bib_dedupe.prep_container_title import set_container_title
 from bib_dedupe.prep_doi import prep_doi
 from bib_dedupe.prep_number import prep_number
 from bib_dedupe.prep_pages import prep_pages
+from bib_dedupe.prep_schema import fix_schema_misalignments
 from bib_dedupe.prep_title import prep_title
 from bib_dedupe.prep_volume import prep_volume
 from bib_dedupe.prep_year import prep_year
+
 
 pd.set_option("future.no_silent_downcasting", True)
 
@@ -96,6 +98,8 @@ def prepare_df_split(split_df: pd.DataFrame) -> pd.DataFrame:
     set_container_title(split_df)
 
     split_df["author_full"] = split_df[AUTHOR]
+
+    fix_schema_misalignments(split_df)
 
     for field, function in function_mapping.items():
         split_df[field] = function(split_df[field].values)  # type: ignore
