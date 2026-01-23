@@ -42,7 +42,7 @@ def example_records(tmp_path: Path) -> Path:
 
     repo_root = Path(__file__).resolve().parents[1]
     local_copy = tmp_path / "stroke.csv"
-    shutil.copy(repo_root / "data" / "stroke" / "records_pre_merged.csv", local_copy)
+    shutil.copy(repo_root / "tests" / "ldd-full-benchmark" / "stroke" / "records_pre_merged.csv", local_copy)
 
     with working_directory(tmp_path):
         df = load_example_data("stroke")
