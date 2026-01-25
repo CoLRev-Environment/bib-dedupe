@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import html
 import re
-from typing import Callable, Iterable, List
+from typing import Callable
+from typing import List
 
 import numpy as np
 from number_parser import parse
@@ -34,9 +35,15 @@ TITLE_STOPWORDS = {
 # --- Precompiled regex patterns (faster + cleaner) ---
 
 LANG_TRAILING_RE = re.compile(
-    r"\. (Russian|Chinese|Spanish|Czech|Italian|Polish|Dutch|Ukrainian|German|French|Japanese|Slovak|Hungarian|Portuguese English|Turkish|Norwegian|Portuguese)(\r?\n)?.*$",
+    (
+        r"\. ("
+        r"Russian|Chinese|Spanish|Czech|Italian|Polish|Dutch|Ukrainian|German|French|"
+        r"Japanese|Slovak|Hungarian|Portuguese English|Turkish|Norwegian|Portuguese"
+        r")(\r?\n)?.*$"
+    ),
     flags=re.IGNORECASE,
 )
+
 
 BOILERPLATE_RE = re.compile(
     r"^(withdrawn[.:] )|^(proceedings: )|^(reprint)|( \(review\))$|( \(vol \d+.*\))",
@@ -74,6 +81,7 @@ ROMAN_REPLACEMENTS = [
 
 
 # --- Small helpers ---
+
 
 def remove_erratum_suffix(title: str) -> str:
     lowered = title.lower()
@@ -127,10 +135,12 @@ def _final_trim(title: str) -> str:
     title = SPACES_RE.sub(" ", title).strip()
     return title
 
+
 PRESENTER_INFO_ONLY_RE = re.compile(
     r"^\s*(presenter information)(\s+presenter information)*\s*$",
     flags=re.IGNORECASE,
 )
+
 
 def drop_known_junk_titles(title: str) -> str:
     # If the whole title is just boilerplate (often duplicated), drop it
@@ -140,6 +150,7 @@ def drop_known_junk_titles(title: str) -> str:
 
 
 # --- Main pipeline ---
+
 
 def prep_title(title_array: np.ndarray) -> np.ndarray:
     transforms: List[Callable[[str], str]] = [

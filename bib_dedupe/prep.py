@@ -42,7 +42,6 @@ from bib_dedupe.prep_title import prep_title
 from bib_dedupe.prep_volume import prep_volume
 from bib_dedupe.prep_year import prep_year
 
-
 pd.set_option("future.no_silent_downcasting", True)
 
 REQUIRED_FIELDS = [ID, ENTRYTYPE, TITLE, AUTHOR, YEAR]
@@ -82,12 +81,10 @@ def prepare_df_split(split_df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         The processed dataframe.
     """
+
+    # Substring replacements (anywhere in the string)
     split_df.replace(
         to_replace={
-            "UNKNOWN": "",
-            "n/a": "",
-            "N/A": "",
-            "NA": "",
             "&amp;": "and",
             " & ": " and ",
             " + ": " and ",
@@ -96,6 +93,27 @@ def prepare_df_split(split_df: pd.DataFrame) -> pd.DataFrame:
     )
 
     set_container_title(split_df)
+
+    # Whole-string only replacements (case-insensitive)
+    cols = [
+        AUTHOR,
+        TITLE,
+        CONTAINER_TITLE,
+        YEAR,
+        VOLUME,
+        NUMBER,
+        PAGES,
+        ABSTRACT,
+        DOI,
+    ]
+    # column-wise (Series.str, not DataFrame.str)
+    norm2 = split_df[cols].apply(
+        lambda col: col.astype("string")
+        .str.strip()
+        .str.upper()
+        .str.replace("/", "", regex=False)
+    )
+    split_df[cols] = split_df[cols].mask(norm2.isin(["UNKNOWN", "NA"]), "")
 
     split_df["author_full"] = split_df[AUTHOR]
 

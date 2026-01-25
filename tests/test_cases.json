@@ -645,7 +645,31 @@
         "doi": "10.1186/s13756-014-0041-4"
       },
       "expected_duplicate": true
+    },
+    {
+      "id": "presenter_information_icis_2022_both_placeholder_titles_should_not_match",
+      "note": "Both records have the boilerplate placeholder title (“Presenter Information...”). Even if other fields overlap, this title is non-informative -> should not be treated as a duplicate.",
+      "record_a": {
+        "ENTRYTYPE": "inproceedings",
+        "ID": "006460",
+        "author": "Azkan, Can and Möller, Frederik and Ebel, Martin and Iqbal, Taskeen and Otto, Boris and Poeppelbuss, Jens",
+        "booktitle": "International Conference on Information Systems",
+        "title": "Presenter Information Presenter Information",
+        "year": "2022"
+      },
+      "record_b": {
+        "ENTRYTYPE": "inproceedings",
+        "ID": "006461",
+        "author": "Azkan, Can and Möller, Frederik and Ebel, Martin and Iqbal, Taskeen and Otto, Boris and Poeppelbuss, Jens",
+        "booktitle": "International Conference on Information Systems",
+        "title": "Presenter Information Presenter Information",
+        "year": "2022"
+      },
+      "expected_duplicate": false
     }
+
+
+
 
   ]
 }
