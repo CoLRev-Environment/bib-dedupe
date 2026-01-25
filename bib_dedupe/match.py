@@ -7,7 +7,6 @@ import pandas as pd
 
 import bib_dedupe.match_conditions
 import bib_dedupe.sim
-import bib_dedupe.util
 from bib_dedupe import verbose_print
 from bib_dedupe.constants.colors import END
 from bib_dedupe.constants.colors import GREEN
