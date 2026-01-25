@@ -23,9 +23,21 @@ def mismatch(*keys: str) -> str:
 
 
 def match(*args: str, threshold: float = 1.0) -> str:
+    """
+    Build a pandas-query expression requiring:
+      1) similarity meets the threshold, and
+      2) BOTH raw fields (<arg>_1 and <arg>_2) are non-empty.
+
+    Assumes columns like: doi + doi_1 + doi_2, title + title_1 + title_2, ...
+    """
     if threshold == 1.0:
-        return "&".join(f" ({arg} == {threshold}) " for arg in args)
-    return "&".join(f" ({arg} > {threshold}) " for arg in args)
+        sim_expr = " & ".join(f" ({arg} == 1.0) " for arg in args)
+    else:
+        sim_expr = " & ".join(f" ({arg} > {threshold}) " for arg in args)
+
+    non_empty_expr = " & ".join(f" ({arg}_1 != '' & {arg}_2 != '') " for arg in args)
+
+    return f"({sim_expr}) & ({non_empty_expr})"
 
 
 def non_contradicting(*keys: str) -> str:
