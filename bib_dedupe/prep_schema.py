@@ -181,7 +181,7 @@ def fix_schema_misalignments(split_df: pd.DataFrame) -> None:
         return
 
     # ensure columns exist
-    for col in ("volume", "number", "pages", "year"):
+    for col in ("title", "journal", "volume", "number", "pages", "year"):
         if col not in split_df.columns:
             split_df[col] = ""
 
