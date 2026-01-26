@@ -82,6 +82,91 @@ def _normalize_supplement(token: str) -> str:
     return t.strip()
 
 
+def _norm_loose(text: str) -> str:
+    """Lowercase + remove all non-alphanumerics (incl. spaces) for loose comparison."""
+    if not text:
+        return ""
+    return re.sub(r"[^a-z0-9]+", "", text.lower())
+
+
+def _looks_like_journal_only_title(title: str, journal: str) -> bool:
+    """
+    True if title is essentially the journal name (maybe repeated),
+    optionally with Volume/Issue/Paper numbers.
+    """
+    if not title or not journal:
+        return False
+
+    t = title.strip()
+    j = journal.strip()
+    if not t or not j:
+        return False
+
+    # fast path: exact-ish match after loose normalization
+    j_norm = _norm_loose(j)
+    if not j_norm:
+        return False
+
+    # Strip common trailing "metadata-like" suffixes from title first
+    # e.g., "..., Volume 52 Paper 45", "Vol 52 No 1", "(52) 45", "52 Paper 45"
+    t_wo_meta = re.sub(
+        r"""(?ix)
+        (?:\bvolume\b|\bvol\.?\b|\bissue\b|\bno\.?\b|\bnumber\b|\bpaper\b|\bart\.?\b)?
+        [\s:,\-]*\(?\s*\d+\s*\)?      # a number, optionally parenthesized
+        (?:[\s:,\-]*(?:\bpaper\b|\bart\.?\b)?[\s:,\-]*\d+)?  # optional "paper 45"
+        (?:[\s:,\-]*\(?\s*\d+\s*\)?)? # optional extra number group
+        \s*$
+        """,
+        "",
+        t,
+    ).strip()
+
+    # Remove obvious duplicate journal repetitions inside the title
+    # by collapsing repeated occurrences of the journal string (case-insensitive).
+    # We'll do this loosely by repeatedly removing the journal token sequence.
+    base = t_wo_meta
+    # If journal is very short, avoid aggressive stripping
+    if len(j_norm) < 8:
+        return False
+
+    # Build a tolerant regex for the journal words (allow variable spaces/punct)
+    # Example: "Communications of the Association for Information Systems"
+    journal_words = [w for w in re.split(r"\s+", j) if w]
+    if not journal_words:
+        return False
+    journal_pat = r"(?i)" + r"[\W_]*".join(map(re.escape, journal_words))
+
+    # Remove one-or-more occurrences of the journal phrase from the title
+    # Build a tolerant regex for the journal words (allow variable spaces/punct)
+    journal_words = [w for w in re.split(r"\s+", j) if w]
+    journal_pat = r"[\W_]*".join(map(re.escape, journal_words))
+
+    # Remove one-or-more occurrences of the journal phrase from the title
+    stripped = re.sub(rf"(?:{journal_pat})+", "", base, flags=re.IGNORECASE).strip()
+
+    # After stripping journal phrase(s) and trailing meta, title should be empty
+    # (or just punctuation/numbers)
+    stripped_norm = re.sub(r"[^a-z0-9]+", "", stripped.lower())
+
+    # Allow remaining digits only (e.g., "52paper45" already removed, but be safe)
+    if stripped_norm == "":
+        return True
+    if stripped_norm.isdigit():
+        return True
+
+    # Also accept if what's left is only "volume"/"paper"/"issue" tokens (rare)
+    if re.fullmatch(
+        r"(?i)\W*(volume|vol|issue|no|number|paper|art|article)\W*", stripped
+    ):
+        return True
+
+    # Finally: if the meta-stripped title is basically the journal name repeated
+    if _norm_loose(base) == j_norm or _norm_loose(base) == (j_norm * 2):
+        return True
+
+    return False
+
+
 def fix_schema_misalignments(split_df: pd.DataFrame) -> None:
     """
     Fix common schema misalignments where volume/number/pages contain mixed content.
@@ -212,5 +297,21 @@ def fix_schema_misalignments(split_df: pd.DataFrame) -> None:
             .eq("no pagination"),
             col,
         ] = ""
+
+    # 8) Remove titles that are effectively just the journal name (possibly repeated)
+    mask_drop_title = split_df.apply(
+        lambda r: _looks_like_journal_only_title(
+            str(r.get("title", "")).strip(),
+            str(r.get("journal", "")).strip(),
+        ),
+        axis=1,
+    )
+
+    if mask_drop_title.any():
+        split_df.loc[mask_drop_title, "title"] = ""
+
+    # final cleanup
+    split_df["title"] = s("title")
+    split_df["journal"] = s("journal")
 
     return

@@ -645,6 +645,29 @@
         "doi": "10.1186/s13756-014-0041-4"
       },
       "expected_duplicate": true
+    },
+    {
+      "id": "hu_moody_galletta_2023_title_is_journal_repeated_should_be_removed",
+      "note": "Title contains only repeated journal name plus 'Volume 52 Paper 41' boilerplate.",
+      "record_a": {
+        "ENTRYTYPE": "article",
+        "ID": "RaoMcnaughtonVermaUNKNOWN",
+        "author": "Rao, Lila and Mcnaughton, Maurice and Verma, Sameer",
+        "year": "2023",
+        "journal": "Communications of the Association for Information Systems",
+        "title": "Communications of the Association for Information Systems Communications of the Association for Information Systems Volume 52 Paper 45",
+        "volume": "52"
+      },
+      "record_b": {
+        "ENTRYTYPE": "article",
+        "ID": "HuMoodyGalletta2023",
+        "author": "Hu, Han-Fen and Moody, Gregory D and Galletta, Dennis F",
+        "year": "2023",
+        "journal": "Communications of the Association for Information Systems",
+        "title": "Communications of the Association for Information Systems Communications of the Association for Information Systems Volume 52 Paper 41",
+        "volume": "52"
+      },
+      "expected_duplicate": false
     }
 
   ]
