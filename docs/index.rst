@@ -95,3 +95,5 @@ For advanced use cases, it is also possible to complete and customize each step 
    installation
    usage
    api
+   architecture
+   benchmark
