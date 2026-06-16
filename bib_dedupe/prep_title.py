@@ -2,6 +2,7 @@
 """Preparation of title field"""
 import html
 import re
+import unicodedata
 
 import numpy as np
 from number_parser import parse
@@ -42,9 +43,62 @@ def remove_erratum_suffix(title: str) -> str:
     return title
 
 
+def normalize_unicode_punctuation(title: str) -> str:
+    """Normalize Unicode punctuation and apostrophes."""
+
+    title = unicodedata.normalize("NFKD", title)
+
+    replacements = {
+        "’": "'",
+        "‘": "'",
+        "`": "'",
+        "´": "'",
+        "“": '"',
+        "”": '"',
+        "„": '"',
+        "–": "-",
+        "—": "-",
+        "−": "-",
+        "…": "...",
+        "\u00A0": " ",  # non-breaking space
+    }
+
+    for source, target in replacements.items():
+        title = title.replace(source, target)
+
+    return title
+
+
+def normalize_latex_capitalization(title: str) -> str:
+    """Normalize LaTeX capitalization markup.
+
+    Examples:
+    {P}rinciples -> Principles
+    {I}{C}{A}{S}{R} -> ICASR
+    """
+
+    # Replace single protected characters
+    title = re.sub(r"\{([A-Za-z0-9])\}", r"\1", title)
+
+    # Remove remaining braces
+    title = title.replace("{", "").replace("}", "")
+
+    return title
+
+
 # flake8: noqa: E501
 # pylint: disable=line-too-long
 def prep_title(title_array: np.array) -> np.array:
+    # Normalize Unicode punctuation and apostrophes
+    title_array = np.array(
+        [normalize_unicode_punctuation(title) for title in title_array]
+    )
+
+    # Normalize LaTeX capitalization markup
+    title_array = np.array(
+        [normalize_latex_capitalization(title) for title in title_array]
+    )
+
     # Remove language and contents after if "Russian" or "Chinese" followed by a newline
     title_array = np.array(
         [
@@ -109,6 +163,7 @@ def prep_title(title_array: np.array) -> np.array:
 
     # Remove html tags
     title_array = np.array([re.sub(r"<.*?>", " ", title) for title in title_array])
+
     # Replace html special entities
     title_array = np.array([html.unescape(title) for title in title_array])
 
@@ -124,6 +179,7 @@ def prep_title(title_array: np.array) -> np.array:
             for title in title_array
         ]
     )
+
     # Remove erratum suffix
     # https://www.nlm.nih.gov/bsd/policy/errata.html
     title_array = np.array([remove_erratum_suffix(title) for title in title_array])
@@ -179,4 +235,5 @@ def prep_title(title_array: np.array) -> np.array:
     title_array = np.array(
         [re.sub(r"\s+", " ", title).rstrip().lstrip() for title in title_array]
     )
+
     return title_array
