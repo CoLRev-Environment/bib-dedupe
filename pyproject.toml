@@ -45,6 +45,7 @@ dev = [
 docs = [
     "sphinx-rtd-theme>=3.0.0",
     "sphinx-copybutton>=0.5.2",
+    "sphinxcontrib.mermaid>=2.0.0"
 ]
 
 [project.scripts]
