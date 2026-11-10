@@ -92,16 +92,37 @@ Import file formats
 -----------------------
 
 BibDedupe can process any bibliographic data set once it is in a pandas DataFrame, and contains the columns listed above.
-Import functions are available as part of the `CoLRev project <https://github.com/CoLRev-Environment/colrev>`_.
+For importing common bibliographic formats, use the standalone `bibliography-io <https://github.com/CoLRev-Environment/bibliography-io>`_ package.
+It can read BibTeX, RIS, CSV, Excel, EndNote, NBIB, and JSON files; Markdown reference-list parsing is also available with its optional Markdown backend.
+BibDedupe does not require `bibliography-io` to be installed.
 
-..
-  Given that each database follows its own schema with slightly different column names, import functionality must be customized to the specific database.
+Install bibliography-io with the Excel extra to enable its pandas DataFrame helper (and Excel file support):
+
+.. code-block:: console
+
+   python -m pip install "bibliography-io[excel]"
+
+Use `load_df()` to load and normalize a supported file directly into a DataFrame.
+The format is inferred from the filename extension, so change the path to load a different format:
 
 .. code-block:: python
-   import colrev.loader.load_utils
-   from pathlib import Path
 
-   # import bib, ris, csv, xlsx, json, ...
-   records_df = colrev.loader.load_utils.load_df(filename=Path("records.bib"))
+   from bibliography_io import load_df
+   from bib_dedupe.bib_dedupe import merge
+
+   records_df = load_df("references.ris")  # also accepts .bib, .csv, .xlsx, .enl, .nbib, and .json
+
+   merged_df = merge(records_df)
+
+If the filename extension is ambiguous or does not match the file format, pass `format` explicitly:
+
+.. code-block:: python
+
+   records_df = load_df("references.txt", format="ris")
+
+`load_df()` applies generic normalization unless a source is specified.
+Database exports can differ in their field conventions, so check that the loaded DataFrame contains BibDedupe's required fields (including `ID`, `ENTRYTYPE`, `author`, `title`, and `year`); source-specific normalization may be needed for some exports.
+Markdown reference-list parsing is also available with the optional Markdown backend and requires a GROBID service managed by the caller.
+See the `bibliography-io usage documentation <https://colrev-environment.github.io/bibliography-io/usage.html>`_ for source options, the complete format support table, format limitations, and optional dependencies.
 
 .. _example datasets: https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data
