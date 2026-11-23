@@ -34,11 +34,34 @@ Quick reference
 Input and output formats
 ------------------------
 
-The CLI inspects file extensions to determine how to load or persist
-:class:`pandas.DataFrame` objects. CSV is supported out of the box. Parquet files
-(``.parquet`` or ``.pq``) are supported when an appropriate pandas backend (for
-example ``pyarrow``) is installed. JSON files are read and written in ``records``
-orientation. Unknown extensions trigger a helpful error and non-zero exit code.
+Bibliographic records used by ``merge``, ``export-maybe``, and
+``match --records`` are loaded and written with `bibliography-io`_. Supported
+record inputs include BibTeX (``.bib``), RIS (``.ris``), CSV (``.csv``), ENL,
+NBIB, and JSON. Excel input requires the ``bibliography-io[excel]`` extra;
+Markdown reference-list input requires the ``bibliography-io[markdown]`` extra
+and a running GROBID service. Record output is supported in BibTeX, RIS, CSV,
+ENL (``.enl``), Markdown tables, and Excel (``.xlsx`` with the Excel extra).
+JSON and NBIB are input-only formats, and Parquet is not supported for
+bibliographic records. BibTeX output preserves ``colrev_origin`` as a list.
+RIS and ENL can omit fields their formats cannot represent; use BibTeX or CSV
+when preserving arbitrary metadata and provenance is required.
+
+Record IDs come from the normalized records returned by bibliography-io,
+including sequential IDs it generates for some inputs. IDs must be non-empty
+and unique. On ``merge``, ``export-maybe``, and ``match --export-maybe``, use
+``--id-field FIELD`` to select a different normalized field as the ID. The
+mutually exclusive ``--generate-ids`` option generates sequential IDs only if
+the loader returns no usable IDs; it does not replace IDs supplied or generated
+by bibliography-io. These options apply after bibliography-io loading and cannot
+override a load error such as duplicate IDs rejected during normalization.
+
+The stepwise ``prep``, ``block``, ``match``, and ``import-maybe`` commands use
+DataFrame files instead: CSV is supported, Parquet (``.parquet`` or ``.pq``)
+requires a pandas backend such as ``pyarrow``, and JSON is read/written in
+records orientation. Unknown extensions produce a helpful error and non-zero
+exit code.
+
+.. _bibliography-io: https://github.com/CoLRev-Environment/bibliography-io
 
 Subcommands
 -----------

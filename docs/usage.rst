@@ -89,19 +89,18 @@ Data from the `example datasets`_ can be loaded as follows:
 
 
 Import file formats
------------------------
+-------------------
 
-BibDedupe can process any bibliographic data set once it is in a pandas DataFrame, and contains the columns listed above.
-Import functions are available as part of the `CoLRev project <https://github.com/CoLRev-Environment/colrev>`_.
-
-..
-  Given that each database follows its own schema with slightly different column names, import functionality must be customized to the specific database.
+BibDedupe can process bibliographic records once they are in a pandas
+DataFrame with the columns listed above. For file-based imports, the CLI uses
+`bibliography-io <https://github.com/CoLRev-Environment/bibliography-io>`_;
+install it with ``pip install 'bib-dedupe[cli]'``. The same API can be used
+directly from Python:
 
 .. code-block:: python
-   import colrev.loader.load_utils
-   from pathlib import Path
 
-   # import bib, ris, csv, xlsx, json, ...
-   records_df = colrev.loader.load_utils.load_df(filename=Path("records.bib"))
+   from bibliography_io import load_df
+
+   records_df = load_df("records.bib")
 
 .. _example datasets: https://github.com/CoLRev-Environment/bib-dedupe/tree/main/data

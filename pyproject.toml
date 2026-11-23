@@ -45,7 +45,7 @@ dependencies = [
 "Documentation" = "https://colrev-environment.github.io/bib-dedupe/"
 
 [project.optional-dependencies]
-cli = ["colrev>=0.15.0"]
+cli = ["bibliography-io>=0.4.0"]
 with-data = ["asreview>=1.5", "asreview-datatools"]
 dev = [
     "pylint==3.0.1",

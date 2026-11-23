@@ -5,6 +5,7 @@ import os
 import shutil
 import subprocess
 import sys
+from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -15,7 +16,7 @@ from bib_dedupe.bib_dedupe import load_example_data
 
 
 @contextmanager
-def working_directory(path: Path) -> None:
+def working_directory(path: Path) -> Iterator[None]:
     """Temporarily change the working directory for the duration of a context."""
 
     previous = Path.cwd()
@@ -42,7 +43,14 @@ def example_records(tmp_path: Path) -> Path:
 
     repo_root = Path(__file__).resolve().parents[1]
     local_copy = tmp_path / "stroke.csv"
-    shutil.copy(repo_root / "tests" / "ldd-full-benchmark" / "stroke" / "records_pre_merged.csv", local_copy)
+    shutil.copy(
+        repo_root
+        / "tests"
+        / "ldd-full-benchmark"
+        / "stroke"
+        / "records_pre_merged.csv",
+        local_copy,
+    )
 
     with working_directory(tmp_path):
         df = load_example_data("stroke")

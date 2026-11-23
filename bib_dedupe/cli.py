@@ -8,11 +8,10 @@ import json
 import re
 import sys
 import typing
+from collections.abc import Sequence
 from dataclasses import dataclass
 from importlib import metadata
 from pathlib import Path
-from typing import Optional
-from typing import Sequence
 
 import pandas as pd
 
@@ -25,15 +24,6 @@ from bib_dedupe.bib_dedupe import match
 from bib_dedupe.bib_dedupe import merge
 from bib_dedupe.bib_dedupe import prep
 
-# --- colrev availability check (exit otherwise) ------------------------------
-try:
-    import colrev.loader.load_utils as _colrev_load
-    import colrev.writer.write_utils as _colrev_write
-
-    _HAS_COLREV = True
-except Exception:  # broad on purpose: any import issue means it's unavailable
-    _HAS_COLREV = False
-
 
 class CLIError(Exception):
     """Raised for command-line usage errors."""
@@ -44,27 +34,140 @@ class RuntimeOptions:
     """Common runtime options passed to library functions."""
 
     cpu: int
-    verbosity_level: Optional[int]
-
-
-DataFrame = pd.DataFrame
+    verbosity_level: int | None
 
 
 # ----------------------------- I/O helpers --------------------------------- #
-def read_records_colrev(path: Path) -> DataFrame:
-    """Load bibliographic records via colrev and return a pandas DataFrame."""
+def _bibliography_io() -> typing.Any:
+    """Import the optional bibliography I/O dependency when it is needed."""
     try:
-        records = _colrev_load.load(filename=str(path))
-    except Exception as exc:
-        raise CLIError(f"Failed to load records via colrev from {path}: {exc}") from exc
-    try:
-        # return pd.DataFrame.from_records(list(records))
-        return pd.DataFrame.from_dict(records, orient="index")
-    except Exception as exc:
-        raise CLIError(f"Failed to convert colrev records to DataFrame: {exc}") from exc
+        import bibliography_io
+    except ImportError as exc:
+        raise CLIError(
+            "Bibliographic file I/O requires 'bibliography-io'. "
+            "Install it with `pip install 'bib-dedupe[cli]'`."
+        ) from exc
+    return bibliography_io
 
 
-def read_df(path: Path) -> DataFrame:
+def _validated_record_ids(values: pd.Series, *, field: str, path: Path) -> pd.Series:
+    """Return normalized IDs after checking for blanks and duplicates."""
+    ids = values.astype("string").str.strip()
+    missing = ids.isna() | ids.eq("") | ids.str.casefold().eq("nan")
+    if missing.any():
+        raise CLIError(f"Record ID field {field!r} contains empty values in {path}.")
+
+    duplicates = ids[ids.duplicated(keep=False)]
+    if not duplicates.empty:
+        duplicate_id = duplicates.iloc[0]
+        raise CLIError(
+            f"Record ID field {field!r} contains duplicate value {duplicate_id!r} in {path}."
+        )
+    return ids
+
+
+def read_records(
+    path: Path,
+    *,
+    id_field: str | None = None,
+    generate_ids: bool = False,
+) -> pd.DataFrame:
+    """Load records and validate or explicitly select their record IDs."""
+    if id_field is not None and generate_ids:
+        raise CLIError("--id-field and --generate-ids cannot be used together.")
+
+    bibliography_io = _bibliography_io()
+    try:
+        records = bibliography_io.load(path)
+        if path.suffix.lower() == ".bib":
+            structured_fields = {
+                "colrev_origin",
+                "colrev_masterdata_provenance",
+                "colrev_data_provenance",
+            }
+            raw_records = bibliography_io.load_raw(
+                path,
+                list_fields={"colrev_origin"},
+                mapping_fields=structured_fields - {"colrev_origin"},
+            )
+            for raw_record in raw_records:
+                record_id = raw_record.get("ID")
+                if record_id in records:
+                    for field in structured_fields:
+                        if field in raw_record:
+                            records[record_id][field] = raw_record[field]
+        records_df = pd.DataFrame.from_dict(records, orient="index")
+    except Exception as exc:
+        raise CLIError(
+            f"Failed to load bibliographic records from {path}: {exc}"
+        ) from exc
+
+    if id_field is not None:
+        if id_field not in records_df.columns:
+            raise CLIError(
+                f"ID field {id_field!r} was not found in records loaded from {path}."
+            )
+        ids = _validated_record_ids(records_df[id_field], field=id_field, path=path)
+    else:
+        ids = None
+        if "ID" in records_df.columns:
+            try:
+                ids = _validated_record_ids(records_df["ID"], field="ID", path=path)
+            except CLIError:
+                if not generate_ids:
+                    raise
+
+        if ids is None:
+            if not generate_ids:
+                raise CLIError(
+                    f"No usable ID field was returned for records loaded from {path}. "
+                    "Specify --id-field or opt in with --generate-ids."
+                )
+            ids = pd.Series(
+                [f"{number:06d}" for number in range(1, len(records_df) + 1)],
+                index=records_df.index,
+                dtype="string",
+            )
+        else:
+            expected_ids = pd.Series(
+                records_df.index, index=records_df.index, dtype="string"
+            )
+            if not ids.equals(expected_ids):
+                if not generate_ids:
+                    raise CLIError(
+                        f"Record IDs loaded from {path} do not match their index."
+                    )
+                ids = None
+
+        if ids is None:
+            ids = pd.Series(
+                [f"{number:06d}" for number in range(1, len(records_df) + 1)],
+                index=records_df.index,
+                dtype="string",
+            )
+
+    records_df["ID"] = ids.astype(str)
+    records_df.index = pd.Index(records_df["ID"].to_numpy())
+
+    # Generic normalization omits fields whose values are empty in every row.
+    # Manual-review export expects these bibliographic columns to be present.
+    for column in maybe_cases.FIELDS_TO_EXPORT[3:]:
+        if column not in records_df.columns:
+            records_df[column] = ""
+
+    return records_df
+
+
+def _read_command_records(path: Path, args: argparse.Namespace) -> pd.DataFrame:
+    """Load records using ID options from the parsed command arguments."""
+    return read_records(
+        path,
+        id_field=getattr(args, "id_field", None),
+        generate_ids=getattr(args, "generate_ids", False),
+    )
+
+
+def read_df(path: Path) -> pd.DataFrame:
     """Load a dataframe from *path* based on its file extension."""
 
     if not path.exists():
@@ -97,7 +200,7 @@ def _ensure_output_path(path: Path) -> Path:
     return path.with_suffix(".csv")
 
 
-def parse_colrev_origin(value: typing.Any) -> typing.List[str]:
+def parse_colrev_origin(value: typing.Any) -> list[str]:
     """Return a clean list like ['dblp.bib/000591', 'files.bib/000037'] from messy inputs."""
     # Already a list → normalize & dedupe
     if isinstance(value, list):
@@ -141,7 +244,11 @@ def parse_colrev_origin(value: typing.Any) -> typing.List[str]:
         s = s[1:-1].strip()
 
     # Try proper parsers first
-    for parser in (json.loads, ast.literal_eval):
+    parsers: tuple[typing.Callable[[str], typing.Any], ...] = (
+        json.loads,
+        ast.literal_eval,
+    )
+    for parser in parsers:
         try:
             parsed = parser(s)
             if isinstance(parsed, list):
@@ -160,7 +267,7 @@ def parse_colrev_origin(value: typing.Any) -> typing.List[str]:
     return out
 
 
-def maybe_cast_literal(value):
+def maybe_cast_literal(value: typing.Any) -> typing.Any:
     """Parse list/dict-ish strings (incl. BibTeX double-braced) into Python objects."""
     if not isinstance(value, str):
         return value
@@ -198,39 +305,60 @@ def maybe_cast_literal(value):
         return value
 
 
-def write_records_colrev(df: DataFrame, path: Path) -> None:
-    """Persist bibliographic records via colrev writer based on *path* suffix."""
+def write_records(df: pd.DataFrame, path: Path) -> None:
+    """Persist bibliographic records via bibliography-io based on the suffix."""
+    bibliography_io = _bibliography_io()
     output_path = _ensure_output_path(path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    is_bibtex = output_path.suffix.lower() == ".bib"
     try:
-        records = df.to_dict(orient="index")
+        records: dict[str, dict[str, typing.Any]] = {}
+        mapping_fields = {"colrev_masterdata_provenance", "colrev_data_provenance"}
+        for record in df.to_dict(orient="records"):
+            raw_id = record.get("ID")
+            if raw_id is None or (not isinstance(raw_id, str) and pd.isnull(raw_id)):
+                raise CLIError("Every output record must have a non-empty ID.")
+            rec_id = str(raw_id).strip()
+            if not rec_id:
+                raise CLIError("Every output record must have a non-empty ID.")
+            if rec_id in records:
+                raise CLIError(f"Duplicate output record ID: {rec_id}")
 
-        for rec_id, record in records.items():
-            # Normalize colrev_origin
-            if "colrev_origin" in record:
-                record["colrev_origin"] = parse_colrev_origin(record["colrev_origin"])
-                # keep origin in sync for CoLRev
-                if isinstance(record["colrev_origin"], list):
-                    record["origin"] = record["colrev_origin"]
-
-            for key in list(record.keys()):
-                record[key] = maybe_cast_literal(record[key])
-
-            for key in list(record.keys()):
-                if isinstance(record[key], (list, dict)):
+            clean_record: dict[str, typing.Any] = {}
+            for key, value in record.items():
+                if key == "ID":
+                    clean_record[key] = rec_id
                     continue
-                if pd.isnull(record[key]) or record[key] == "" or record[key] == "nan":
-                    records[rec_id].pop(key)
-            records[rec_id].pop("origin", None)  # remove 'origin' if present
+                if key == "colrev_origin":
+                    origins = parse_colrev_origin(value)
+                    clean_record[key] = origins if is_bibtex else ";".join(origins)
+                    continue
+                if is_bibtex and key in mapping_fields:
+                    value = maybe_cast_literal(value)
+                elif not is_bibtex and isinstance(value, (list, dict)):
+                    value = str(value)
+                if value is None or (isinstance(value, str) and value in {"", "nan"}):
+                    continue
+                if not isinstance(value, (list, dict)) and pd.isnull(value):
+                    continue
+                clean_record[key] = value
+            records[rec_id] = clean_record
 
-        _colrev_write.write_file(records, filename=str(output_path))
+        bibliography_io.write(
+            records,
+            path=output_path,
+            list_fields={"colrev_origin"} if is_bibtex else (),
+            mapping_fields=mapping_fields if is_bibtex else (),
+        )
+    except CLIError:
+        raise
     except Exception as exc:
         raise CLIError(
-            f"Failed to write records via colrev to {output_path}: {exc}"
+            f"Failed to write bibliographic records to {output_path}: {exc}"
         ) from exc
 
 
-def write_df(df: DataFrame, path: Path) -> None:
+def write_df(df: pd.DataFrame, path: Path) -> None:
     """Persist *df* to *path*, inferring the format from the file suffix."""
 
     output_path = _ensure_output_path(path)
@@ -258,7 +386,7 @@ def write_df(df: DataFrame, path: Path) -> None:
 
 
 # ----------------------------- options helpers ------------------------------ #
-def _resolve_verbosity(args: argparse.Namespace) -> Optional[int]:
+def _resolve_verbosity(args: argparse.Namespace) -> int | None:
     verbosity_level = getattr(args, "verbosity_level", None)
     quiet = getattr(args, "quiet", False)
     verbose = getattr(args, "verbose", False)
@@ -293,12 +421,12 @@ def _describe_maybe_cases() -> str:
 # ----------------------------- commands ------------------------------------- #
 def run_merge(args: argparse.Namespace) -> int:
     options = _collect_runtime_options(args)
-    records_df = read_records_colrev(Path(args.input))
+    records_df = _read_command_records(Path(args.input), args)
     n_input = len(records_df)
 
-    matched_df: Optional[DataFrame] = None
-    duplicate_id_sets: Optional[list] = None
-    pairs_df: Optional[DataFrame] = None
+    matched_df: pd.DataFrame | None = None
+    duplicate_id_sets: list | None = None
+    pairs_df: pd.DataFrame | None = None
 
     if args.export_maybe:
         prep_df = prep(
@@ -346,7 +474,7 @@ def run_merge(args: argparse.Namespace) -> int:
             origin_column="colrev_origin",
         )
 
-    write_records_colrev(merged_df, Path(args.output))
+    write_records(merged_df, Path(args.output))
 
     if args.stats:
         stats_lines = [
@@ -388,6 +516,11 @@ def run_block(args: argparse.Namespace) -> int:
 
 
 def run_match(args: argparse.Namespace) -> int:
+    if (args.id_field or args.generate_ids) and not args.export_maybe:
+        raise CLIError(
+            "--id-field and --generate-ids require --export-maybe and --records."
+        )
+
     options = _collect_runtime_options(args)
     pairs_df = read_df(Path(args.input))
     matched_df = match(
@@ -400,7 +533,7 @@ def run_match(args: argparse.Namespace) -> int:
             raise CLIError(
                 "--export-maybe requires --records to provide the original records."
             )
-        records_df = read_records_colrev(Path(args.records))
+        records_df = _read_command_records(Path(args.records), args)
         export_maybe(
             records_df,
             matched_df=matched_df,
@@ -413,7 +546,7 @@ def run_match(args: argparse.Namespace) -> int:
 
 def run_export_maybe(args: argparse.Namespace) -> int:
     options = _collect_runtime_options(args)
-    records_df = read_records_colrev(Path(args.records))
+    records_df = _read_command_records(Path(args.records), args)
     matches_df = read_df(Path(args.matches))
     export_maybe(
         records_df,
@@ -446,6 +579,20 @@ def run_version(_: argparse.Namespace) -> int:
 
 
 # ----------------------------- CLI wiring ----------------------------------- #
+def _add_record_id_arguments(parser: argparse.ArgumentParser) -> None:
+    """Add mutually exclusive options for choosing or generating record IDs."""
+    id_group = parser.add_mutually_exclusive_group()
+    id_group.add_argument(
+        "--id-field",
+        help="Use this normalized input field as the record ID.",
+    )
+    id_group.add_argument(
+        "--generate-ids",
+        action="store_true",
+        help="Generate sequential IDs only if loaded records have no usable IDs.",
+    )
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="bib-dedupe",
@@ -478,6 +625,7 @@ def build_parser() -> argparse.ArgumentParser:
         parents=[common_parser, cpu_parser],
         help="Run the full deduplication workflow and write merged records.",
     )
+    _add_record_id_arguments(merge_parser)
     merge_parser.add_argument(
         "-i", "--input", required=True, help="Input records file path."
     )
@@ -530,6 +678,7 @@ def build_parser() -> argparse.ArgumentParser:
         parents=[common_parser, cpu_parser],
         help="Score candidate pairs and classify matches.",
     )
+    _add_record_id_arguments(match_parser)
     match_parser.add_argument(
         "-i", "--input", required=True, help="Input candidate pairs file path."
     )
@@ -552,6 +701,7 @@ def build_parser() -> argparse.ArgumentParser:
         parents=[common_parser],
         help="Export maybe cases for manual review.",
     )
+    _add_record_id_arguments(export_maybe_parser)
     export_maybe_parser.add_argument(
         "--records", required=True, help="Path to the records file."
     )
@@ -581,16 +731,7 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main(argv: Optional[Sequence[str]] = None) -> int:
-    # Enforce colrev requirement globally (exit otherwise)
-    if not _HAS_COLREV:
-        print(
-            "Error: 'colrev' is required but not installed. "
-            "Please install it (e.g., `pip install colrev`) and retry.",
-            file=sys.stderr,
-        )
-        return 2
-
+def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
