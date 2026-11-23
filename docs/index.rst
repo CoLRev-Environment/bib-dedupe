@@ -60,6 +60,8 @@ The BibDedupe library can be used in different ways, including Python scripts, J
    # Get the merged_df
    merged_df = merge(records_df)
 
+For other import formats, see the `import guidance in Usage <usage.html#import-file-formats>`_.
+
 
 For advanced use cases, it is also possible to complete and customize each step individually
 
