@@ -23,15 +23,33 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install uv and dependencies
+      - name: Install uv and CLI test dependencies
         run: |
           pip install uv
           uv venv
-          uv pip install -e .[dev] || echo "No dev extra"
-          echo "Dependencies installed successfully"
+          uv pip install -e ".[dev,cli]"
 
       - name: Run tests (excluding full_test.py)
         run: uv run pytest --ignore=tests/full_test.py
+
+  no-cli-extra:
+    name: CLI without optional I/O dependency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install base and development dependencies
+        run: |
+          pip install uv
+          uv venv
+          uv pip install -e ".[dev]"
+
+      - name: Test commands without bibliography-io
+        run: BIB_DEDUPE_EXPECT_NO_BIBLIOGRAPHY_IO=1 uv run pytest -q tests/cli_optional_test.py
 
   full-test:
     name: Full test (${{ matrix.platform }}, py${{ matrix.python-version }})
@@ -52,12 +70,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install uv and dependencies
+      - name: Install uv and development dependencies
         run: |
           pip install uv
           uv venv
-          uv pip install -e .[dev] || echo "No dev extra"
-          echo "Dependencies installed successfully"
+          uv pip install -e ".[dev]"
 
       - name: Run full_test.py
         run: uv run pytest -q tests/full_test.py

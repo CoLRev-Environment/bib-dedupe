@@ -1,13 +1,12 @@
 #! /usr/bin/env python
 """
 Debug for dedupe — pick a CSV in the current directory (interactive),
-then load records via CoLRev and continue with prep/block/match.
+then load records via bibliography-io and continue with prep/block/match.
 """
 from __future__ import annotations
 
 from pathlib import Path
 
-import colrev.loader.load_utils
 import inquirer
 import pandas as pd
 
@@ -56,8 +55,15 @@ def _select_csv_in_cwd() -> Path:
     return Path(str(selected))
 
 
-def _load_records_df_via_colrev(filename: Path) -> pd.DataFrame:
-    records = colrev.loader.load_utils.load(filename=str(filename))
+def _load_records_df(filename: Path) -> pd.DataFrame:
+    try:
+        import bibliography_io
+    except ImportError as exc:
+        raise RuntimeError(
+            "The debug tool requires bibliography-io; install `bib-dedupe[cli]`."
+        ) from exc
+
+    records = bibliography_io.load(filename)
     df = pd.DataFrame.from_dict(records, orient="index")
 
     # Only add index as ID if there isn't already an ID column
@@ -83,7 +89,7 @@ def _select_components(records_df: pd.DataFrame) -> list[str]:
 
 def debug() -> None:
     selected_csv = _select_csv_in_cwd()
-    records_df = _load_records_df_via_colrev(selected_csv)
+    records_df = _load_records_df(selected_csv)
 
     selected_components = _select_components(records_df)
     subset_df = records_df[records_df["component"].isin(selected_components)].copy()
